@@ -3,6 +3,7 @@ nixPkgs = ["nodejs_20", "php82", "composer"]
 
 [phases.install]
 cmds = [
+  "rm -rf node_modules package-lock.json",
   "composer install --no-scripts --no-interaction",
   "npm install"
 ]
