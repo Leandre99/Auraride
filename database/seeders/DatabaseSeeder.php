@@ -15,11 +15,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed Vehicle Types first
+        $this->call(VehicleTypeSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create Client
+        User::create([
+            'name' => 'John Client',
+            'email' => 'client@auraride.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'client',
+        ]);
+
+        // Create Driver
+        $driver = User::create([
+            'name' => 'Michael Driver',
+            'email' => 'driver@auraride.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'driver',
+        ]);
+
+        // Create Vehicle for the Driver
+        \App\Models\Vehicle::create([
+            'user_id' => $driver->id,
+            'vehicle_type_id' => 1, // Aura Volt
+            'model' => 'Tesla Model S',
+            'plate_number' => 'NXT GEN',
+            'color' => 'Neon Cyan',
+        ]);
+
+        // Create Admin
+        User::create([
+            'name' => 'Aura Admin',
+            'email' => 'admin@auraride.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'admin',
         ]);
     }
 }

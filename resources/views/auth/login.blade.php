@@ -1,79 +1,66 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Next-Gen Transit')
+@section('title', 'Connexion - AuraRide')
 
 @push('styles')
 <style>
-    .auth-container {
+    .auth-fixed-wrapper {
+        position: fixed;
+        top: 90px;
+        left: 0;
+        width: 100vw;
+        height: calc(100vh - 90px);
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 80px); /* Subtract navbar height */
-        position: relative;
+        background: radial-gradient(circle at top right, #EBF2FF, transparent);
         z-index: 10;
+        overflow: hidden;
     }
     
-    .auth-panel {
+    .auth-card {
         width: 100%;
-        max-width: 400px;
-        padding: 40px;
-    }
-    
-    .input-dark {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #FFF;
-        padding: 16px 20px;
-        border-radius: 12px;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .input-dark:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--electric-cyan);
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
-        color: #FFF;
-        outline: none;
-    }
-    
-    .input-dark::placeholder {
-        color: var(--text-muted);
+        max-width: 420px;
+        padding: 50px;
+        background: #FFF;
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-light);
     }
 </style>
 @endpush
 
 @section('content')
-<!-- Abstract Animated Background (Optional, using Leaflet map div if it's placed in layouts maybe, but here just the form) -->
-
-<div class="auth-container">
-    <div class="auth-panel glass-panel" id="loginPanel" style="opacity: 0; transform: translateY(30px);">
-        <div class="text-center mb-4">
-            <h2 class="mb-1">Welcome Back</h2>
-            <p class="text-muted">Enter your details to access <span class="neon-text-primary">AuraRide</span>.</p>
+<div class="auth-fixed-wrapper">
+    <div class="auth-card" id="loginPanel" style="opacity: 0; transform: translateY(20px);">
+        <div class="text-center mb-5">
+            <h2 class="display-6 mb-2">Bon retour</h2>
+            <p class="text-muted">L'excellence en mouvement.</p>
         </div>
 
         @if(session('error'))
-            <div class="alert alert-danger" style="background: rgba(255,0,0,0.1); border-color: rgba(255,0,0,0.3); color:#ff6b6b;">
+            <div class="alert alert-danger border-0 bg-danger-subtle text-danger mb-4">
                 {{ session('error') }}
             </div>
         @endif
 
         <form method="POST" action="{{ route('login.post') }}">
             @csrf
-            <div class="mb-3 position-relative">
-                <input type="email" name="email" class="form-control input-dark w-100" placeholder="Email Address" required>
+            <div class="mb-3">
+                <label class="small fw-bold text-muted mb-1">Adresse Email</label>
+                <input type="email" name="email" class="form-control input-premium w-100" placeholder="nom@exemple.com" required>
             </div>
             
-            <div class="mb-4 position-relative">
-                <input type="password" name="password" class="form-control input-dark w-100" placeholder="Password" required>
+            <div class="mb-4">
+                <label class="small fw-bold text-muted mb-1">Mot de passe</label>
+                <input type="password" name="password" class="form-control input-premium w-100" placeholder="••••••••" required>
             </div>
             
-            <button type="submit" class="btn-glow-cyan w-100 mb-3">Login Securely</button>
+            <button type="submit" class="btn btn-premium w-100 py-3 mb-4">Se connecter</button>
         </form>
         
-        <div class="text-center mt-3">
-            <p class="text-muted small">Don't have an account? <a href="{{ route('register') }}" class="neon-text-secondary text-decoration-none">Sign Up</a></p>
+        <div class="text-center">
+            <p class="text-muted small">Nouveau ici ? <a href="{{ route('register') }}" class="text-primary fw-bold text-decoration-none">Créer un compte</a></p>
         </div>
     </div>
 </div>
@@ -85,9 +72,8 @@
         gsap.to("#loginPanel", {
             y: 0,
             opacity: 1,
-            duration: 1,
-            ease: "power3.out",
-            delay: 0.2
+            duration: 0.8,
+            ease: "power3.out"
         });
     });
 </script>

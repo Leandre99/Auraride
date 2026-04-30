@@ -22,7 +22,25 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'is_approved',
+        'is_active',
     ];
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class, 'client_id');
+    }
+
+    public function driverTrips()
+    {
+        return $this->hasMany(Trip::class, 'driver_id');
+    }
+
+    public function vehicle()
+    {
+        return $this->hasOne(Vehicle::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

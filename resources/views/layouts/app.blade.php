@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraRide - @yield('title', 'Next-Gen Transit')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,133 +17,112 @@
     
     <style>
         :root {
-            --bg-dark: #0A0914;
-            --bg-card: rgba(18, 17, 32, 0.6);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --neon-pink: #FF1E83;
-            --electric-cyan: #00E5FF;
-            --text-main: #FFFFFF;
-            --text-muted: #A09EAD;
+            --bg-light: #F8FAFC;
+            --bg-white: #FFFFFF;
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --accent: #F59E0B;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border-light: #E2E8F0;
+            --glass-bg: rgba(255, 255, 255, 0.85);
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-light);
             color: var(--text-main);
             font-family: 'Outfit', sans-serif;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         h1, h2, h3, h4, h5 {
             font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
         }
 
-        /* Glassmorphism Classes */
+        /* Premium Components */
         .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glass);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         }
 
-        .neon-text-primary {
-            color: var(--electric-cyan);
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-        }
-        .neon-text-secondary {
-            color: var(--neon-pink);
-            text-shadow: 0 0 10px rgba(255, 30, 131, 0.5);
-        }
-
-        /* Glow Buttons */
-        .btn-glow-cyan {
-            background: linear-gradient(135deg, #00E5FF, #0088FF);
-            color: #000 !important;
-            font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
-        }
-        .btn-glow-cyan:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.7);
-        }
-
-        .btn-glow-pink {
-            background: linear-gradient(135deg, #FF1E83, #B0005C);
-            color: #FFF !important;
-            font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(255, 30, 131, 0.4);
-        }
-        .btn-glow-pink:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(255, 30, 131, 0.7);
-        }
-
-        /* Global Layout layout */
-        .dashboard-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar-custom {
-            height: 80px;
-            padding: 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-glass);
-            background: rgba(10, 9, 20, 0.8);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            position: relative;
-        }
-        .navbar-brand-aura {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--electric-cyan), var(--neon-pink));
+        .text-primary-gradient {
+            background: linear-gradient(135deg, var(--primary), #6366F1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
         }
 
-        .main-content {
-            flex-grow: 1;
-            position: relative;
-            display: flex;
-            overflow: hidden;
+        /* Premium Buttons */
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #FFF !important;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
         }
-        
-        @stack('styles')
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .btn-outline-premium {
+            background: transparent;
+            color: var(--primary) !important;
+            font-weight: 600;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 12px 26px;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-premium:hover {
+            background: var(--primary);
+            color: #FFF !important;
+        }
+
+        /* Layout */
+        .navbar-aura {
+            height: 90px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .main-wrapper {
+            min-height: calc(100vh - 90px);
+            position: relative;
+        }
     </style>
+    @stack('styles')
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <!-- Navbar Component -->
-        @include('components.navbar')
+    <!-- Navbar -->
+    @include('components.navbar')
 
-        <!-- Main Content -->
-        <div class="main-content">
-            @yield('content')
-        </div>
+    <div class="main-wrapper">
+        @yield('content')
     </div>
+
+    <!-- Footer could go here -->
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.css"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @vite(['resources/js/app.js'])
     
     @stack('scripts')
 </body>
