@@ -30,7 +30,7 @@
             <div class="col-lg-6 mt-5 mt-lg-0">
                 <div class="position-relative">
                     <div class="rounded-4 overflow-hidden shadow-lg" style="transform: rotate(2deg);">
-                        <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=1000" class="w-100" alt="Luxury Car">
+                        <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" alt="Tesla Model S Premium">
                     </div>
                     <div class="glass-panel p-4 position-absolute" style="bottom: -30px; left: -30px; width: 250px;">
                         <div class="d-flex align-items-center gap-3 mb-2">
