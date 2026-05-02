@@ -13,10 +13,10 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('prices') }}">Tarifs</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">À Propos</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact</a></li>
+                <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('home') ? 'text-primary' : '' }}" href="{{ route('home') }}">Accueil</a></li>
+                <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('prices') ? 'text-primary' : '' }}" href="{{ route('prices') }}">Tarifs</a></li>
+                <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('about') ? 'text-primary' : '' }}" href="{{ route('about') }}">À Propos</a></li>
+                <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('contact') ? 'text-primary' : '' }}" href="{{ route('contact') }}">Contact</a></li>
             </ul>
             
             <div class="d-flex align-items-center gap-3">
