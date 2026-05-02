@@ -5,28 +5,27 @@
 @push('styles')
 <style>
     .auth-fixed-wrapper {
-        position: fixed;
-        top: 90px;
-        left: 0;
-        width: 100vw;
-        height: calc(100vh - 90px);
+        min-height: calc(100vh - 180px);
         display: flex;
         justify-content: center;
         align-items: center;
         background: radial-gradient(circle at top right, #EBF2FF, transparent);
-        z-index: 10;
-        overflow: hidden;
+        padding: 80px 20px;
     }
     
     .auth-card {
         width: 100%;
         max-width: 460px;
+        max-height: 85vh;
+        overflow-y: auto;
         padding: 40px;
         background: #FFF;
         border-radius: 24px;
         box-shadow: 0 25px 80px rgba(0, 0, 0, 0.08);
         border: 1px solid var(--border-light);
     }
+    .auth-card::-webkit-scrollbar { width: 5px; }
+    .auth-card::-webkit-scrollbar-thumb { background: #EEE; border-radius: 10px; }
 
     .role-selection {
         display: flex;

@@ -5,17 +5,12 @@
 @push('styles')
 <style>
     .auth-fixed-wrapper {
-        position: fixed;
-        top: 90px;
-        left: 0;
-        width: 100vw;
-        height: calc(100vh - 90px);
+        min-height: calc(100vh - 180px);
         display: flex;
         justify-content: center;
         align-items: center;
         background: radial-gradient(circle at top right, #EBF2FF, transparent);
-        z-index: 10;
-        overflow: hidden;
+        padding: 60px 20px;
     }
     
     .auth-card {
