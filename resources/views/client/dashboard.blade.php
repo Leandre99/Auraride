@@ -385,7 +385,7 @@
                         card.className = `vehicle-card-v2 ${index === 0 ? 'active' : ''}`;
                         card.innerHTML = `
                             <div class="rounded-4 overflow-hidden shadow-lg mb-2" style="transform: rotate(2deg);">
-                                <img src="${opt.id === 1 ? '{{ asset('images/tesla-hero.png') }}' : (opt.id === 2 ? '{{ asset('images/fleet-business.png') }}' : '{{ asset('images/fleet-van.png') }}')}" class="w-100" alt="ATLAS AND CO Fleet">
+                                <img src="${opt.id === 1 ? 'https://images.unsplash.com/photo-1617469767053-d3b508a0d182?auto=format&fit=crop&w=300' : (opt.id === 2 ? 'https://images.unsplash.com/photo-1559416523-140dd3912384?auto=format&fit=crop&w=300' : 'https://images.unsplash.com/photo-1600320844678-4fce89998d32?auto=format&fit=crop&w=300')}" class="w-100" alt="ATLAS AND CO Fleet">
                             </div>
                             <div class="fw-bold">${opt.name}</div>
                             <div class="text-primary fw-bold">${opt.price}€</div>

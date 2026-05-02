@@ -20,8 +20,8 @@
             <!-- Berline Standard -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                    <div class="p-0 overflow-hidden" style="height: 220px;">
-                        <img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
+                    <div class="p-0 overflow-hidden" style="height: 240px;">
+                        <img src="https://images.unsplash.com/photo-1617469767053-d3b508a0d182?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-car-front fs-1 text-primary"></i>
@@ -51,8 +51,8 @@
             <!-- Van Luxe -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden border-primary" style="border-top: 5px solid var(--primary) !important;">
-                    <div class="p-0 overflow-hidden" style="height: 220px;">
-                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
+                    <div class="p-0 overflow-hidden" style="height: 240px;">
+                        <img src="https://images.unsplash.com/photo-1559416523-140dd3912384?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-people fs-1 text-primary"></i>
@@ -82,8 +82,8 @@
             <!-- Sprinter Mercedes -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                    <div class="p-0 overflow-hidden" style="height: 220px;">
-                        <img src="https://images.unsplash.com/photo-1618519764620-7403abdb0921?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
+                    <div class="p-0 overflow-hidden" style="height: 240px;">
+                        <img src="https://images.unsplash.com/photo-1600320844678-4fce89998d32?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-bus-front fs-1 text-primary"></i>
