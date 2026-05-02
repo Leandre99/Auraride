@@ -27,8 +27,8 @@
                         <button type="submit" class="btn btn-link text-muted text-decoration-none p-0">Déconnexion</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-muted text-decoration-none fw-medium">Connexion</a>
-                    <a href="{{ route('register') }}" class="btn btn-premium">S'inscrire</a>
+                    <a href="{{ route('login') }}" class="text-muted text-decoration-none fw-medium me-2">Connexion</a>
+                    <a href="{{ route('register') }}" class="btn btn-premium px-4 shadow-sm">S'inscrire</a>
                 @endauth
             </div>
         </div>

@@ -4,11 +4,12 @@
 
 @section('content')
 <!-- Header Tarifs -->
-<section class="py-5 bg-dark text-white text-center">
-    <div class="container py-5">
+<section class="py-5 position-relative text-white text-center overflow-hidden" style="min-height: 400px; display: flex; align-items: center; background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920') center/cover no-repeat;">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.4));"></div>
+    <div class="container position-relative z-index-10 py-5">
         <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">TRANSPARENCE</span>
-        <h1 class="display-4 fw-bold">Nos Tarifs</h1>
-        <p class="lead opacity-75">Une tarification transparente et compétitive, sans frais cachés.</p>
+        <h1 class="display-3 fw-bold">Nos Tarifs</h1>
+        <p class="lead opacity-75 mx-auto" style="max-width: 600px;">Une tarification transparente et compétitive, sans frais cachés, pour une mobilité d'exception.</p>
     </div>
 </section>
 
@@ -19,8 +20,8 @@
             <!-- Berline Standard -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                    <div class="bg-primary-subtle p-0 overflow-hidden">
-                        <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" style="height: 200px; object-fit: cover;" alt="Berline Standard">
+                    <div class="p-0 overflow-hidden" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-car-front fs-1 text-primary"></i>
@@ -50,13 +51,13 @@
             <!-- Van Luxe -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden border-primary" style="border-top: 5px solid var(--primary) !important;">
-                    <div class="bg-primary p-0 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600" class="w-100" style="height: 200px; object-fit: cover;" alt="Van Luxe">
+                    <div class="p-0 overflow-hidden" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
                     </div>
-                    <div class="p-4 text-white bg-primary">
-                        <i class="bi bi-people fs-1"></i>
+                    <div class="p-4">
+                        <i class="bi bi-people fs-1 text-primary"></i>
                         <h3 class="fw-bold mt-2 mb-0">Van Luxe</h3>
-                        <p class="opacity-75 small">Mercedes V-Class (7-8 places)</p>
+                        <p class="text-muted small">Mercedes V-Class (7-8 places)</p>
                     </div>
                     <div class="p-4">
                         <div class="d-flex justify-content-between mb-3">
@@ -81,13 +82,13 @@
             <!-- Sprinter Mercedes -->
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                    <div class="bg-dark p-0 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1618519764620-7403abdb0921?auto=format&fit=crop&w=600" class="w-100" style="height: 200px; object-fit: cover;" alt="Sprinter Mercedes">
+                    <div class="p-0 overflow-hidden" style="height: 220px;">
+                        <img src="https://images.unsplash.com/photo-1618519764620-7403abdb0921?auto=format&fit=crop&w=600" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
                     </div>
-                    <div class="p-4 text-white bg-dark">
+                    <div class="p-4">
                         <i class="bi bi-bus-front fs-1 text-primary"></i>
                         <h3 class="fw-bold mt-2 mb-0">Sprinter Mercedes</h3>
-                        <p class="opacity-75 small">9 places - Confort First Class</p>
+                        <p class="text-muted small">9 places - Confort First Class</p>
                     </div>
                     <div class="p-4">
                         <div class="d-flex justify-content-between mb-3">
