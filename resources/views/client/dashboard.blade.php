@@ -417,7 +417,7 @@
                             card.className = `vehicle-card-v2 ${index === 0 ? 'active' : ''}`;
                             card.innerHTML = `
                                 <div class="rounded-4 overflow-hidden shadow-lg mb-2" style="transform: rotate(2deg);">
-                                    <img src="${opt.id === 1 ? '{{ asset('images/berline-standard.jpg') }}' : (opt.id === 2 ? '{{ asset('images/van-luxe.jpg') }}' : 'https://images.unsplash.com/photo-1549416878-b9ca35c2d47b?auto=format&fit=crop&w=300')}" class="w-100 h-100" style="object-fit: cover;" alt="ATLAS AND CO Fleet">
+                                    <img src="${opt.id === 1 ? '{{ asset('images/berline-standard.jpg') }}' : (opt.id === 2 ? '{{ asset('images/van-luxe.jpg') }}' : '{{ asset('images/sprinter-mercedes.jpg') }}')}" class="w-100 h-100" style="object-fit: cover;" alt="ATLAS AND CO Fleet">
                                 </div>
                                 <div class="fw-bold">${opt.name}</div>
                                 <div class="text-primary fw-bold">${opt.price}€</div>

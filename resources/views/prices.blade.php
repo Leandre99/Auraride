@@ -86,8 +86,8 @@
                 <!-- Sprinter Mercedes -->
                 <div class="col-lg-4">
                     <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                        <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="https://images.unsplash.com/photo-1549416878-b9ca35c2d47b?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
+                    <div class="p-0 overflow-hidden" style="height: 240px;">
+                        <img src="{{ asset('images/sprinter-mercedes.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
                     </div>
                         <div class="p-4">
                             <i class="bi bi-bus-front fs-1 text-primary"></i>
