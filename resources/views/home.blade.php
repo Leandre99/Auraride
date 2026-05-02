@@ -30,7 +30,7 @@
             <div class="col-lg-6 mt-5 mt-lg-0">
                 <div class="position-relative">
                     <div class="rounded-4 overflow-hidden shadow-lg" style="transform: rotate(2deg);">
-                        <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" alt="Tesla Model S Premium">
+                        <img src="{{ asset('berline_standard_atlas_1777753206334.png') }}" class="w-100" alt="ATLAS AND CO Premium Fleet">
                     </div>
                     <div class="glass-panel p-4 position-absolute" style="bottom: -30px; left: -30px; width: 250px;">
                         <div class="d-flex align-items-center gap-3 mb-2">
@@ -170,15 +170,15 @@
                     <div class="d-flex gap-4 mb-4">
                         <div class="text-center vehicle-type-btn active" data-type="1">
                             <i class="bi bi-car-front fs-2 d-block mb-1"></i>
-                            <span class="small fw-bold">Berline</span>
+                            <span class="small fw-bold">Berline Standard</span>
                         </div>
                         <div class="text-center vehicle-type-btn" data-type="2">
-                            <i class="bi bi-truck-front fs-2 d-block mb-1"></i>
-                            <span class="small fw-bold">SUV Luxe</span>
+                            <i class="bi bi-people fs-2 d-block mb-1"></i>
+                            <span class="small fw-bold">Van Luxe</span>
                         </div>
                         <div class="text-center vehicle-type-btn" data-type="3">
-                            <i class="bi bi-lightning-charge fs-2 d-block mb-1"></i>
-                            <span class="small fw-bold">Électrique</span>
+                            <i class="bi bi-bus-front fs-2 d-block mb-1"></i>
+                            <span class="small fw-bold">Sprinter</span>
                         </div>
                     </div>
                 </div>
@@ -199,9 +199,9 @@
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">TYPE DE VÉHICULE</label>
                             <select class="form-select p-3 border-light rounded-3 bg-light" id="vehicleSelect">
-                                <option value="1">Atlas Volt (Tesla Model S)</option>
-                                <option value="2">Atlas Black (Mercedes Classe S)</option>
-                                <option value="3">Atlas SUV (Range Rover)</option>
+                                <option value="1">Berline Standard (Tesla / Toyota)</option>
+                                <option value="2">Van Luxe (Mercedes V-Class)</option>
+                                <option value="3">Sprinter Mercedes (9 places)</option>
                             </select>
                         </div>
                         <div class="col-12 mt-5">
@@ -323,9 +323,9 @@
         const vehicleSelect = document.getElementById('vehicleSelect');
 
         const prices = {
-            '1': '150,00€',
-            '2': '250,00€',
-            '3': '180,00€'
+            '1': '150,00€', // Berline
+            '2': '300,00€', // Van
+            '3': '450,00€'  // Sprinter
         };
 
         vehicleBtns.forEach(btn => {

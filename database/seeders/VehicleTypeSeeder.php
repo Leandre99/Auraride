@@ -13,20 +13,29 @@ class VehicleTypeSeeder extends Seeder
     public function run(): void
     {
         VehicleType::updateOrCreate(
-            ['name' => 'Atlas Volt'],
+            ['name' => 'Berline Standard'],
             [
-                'base_fare' => 5.00,
+                'base_fare' => 0.00,
                 'per_km_rate' => 1.50,
                 'capacity' => 4,
             ]
         );
 
         VehicleType::updateOrCreate(
-            ['name' => 'Atlas Black'],
+            ['name' => 'Van Luxe'],
             [
-                'base_fare' => 10.00,
-                'per_km_rate' => 3.00,
-                'capacity' => 4,
+                'base_fare' => 0.00,
+                'per_km_rate' => 2.50,
+                'capacity' => 8,
+            ]
+        );
+
+        VehicleType::updateOrCreate(
+            ['name' => 'Sprinter Mercedes'],
+            [
+                'base_fare' => 0.00,
+                'per_km_rate' => 4.00,
+                'capacity' => 9,
             ]
         );
     }

@@ -13,15 +13,10 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link px-3 fw-medium {{ Request::is('/') ? 'text-primary' : '' }}" href="{{ url('/') }}">Accueil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-3 fw-medium {{ Request::is('about') ? 'text-primary' : '' }}" href="{{ url('/about') }}">À Propos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-3 fw-medium {{ Request::is('contact') ? 'text-primary' : '' }}" href="{{ url('/contact') }}">Contact</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('prices') }}">Tarifs</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">À Propos</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact</a></li>
             </ul>
             
             <div class="d-flex align-items-center gap-3">
