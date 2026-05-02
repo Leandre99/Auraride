@@ -20,7 +20,7 @@
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
                     <div class="bg-primary-subtle p-0 overflow-hidden">
-                        <img src="{{ asset('images/hero-fleet.png') }}" class="w-100" style="height: 200px; object-fit: cover;" alt="Berline Standard">
+                        <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" style="height: 200px; object-fit: cover;" alt="Berline Standard">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-car-front fs-1 text-primary"></i>
