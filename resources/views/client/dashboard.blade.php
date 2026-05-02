@@ -157,6 +157,31 @@
         color: #FFF;
         box-shadow: 0 30px 60px rgba(0,0,0,0.3);
     }
+    /* Autocomplete Results */
+    .autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #FFF;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 250px;
+        overflow-y: auto;
+        margin-top: 5px;
+        display: none;
+        border: 1px solid #F1F5F9;
+    }
+    .result-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid #F1F5F9;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+    }
+    .result-item:hover { background: #F8FAFF; }
+    .result-item:last-child { border-bottom: none; }
 </style>
 @endpush
 
@@ -174,13 +199,15 @@
 
     <div class="cc-content">
         <div class="ride-search-box">
-            <div class="ride-input-group">
+            <div class="ride-input-group position-relative">
                 <div class="dot-indicator dot-pickup"></div>
-                <input type="text" class="ride-input" id="pickupInput" placeholder="Point de départ" value="1204 Broadway, New York">
+                <input type="text" class="ride-input" id="pickupInput" placeholder="Point de départ" autocomplete="off">
+                <div id="pickupResults" class="autocomplete-results"></div>
             </div>
-            <div class="ride-input-group">
+            <div class="ride-input-group position-relative">
                 <div class="dot-indicator dot-dropoff"></div>
-                <input type="text" class="ride-input" id="dropoffInput" placeholder="Où allez-vous ?">
+                <input type="text" class="ride-input" id="dropoffInput" placeholder="Où allez-vous ?" autocomplete="off">
+                <div id="dropoffResults" class="autocomplete-results"></div>
             </div>
         </div>
 
@@ -279,17 +306,77 @@
 
         let state = 0;
         let selectedVehicle = null;
-        let routeData = null;
+        let routeData = {
+            pickup: null,
+            dropoff: null
+        };
+
+        // Geocoding Logic
+        async function searchAddress(query) {
+            if (query.length < 3) return [];
+            const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
+            return response.data;
+        }
+
+        function setupAutocomplete(inputId, resultsId, type) {
+            const input = document.getElementById(inputId);
+            const results = document.getElementById(resultsId);
+            let timer;
+
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(async () => {
+                    const data = await searchAddress(input.value);
+                    results.innerHTML = '';
+                    if (data.length > 0) {
+                        results.style.display = 'block';
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'result-item';
+                            div.innerText = item.display_name;
+                            div.onclick = () => {
+                                input.value = item.display_name;
+                                results.style.display = 'none';
+                                routeData[type] = {
+                                    lat: parseFloat(item.lat),
+                                    lng: parseFloat(item.lon),
+                                    address: item.display_name
+                                };
+                                map.setView([item.lat, item.lon], 15);
+                                L.marker([item.lat, item.lon]).addTo(map);
+                            };
+                            results.appendChild(div);
+                        });
+                    } else {
+                        results.style.display = 'none';
+                    }
+                }, 500);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !results.contains(e.target)) {
+                    results.style.display = 'none';
+                }
+            });
+        }
+
+        setupAutocomplete('pickupInput', 'pickupResults', 'pickup');
+        setupAutocomplete('dropoffInput', 'dropoffResults', 'dropoff');
 
         mainActionBtn.addEventListener('click', async () => {
             if(state === 0) {
+                if (!routeData.pickup || !routeData.dropoff) {
+                    alert('Veuillez sélectionner un point de départ et une destination parmi les suggestions.');
+                    return;
+                }
+
                 mainActionBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Calcul...';
                 mainActionBtn.disabled = true;
                 
                 try {
                     const response = await axios.post('/trips/estimate', {
-                        pickup_lat: 40.7128, pickup_lng: -74.0060,
-                        dropoff_lat: 40.7812, dropoff_lng: -73.9665
+                        pickup_lat: routeData.pickup.lat, pickup_lng: routeData.pickup.lng,
+                        dropoff_lat: routeData.dropoff.lat, dropoff_lng: routeData.dropoff.lng
                     });
 
                     vehicleGrid.innerHTML = '';
@@ -310,14 +397,26 @@
                         if(index === 0) selectedVehicle = opt;
                     });
 
-                    routeData = {
-                        pickup_address: pickupInput.value,
-                        dropoff_address: dropoffInput.value || "Central Park, NY",
-                        pickup_lat: 40.7128, pickup_lng: -74.0060,
-                        dropoff_lat: 40.7812, dropoff_lng: -73.9665,
-                        distance: response.data[0].distance,
-                        duration: response.data[0].duration
+                    // routeData was already partially filled by autocomplete, we complete it here
+                    routeData.distance = response.data[0].distance;
+                    routeData.duration = response.data[0].duration;
+                    
+                    // We prepare the final object for the store request
+                    const finalTripData = {
+                        vehicle_type_id: selectedVehicle.id,
+                        pickup_address: routeData.pickup.address,
+                        dropoff_address: routeData.dropoff.address,
+                        pickup_lat: routeData.pickup.lat,
+                        pickup_lng: routeData.pickup.lng,
+                        dropoff_lat: routeData.dropoff.lat,
+                        dropoff_lng: routeData.dropoff.lng,
+                        price: selectedVehicle.price,
+                        distance: routeData.distance,
+                        duration: routeData.duration
                     };
+                    
+                    // Store it for state 1
+                    window.currentBookingData = finalTripData;
 
                     gsap.set(vehicleSection, { display: "block", opacity: 0, y: 20 });
                     gsap.to(vehicleSection, { opacity: 1, y: 0, duration: 0.5 });
@@ -334,11 +433,7 @@
                 mainActionBtn.disabled = true;
 
                 try {
-                    const response = await axios.post('/trips', {
-                        ...routeData,
-                        vehicle_type_id: selectedVehicle.id,
-                        price: selectedVehicle.price
-                    });
+                    const response = await axios.post('/trips', window.currentBookingData);
 
                     const trip = response.data;
                     let currentTripId = trip.id;
