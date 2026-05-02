@@ -71,6 +71,13 @@ class TripController extends Controller
             'duration' => $request->duration,
         ]);
 
+        // Load client for the notification
+        $trip->load('client');
+
+        // Notify Admins
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTripRequested($trip));
+
         event(new TripRequested($trip));
 
         return response()->json($trip);

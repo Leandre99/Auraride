@@ -183,22 +183,23 @@
                     </div>
                 </div>
                 <div class="col-lg-7 p-5">
-                    <form action="#" class="row g-4">
+                    <form id="rentalForm" action="{{ route('rentals.store') }}" method="POST" class="row g-4">
+                        @csrf
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">DATE DE DÉBUT</label>
-                            <input type="date" class="form-control p-3 border-light rounded-3 bg-light">
+                            <input type="date" name="start_date" class="form-control p-3 border-light rounded-3 bg-light" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">DATE DE FIN</label>
-                            <input type="date" class="form-control p-3 border-light rounded-3 bg-light">
+                            <input type="date" name="end_date" class="form-control p-3 border-light rounded-3 bg-light" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">HEURE DE PRISE EN CHARGE</label>
-                            <input type="time" class="form-control p-3 border-light rounded-3 bg-light">
+                            <input type="time" name="pickup_time" class="form-control p-3 border-light rounded-3 bg-light" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">TYPE DE VÉHICULE</label>
-                            <select class="form-select p-3 border-light rounded-3 bg-light" id="vehicleSelect">
+                            <select class="form-select p-3 border-light rounded-3 bg-light" name="vehicle_type_id" id="vehicleSelect" required>
                                 <option value="1">Berline Standard (Tesla / Toyota)</option>
                                 <option value="2">Van Luxe (Mercedes V-Class)</option>
                                 <option value="3">Sprinter Mercedes (9 places)</option>
@@ -209,7 +210,7 @@
                                 <span class="h5 mb-0">Estimation :</span>
                                 <span class="h4 mb-0 text-primary fw-bold" id="rentalPrice">150,00€ / jour</span>
                             </div>
-                            <button type="button" class="btn btn-premium w-100 py-3" onclick="alert('Fonctionnalité en cours de déploiement. Un agent ATLAS AND CO vous contactera.')">Réserver la Location</button>
+                            <button type="submit" class="btn btn-premium w-100 py-3" id="rentalSubmitBtn">Réserver la Location</button>
                         </div>
                     </form>
                 </div>
@@ -348,6 +349,36 @@
             });
             rentalPrice.innerText = prices[type] + ' / jour';
         });
+
+        // Rental Form Submission
+        const rentalForm = document.getElementById('rentalForm');
+        if(rentalForm) {
+            rentalForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                @if(!auth()->check())
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                @endif
+
+                const submitBtn = document.getElementById('rentalSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
+
+                try {
+                    const formData = new FormData(rentalForm);
+                    const response = await axios.post(rentalForm.action, formData);
+                    if(response.data.success) {
+                        alert('Votre demande de location a bien été envoyée ! Un agent ATLAS AND CO vous contactera par téléphone sous peu.');
+                        rentalForm.reset();
+                    }
+                } catch (error) {
+                    alert('Une erreur est survenue. Veuillez vérifier vos informations ou réessayer plus tard.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Réserver la Location';
+                }
+            });
+        }
 
         // Hero Animations
         gsap.from(".display-3", { y: 50, opacity: 0, duration: 1, delay: 0.2 });
