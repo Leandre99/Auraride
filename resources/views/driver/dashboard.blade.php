@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'AuraRide - Cockpit Chauffeur')
+@section('title', 'ATLAS AND CO - Cockpit Chauffeur')
 
 @push('styles')
 <style>
@@ -247,12 +247,14 @@
                     statusText.className = 'text-success fw-bold';
                     
                     if (window.Echo) {
-                        window.Echo.private('drivers').listen('TripRequested', (e) => showRequest(e.trip));
+                        // Listen for trips assigned specifically to this driver
+                        window.Echo.private(`drivers.${ {{ auth()->id() }} }`)
+                            .listen('TripAssigned', (e) => showRequest(e.trip));
                     }
                 } else {
                     statusText.innerText = 'HORS LIGNE';
                     statusText.className = 'text-white fw-bold';
-                    if (window.Echo) window.Echo.leave('drivers');
+                    if (window.Echo) window.Echo.leave(`drivers.${ {{ auth()->id() }} }`);
                 }
             });
         }

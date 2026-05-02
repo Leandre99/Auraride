@@ -4,7 +4,7 @@
             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
                 <span class="text-white fw-bold">A</span>
             </div>
-            <span class="fs-3 fw-bold text-primary-gradient" style="letter-spacing: -1px;">AuraRide</span>
+            <span class="fs-3 fw-bold text-primary-gradient" style="letter-spacing: -1px;">ATLAS AND CO</span>
         </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

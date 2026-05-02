@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraRide - Next-Gen Transit</title>
+    <title>ATLAS AND CO - Next-Gen Transit</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -234,7 +234,7 @@
     <div class="dashboard-container">
         <!-- Navbar -->
         <nav class="navbar-custom">
-            <div class="navbar-brand-aura">AuraRide</div>
+            <div class="navbar-brand-aura">ATLAS AND CO</div>
             <div class="d-flex align-items-center gap-4">
                 <a href="#" class="text-decoration-none text-white opacity-75 hover-opacity-100">Driver Mode</a>
                 <a href="#" class="text-decoration-none text-white opacity-75 hover-opacity-100">My Trips</a>
@@ -274,7 +274,7 @@
                         <div class="d-flex align-items-center">
                             <div class="vehicle-icon">⚡</div>
                             <div>
-                                <h5 class="mb-0">Aura Volt</h5>
+                                <h5 class="mb-0">Atlas Volt</h5>
                                 <small class="text-muted">Electric • 3 mins away</small>
                             </div>
                         </div>
@@ -285,7 +285,7 @@
                         <div class="d-flex align-items-center">
                             <div class="vehicle-icon">👑</div>
                             <div>
-                                <h5 class="mb-0">Aura Black</h5>
+                                <h5 class="mb-0">Atlas Black</h5>
                                 <small class="text-muted">Luxury SUV • 5 mins away</small>
                             </div>
                         </div>
@@ -297,9 +297,8 @@
                 <div id="paymentSection" style="display:none;" class="mb-4">
                     <label class="text-muted mb-2 small">Payment Method</label>
                     <div class="payment-methods">
-                        <div class="payment-pill active">Apple Pay</div>
-                        <div class="payment-pill">•••• 4242</div>
-                        <div class="payment-pill">Cash</div>
+                        <div class="payment-pill active">Espèces</div>
+                        <div class="payment-pill">Terminal CB</div>
                     </div>
                 </div>
 
@@ -322,7 +321,7 @@
                 <div class="d-flex justify-content-between align-items-center glass-panel p-3 mb-4" style="background:rgba(255,255,255,0.02)">
                     <div>
                         <div class="text-muted small">Tesla Model S</div>
-                        <div class="h5 mb-0" style="letter-spacing: 2px;">NXT GEN</div>
+                        <div class="h5 mb-0" style="letter-spacing: 2px;">ATLAS 1</div>
                     </div>
                     <div class="text-end">
                         <div class="text-muted small">Arriving in</div>
@@ -387,7 +386,7 @@
                         // Show vehicles list and payments
                         gsap.set([vehiclesList, paymentSection], { display: "flex", opacity: 0, y: 20 });
                         gsap.to([vehiclesList, paymentSection], { opacity: 1, y: 0, duration: 0.5, stagger: 0.2 });
-                        mainActionBtn.innerHTML = 'Confirm AuraRide';
+                        mainActionBtn.innerHTML = 'Confirmer ATLAS AND CO';
                         state = 1;
 
                         // Draw a glowing "laser" line on map

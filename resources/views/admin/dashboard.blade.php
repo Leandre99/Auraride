@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'AuraRide - Executive Command')
+@section('title', 'ATLAS AND CO - Executive Command')
 
 @push('styles')
 <style>
@@ -91,7 +91,7 @@
         <div class="row align-items-center">
             <div class="col-md-6">
                 <h1 class="display-5 fw-bold mb-1">Centre de Gestion</h1>
-                <p class="opacity-75 mb-0">Contrôle global d'AuraRide.</p>
+                <p class="opacity-75 mb-0">Contrôle global d'ATLAS AND CO.</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <div class="d-inline-flex align-items-center gap-3 bg-white bg-opacity-10 p-2 rounded-4">
@@ -158,6 +158,75 @@
                 </div>
             </div>
 
+            <!-- Pending Assignments -->
+            @if($pendingTrips->count() > 0)
+            <div class="table-premium mb-5 border-warning border-2">
+                <div class="p-4 border-bottom bg-warning bg-opacity-10 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-dark fw-bold"><i class="bi bi-clock-history me-2"></i>Demandes en attente d'assignation</h5>
+                    <span class="badge bg-warning text-dark">{{ $pendingTrips->count() }} nouvelle(s)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3">Client</th>
+                                <th class="py-3">Trajet / Prix</th>
+                                <th class="py-3 text-end px-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($pendingTrips as $trip)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold">{{ $trip->client->name }}</div>
+                                        <div class="small text-muted">{{ $trip->client->email }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">{{ number_format($trip->price, 2) }}€</div>
+                                        <div class="small text-muted">{{ $trip->pickup_address }} <i class="bi bi-arrow-right"></i> {{ $trip->dropoff_address }}</div>
+                                    </td>
+                                    <td class="px-4 text-end">
+                                        <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#assignModal{{ $trip->id }}">
+                                            Assigner Chauffeur
+                                        </button>
+
+                                        <!-- Assign Modal -->
+                                        <div class="modal fade" id="assignModal{{ $trip->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 rounded-4 shadow">
+                                                    <div class="modal-header border-0 pb-0">
+                                                        <h5 class="modal-title fw-bold">Assigner un chauffeur</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body text-start p-4">
+                                                        <form action="{{ route('trips.assign', $trip->id) }}" method="POST" class="assign-form">
+                                                            @csrf
+                                                            <div class="mb-3">
+                                                                <label class="form-label small fw-bold text-muted">CHAUFFEUR DISPONIBLE</label>
+                                                                <select name="driver_id" class="form-select rounded-3 py-2" required>
+                                                                    <option value="">Sélectionner un chauffeur...</option>
+                                                                    @foreach($drivers as $driver)
+                                                                        <option value="{{ $driver->id }}">
+                                                                            {{ $driver->name }} ({{ $driver->vehicle->model ?? 'Pas de véhicule' }})
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold">Confirmer l'assignation</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+
             <!-- Recent Activity -->
             <div class="table-premium">
                 <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
@@ -216,4 +285,33 @@
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.assign-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('action');
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('button[type="submit"]');
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Assignation...';
+
+                try {
+                    const response = await axios.post(url, formData);
+                    if (response.data.success) {
+                        // Success animation or just reload
+                        location.reload(); 
+                    }
+                } catch (error) {
+                    alert('Erreur: ' + (error.response?.data?.error || 'Une erreur est survenue'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Confirmer l\'assignation';
+                }
+            });
+        });
+    });
+</script>
 @endpush

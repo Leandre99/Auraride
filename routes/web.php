@@ -71,4 +71,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/users/{user}/approve', [\App\Http\Controllers\AdminController::class, 'approveDriver'])->name('admin.users.approve');
     Route::get('/trips', [\App\Http\Controllers\AdminController::class, 'trips'])->name('admin.trips');
     Route::post('/trips/{trip}/cancel', [\App\Http\Controllers\AdminController::class, 'cancelTrip'])->name('admin.trips.cancel');
+    Route::post('/trips/{trip}/assign', [\App\Http\Controllers\TripController::class, 'assign'])->name('trips.assign');
 });

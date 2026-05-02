@@ -169,7 +169,7 @@
             <h2 class="h4 mb-0">Centre de Commande</h2>
             <span class="badge bg-primary-subtle text-primary px-3 rounded-pill">Privé</span>
         </div>
-        <p class="text-muted small">Bienvenue chez AuraRide, {{ auth()->user()->name }}.</p>
+        <p class="text-muted small">Bienvenue chez ATLAS AND CO, {{ auth()->user()->name }}.</p>
     </div>
 
     <div class="cc-content">
@@ -189,15 +189,9 @@
                 <!-- Dynamic Content -->
             </div>
 
-            <div class="mt-4 p-4 rounded-4 bg-light">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted small">Mode de paiement</span>
-                    <span class="fw-bold small">Apple Pay <i class="bi bi-chevron-right ms-1"></i></span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Code Promo</span>
-                    <span class="text-primary small fw-bold">Ajouter</span>
-                </div>
+            <div class="mt-4 p-4 rounded-4 bg-light text-center">
+                <div class="small text-muted mb-2"><i class="bi bi-info-circle me-1"></i> Règlement à bord du véhicule</div>
+                <div class="fw-bold small text-primary">Terminal de paiement disponible</div>
             </div>
         </div>
 
@@ -255,16 +249,13 @@
             <textarea id="ratingComment" class="form-control border-0 bg-light rounded-4" rows="3" placeholder="Un mot sur Michael..."></textarea>
         </div>
 
-        <div class="mb-4">
-            <label class="small fw-bold text-muted mb-2">Mode de Paiement</label>
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-premium flex-grow-1 py-3 active" data-method="card">Carte</button>
-                <button class="btn btn-outline-premium flex-grow-1 py-3" data-method="cash">Espèces</button>
-            </div>
-            <input type="hidden" id="paymentMethod" value="card">
+        <div class="mb-4 text-center">
+            <p class="small text-muted mb-0">Règlement effectué au chauffeur.</p>
+            <div class="fw-bold">Merci de votre confiance !</div>
+            <input type="hidden" id="paymentMethod" value="cash">
         </div>
 
-        <button class="btn btn-premium w-100 py-3" id="submitRating">Envoyer & Payer</button>
+        <button class="btn btn-premium w-100 py-3" id="submitRating">Envoyer mon avis</button>
     </div>
 </div>
 @endsection
@@ -331,7 +322,7 @@
                     gsap.set(vehicleSection, { display: "block", opacity: 0, y: 20 });
                     gsap.to(vehicleSection, { opacity: 1, y: 0, duration: 0.5 });
                     
-                    mainActionBtn.innerHTML = 'Confirmer AuraRide';
+                    mainActionBtn.innerHTML = 'Confirmer ATLAS AND CO';
                     mainActionBtn.disabled = false;
                     state = 1;
                 } catch (e) {

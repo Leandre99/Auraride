@@ -31,7 +31,7 @@
                     </div>
                     <div>
                         <div class="fw-bold">Email</div>
-                        <div class="text-muted small">support@auraride.com</div>
+                        <div class="text-muted small">support@atlasandco.com</div>
                     </div>
                 </div>
 

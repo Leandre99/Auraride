@@ -8,7 +8,7 @@
         <div class="row align-items-center mb-5">
             <div class="col-lg-6">
                 <h1 class="display-4 mb-4">Notre mission : <span class="text-primary-gradient">élever le transport.</span></h1>
-                <p class="lead text-muted mb-4">Fondée en 2024, AuraRide est née d'une idée simple : la mobilité urbaine doit être bien plus qu'un simple trajet d'un point A à un point B. Ce doit être une expérience.</p>
+                <p class="lead text-muted mb-4">Fondée en 2024, ATLAS AND CO est née d'une idée simple : la mobilité urbaine doit être bien plus qu'un simple trajet d'un point A à un point B. Ce doit être une expérience.</p>
                 <p class="text-muted">Nous croyons au pouvoir de la technologie pour rendre nos villes plus accessibles, nos voyages plus sûrs et notre planète plus propre. C'est pourquoi nous privilégions les véhicules électriques et les standards de service les plus élevés.</p>
             </div>
             <div class="col-lg-6">

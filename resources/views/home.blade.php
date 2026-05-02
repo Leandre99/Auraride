@@ -8,9 +8,9 @@
     <div class="container position-relative z-index-10 py-5">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3">VTC Premium</span>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3" style="font-size: 1.1rem; letter-spacing: 1px;">VTC Premium</span>
                 <h1 class="display-3 mb-4">Le transport redéfini pour le <span class="text-primary-gradient">Monde Moderne.</span></h1>
-                <p class="lead text-muted mb-5 pe-lg-5">AuraRide combine le luxe haut de gamme et la technologie de pointe pour vous offrir une expérience de voyage fluide, sûre et sophistiquée.</p>
+                <p class="lead text-muted mb-5 pe-lg-5">ATLAS AND CO combine le luxe haut de gamme et la technologie de pointe pour vous offrir une expérience de voyage fluide, sûre et sophistiquée.</p>
                 <div class="d-flex gap-3">
                     <a href="{{ route('register') }}" class="btn btn-premium px-5 py-3">Commencer</a>
                     <a href="#features" class="btn btn-outline-premium px-5 py-3">Explorer les services</a>
@@ -23,7 +23,7 @@
                         <img src="https://i.pravatar.cc/150?img=3" class="rounded-circle border border-2 border-white" style="width: 40px; height: 40px;" alt="">
                     </div>
                     <div class="small text-muted">
-                        Plus de <span class="fw-bold text-dark">500k</span> utilisateurs font confiance à AuraRide
+                        Plus de <span class="fw-bold text-dark">500k</span> utilisateurs font confiance à ATLAS AND CO
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
 <section id="features" class="py-5 bg-white">
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h2 class="h1 mb-3">Pourquoi choisir AuraRide ?</h2>
+            <h2 class="h1 mb-3">Pourquoi choisir ATLAS AND CO ?</h2>
             <p class="text-muted">Découvrez le sommet de la mobilité urbaine.</p>
         </div>
         
@@ -123,7 +123,7 @@
             <div class="row align-items-center position-relative z-index-10">
                 <div class="col-lg-8 text-white">
                     <h2 class="display-5 mb-3">Prêt à rejoindre la révolution ?</h2>
-                    <p class="lead opacity-75 mb-lg-0">Commencez à voyager ou à gagner avec AuraRide dès aujourd'hui.</p>
+                    <p class="lead opacity-75 mb-lg-0">Commencez à voyager ou à gagner avec ATLAS AND CO dès aujourd'hui.</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     <a href="{{ route('register') }}" class="btn btn-light px-5 py-3 fw-bold rounded-pill">Télécharger l'App</a>

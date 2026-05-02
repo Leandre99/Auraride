@@ -18,8 +18,18 @@ class AdminController extends Controller
         ];
 
         $recentTrips = Trip::with(['client', 'driver'])->latest()->take(10)->get();
+        
+        // Pending trips that need assignment
+        $pendingTrips = Trip::with('client')->where('status', 'pending')->latest()->get();
+        
+        // Drivers available for assignment (approved and active)
+        $drivers = User::where('role', 'driver')
+            ->where('is_approved', true)
+            ->where('is_active', true)
+            ->with('vehicle')
+            ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentTrips'));
+        return view('admin.dashboard', compact('stats', 'recentTrips', 'pendingTrips', 'drivers'));
     }
 
     public function users(Request $request)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuraRide - @yield('title', 'Next-Gen Transit')</title>
+    <title>ATLAS AND CO - @yield('title', 'Next-Gen Transit')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- Bootstrap 5 CSS -->

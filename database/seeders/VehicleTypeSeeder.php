@@ -13,7 +13,7 @@ class VehicleTypeSeeder extends Seeder
     public function run(): void
     {
         VehicleType::updateOrCreate(
-            ['name' => 'Aura Volt'],
+            ['name' => 'Atlas Volt'],
             [
                 'base_fare' => 5.00,
                 'per_km_rate' => 1.50,
@@ -22,7 +22,7 @@ class VehicleTypeSeeder extends Seeder
         );
 
         VehicleType::updateOrCreate(
-            ['name' => 'Aura Black'],
+            ['name' => 'Atlas Black'],
             [
                 'base_fare' => 10.00,
                 'per_km_rate' => 3.00,

@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Client
         User::updateOrCreate(
-            ['email' => 'client@auraride.com'],
+            ['email' => 'client@atlasandco.com'],
             [
                 'name' => 'John Client',
                 'password' => Hash::make('password'),
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
 
         // Create Driver
         $driver = User::updateOrCreate(
-            ['email' => 'driver@auraride.com'],
+            ['email' => 'driver@atlasandco.com'],
             [
                 'name' => 'Michael Driver',
                 'password' => Hash::make('password'),
@@ -44,18 +44,18 @@ class DatabaseSeeder extends Seeder
         Vehicle::updateOrCreate(
             ['user_id' => $driver->id],
             [
-                'vehicle_type_id' => 1, // Aura Volt
+                'vehicle_type_id' => 1, // Atlas Volt
                 'model' => 'Tesla Model S',
-                'plate_number' => 'NXT GEN',
+                'plate_number' => 'ATLAS 1',
                 'color' => 'Neon Cyan',
             ]
         );
 
         // Create Admin
         User::updateOrCreate(
-            ['email' => 'admin@auraride.com'],
+            ['email' => 'admin@atlasandco.com'],
             [
-                'name' => 'Aura Admin',
+                'name' => 'Atlas Admin',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ]

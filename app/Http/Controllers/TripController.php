@@ -76,15 +76,37 @@ class TripController extends Controller
         return response()->json($trip);
     }
 
-    public function accept(Trip $trip)
+    public function assign(Request $request, Trip $trip)
     {
-        if ($trip->status !== 'pending') {
-            return response()->json(['error' => 'La course n\'est plus disponible.'], 422);
+        $request->validate([
+            'driver_id' => 'required|exists:users,id',
+        ]);
+
+        $driver = \App\Models\User::find($request->driver_id);
+        
+        if ($driver->role !== 'driver') {
+            return response()->json(['error' => 'L\'utilisateur sélectionné n\'est pas un chauffeur.'], 422);
         }
 
         $trip->update([
-            'driver_id' => auth()->id(),
-            'vehicle_id' => auth()->user()->vehicle->id ?? null,
+            'driver_id' => $driver->id,
+            'vehicle_id' => $driver->vehicle->id ?? null,
+            'status' => 'assigned',
+        ]);
+
+        event(new \App\Events\TripAssigned($trip));
+
+        return response()->json(['success' => true, 'trip' => $trip]);
+    }
+
+    public function accept(Trip $trip)
+    {
+        // Now driver accepts a trip assigned to them
+        if ($trip->status !== 'assigned' || $trip->driver_id !== auth()->id()) {
+            return response()->json(['error' => 'Cette course ne vous est pas assignée ou n\'est plus disponible.'], 422);
+        }
+
+        $trip->update([
             'status' => 'accepted',
         ]);
 
@@ -138,14 +160,13 @@ class TripController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
-            'payment_method' => 'required|string|in:card,cash',
         ]);
 
         $trip->update([
             'rating' => $request->rating,
             'comment' => $request->comment,
-            'payment_method' => $request->payment_method,
-            'payment_status' => $request->payment_method === 'card' ? 'paid' : 'pending',
+            'payment_method' => 'cash', // Default to cash as per requirements
+            'payment_status' => 'pending', // Payment will be confirmed by driver/terminal
         ]);
 
         return response()->json(['success' => true]);
