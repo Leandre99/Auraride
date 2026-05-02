@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'AuraRide - Centre de Commande')
+@section('title', 'ATLAS AND CO - Centre de Commande')
 
 @push('styles')
 <style>

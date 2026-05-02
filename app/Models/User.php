@@ -21,10 +21,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone_number',
         'password',
         'role',
         'is_approved',
         'is_active',
+        'cv_path',
+        'id_card_path',
+        'photo_path',
     ];
 
     public function trips()

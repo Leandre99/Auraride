@@ -49,16 +49,35 @@ class AuthController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone_number' => ['required', 'string', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'in:client,driver'],
+            'cv' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
+            'id_card' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
-        $user = User::create([
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
+            'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-        ]);
+        ];
+
+        if ($request->role === 'driver') {
+            if ($request->hasFile('cv')) {
+                $userData['cv_path'] = $request->file('cv')->store('documents/cvs', 'public');
+            }
+            if ($request->hasFile('id_card')) {
+                $userData['id_card_path'] = $request->file('id_card')->store('documents/ids', 'public');
+            }
+            if ($request->hasFile('photo')) {
+                $userData['photo_path'] = $request->file('photo')->store('documents/photos', 'public');
+            }
+        }
+
+        $user = User::create($userData);
 
         Auth::login($user);
 

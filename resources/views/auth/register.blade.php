@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Rejoindre AuraRide')
+@section('title', 'Rejoindre ATLAS AND CO')
 
 @push('styles')
 <style>
@@ -56,7 +56,7 @@
 <div class="auth-fixed-wrapper">
     <div class="auth-card" id="registerPanel" style="opacity: 0; transform: translateY(20px);">
         <div class="text-center mb-4">
-            <h2 class="h3 mb-2">Rejoindre AuraRide</h2>
+            <h2 class="h3 mb-2">Rejoindre ATLAS AND CO</h2>
             <p class="text-muted small">Commencez votre voyage avec nous.</p>
         </div>
 
@@ -70,7 +70,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('register.post') }}">
+        <form method="POST" action="{{ route('register.post') }}" enctype="multipart/form-data">
             @csrf
             
             <div class="mb-2">
@@ -78,9 +78,15 @@
                 <input type="text" name="name" class="form-control input-premium w-100" placeholder="Jean Dupont" required value="{{ old('name') }}">
             </div>
 
-            <div class="mb-2">
-                <label class="small fw-bold text-muted mb-1">Adresse Email</label>
-                <input type="email" name="email" class="form-control input-premium w-100" placeholder="nom@exemple.com" required value="{{ old('email') }}">
+            <div class="row g-2 mb-2">
+                <div class="col-md-7">
+                    <label class="small fw-bold text-muted mb-1">Adresse Email</label>
+                    <input type="email" name="email" class="form-control input-premium w-100" placeholder="nom@exemple.com" required value="{{ old('email') }}">
+                </div>
+                <div class="col-md-5">
+                    <label class="small fw-bold text-muted mb-1">Téléphone</label>
+                    <input type="text" name="phone_number" class="form-control input-premium w-100" placeholder="06..." required value="{{ old('phone_number') }}">
+                </div>
             </div>
             
             <div class="mb-3">
@@ -90,6 +96,22 @@
                     <div class="role-pill" onclick="setRole('driver', this)">Chauffeur</div>
                 </div>
                 <input type="hidden" name="role" id="roleInput" value="client">
+            </div>
+
+            <!-- Driver Specific Fields -->
+            <div id="driverFields" style="display: none;" class="mb-3 bg-light p-3 rounded-4">
+                <div class="mb-2">
+                    <label class="small fw-bold text-muted mb-1">Curriculum Vitae (CV)</label>
+                    <input type="file" name="cv" class="form-control form-control-sm">
+                </div>
+                <div class="mb-2">
+                    <label class="small fw-bold text-muted mb-1">Pièce d'identité (Recto/Verso)</label>
+                    <input type="file" name="id_card" class="form-control form-control-sm">
+                </div>
+                <div class="mb-0">
+                    <label class="small fw-bold text-muted mb-1">Photo de profil professionnelle</label>
+                    <input type="file" name="photo" class="form-control form-control-sm">
+                </div>
             </div>
 
             <div class="row g-2 mb-4">
@@ -128,6 +150,15 @@
         document.getElementById('roleInput').value = role;
         document.querySelectorAll('.role-pill').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
+        
+        // Toggle driver fields
+        const driverFields = document.getElementById('driverFields');
+        if (role === 'driver') {
+            driverFields.style.display = 'block';
+            gsap.from(driverFields, { height: 0, opacity: 0, duration: 0.5, ease: "power2.out" });
+        } else {
+            driverFields.style.display = 'none';
+        }
     }
 </script>
 @endpush
