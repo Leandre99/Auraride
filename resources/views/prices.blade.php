@@ -122,28 +122,25 @@
         <div class="container">
             <div class="row g-5">
                 <div class="col-md-4 text-center">
-                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-4"
-                        style="width: 80px; height: 80px;">
-                        <i class="bi bi-airplane fs-2 text-primary"></i>
-                    </div>
+                    <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="bi bi-airplane-engines fs-1 text-primary"></i>
+                </div>
                     <h4 class="fw-bold">Forfaits Aéroport</h4>
                     <p class="text-muted">Aéroport → Centre-ville à partir de <span class="fw-bold text-dark">35 €</span>
                         tout compris.</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-4"
-                        style="width: 80px; height: 80px;">
-                        <i class="bi bi-universal-access fs-2 text-primary"></i>
-                    </div>
+                    <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="bi bi-shield-check fs-1 text-primary"></i>
+                </div>
                     <h4 class="fw-bold">Siège Enfant</h4>
                     <p class="text-muted">Disponible sur demande <span class="fw-bold text-success">gratuitement</span> pour
                         la sécurité de vos petits.</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-4"
-                        style="width: 80px; height: 80px;">
-                        <i class="bi bi-luggage fs-2 text-primary"></i>
-                    </div>
+                    <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="bi bi-luggage-fill fs-1 text-primary"></i>
+                </div>
                     <h4 class="fw-bold">Bagages Volumineux</h4>
                     <p class="text-muted">Nos Vans sont parfaitement adaptés pour les groupes et les bagages encombrants.
                     </p>
