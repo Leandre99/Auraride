@@ -30,7 +30,7 @@
             <div class="col-lg-6 mt-5 mt-lg-0">
                 <div class="position-relative">
                     <div class="rounded-4 overflow-hidden shadow-lg" style="transform: rotate(2deg);">
-                        <img src="{{ asset('berline_standard_atlas_1777753206334.png') }}" class="w-100" alt="ATLAS AND CO Premium Fleet">
+                        <img src="{{ asset('images/hero-fleet.png') }}" class="w-100" alt="ATLAS AND CO Premium Fleet">
                     </div>
                     <div class="glass-panel p-4 position-absolute" style="bottom: -30px; left: -30px; width: 250px;">
                         <div class="d-flex align-items-center gap-3 mb-2">
