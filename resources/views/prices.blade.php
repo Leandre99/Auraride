@@ -21,7 +21,7 @@
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
                     <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="https://images.unsplash.com/photo-1617469767053-d3b508a0d182?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
+                        <img src="https://images.pexels.com/photos/3729464/pexels-photo-3729464.jpeg?auto=compress&cs=tinysrgb&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-car-front fs-1 text-primary"></i>
@@ -52,7 +52,7 @@
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden border-primary" style="border-top: 5px solid var(--primary) !important;">
                     <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="https://images.unsplash.com/photo-1559416523-140dd3912384?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
+                        <img src="https://images.pexels.com/photos/3853337/pexels-photo-3853337.jpeg?auto=compress&cs=tinysrgb&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-people fs-1 text-primary"></i>
@@ -83,7 +83,7 @@
             <div class="col-lg-4">
                 <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
                     <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="https://images.unsplash.com/photo-1600320844678-4fce89998d32?auto=format&fit=crop&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
+                        <img src="https://images.pexels.com/photos/4553277/pexels-photo-4553277.jpeg?auto=compress&cs=tinysrgb&w=800" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
                     </div>
                     <div class="p-4">
                         <i class="bi bi-bus-front fs-1 text-primary"></i>
