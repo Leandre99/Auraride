@@ -28,7 +28,18 @@ class TripController extends Controller
             $request->dropoff_lat, $request->dropoff_lng
         );
 
-        $vehicleTypes = VehicleType::all()->map(function ($type) use ($distance) {
+        // On force les 3 catégories du produit (évite les doublons / anciennes lignes).
+        $allowed = ['Berline Standard', 'Van Luxe', 'Sprinter Mercedes'];
+        $vehicleTypes = VehicleType::query()
+            ->whereIn('name', $allowed)
+            ->orderByRaw("CASE name
+                WHEN 'Berline Standard' THEN 1
+                WHEN 'Van Luxe' THEN 2
+                WHEN 'Sprinter Mercedes' THEN 3
+                ELSE 99
+            END")
+            ->get()
+            ->map(function ($type) use ($distance) {
             $price = $type->base_fare + ($type->per_km_rate * $distance);
             return [
                 'id' => $type->id,

@@ -7,41 +7,6 @@
     <style>
         body {
             background: #0f172a;
-            overflow: hidden;
-        }
-
-        #map-container {
-            position: fixed;
-            top: 90px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1;
-        }
-
-        /* Lisibilité carte : léger voile sous le panneau */
-        #map-container::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 500;
-            background: linear-gradient(105deg, rgba(15, 23, 42, 0.35) 0%, transparent 45%, transparent 100%);
-        }
-
-        .leaflet-pane,
-        .leaflet-top,
-        .leaflet-bottom {
-            z-index: 2 !important;
-        }
-
-        #map-container.leaflet-container {
-            font-family: inherit;
-        }
-
-        .leaflet-marker-custom {
-            background: transparent !important;
-            border: none !important;
         }
 
         /* Panneau réservation — carte posée sur la carte */
@@ -364,7 +329,6 @@
             box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
             min-height: 480px;
         }
-        .client-tracking #tracking-map { height: 500px; border-radius: 24px; }
         .client-tracking .dashboard-accent { color: #2563eb; }
         .client-tracking .star-rating {
             display: flex;
@@ -561,14 +525,12 @@
                         </div>
                     @endif
                 </div>
-                <div class="col-lg-8">
-                    <div id="tracking-map" class="map-panel shadow"></div>
-                </div>
+                {{-- Carte retirée --}}
             </div>
         </div>
     </section>
     @else
-    <div id="map-container"></div>
+    {{-- Carte retirée --}}
 
     <div class="command-center" id="commandCenter">
         <div class="cc-accent" aria-hidden="true"></div>
@@ -697,56 +659,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             var rideStatus = @json($trackingTrip->status);
-            var startPos = [{{ (float) $trackingTrip->pickup_lat }}, {{ (float) $trackingTrip->pickup_lng }}];
-            var endPos = [{{ (float) $trackingTrip->dropoff_lat }}, {{ (float) $trackingTrip->dropoff_lng }}];
-            var mapEl = document.getElementById('tracking-map');
-            if (!mapEl || typeof L === 'undefined') return;
-            var map = L.map('tracking-map', { zoomControl: true }).setView(startPos, 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OSM &copy; CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20,
-            }).addTo(map);
-            var pickupIcon = L.divIcon({
-                html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
-                className: 'leaflet-marker-custom',
-                iconSize: [14, 14],
-                iconAnchor: [7, 7],
-            });
-            var dropIcon = L.divIcon({
-                html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
-                className: 'leaflet-marker-custom',
-                iconSize: [14, 14],
-                iconAnchor: [7, 7],
-            });
-            L.marker(startPos, { icon: pickupIcon }).addTo(map).bindPopup('Départ');
-            L.marker(endPos, { icon: dropIcon }).addTo(map).bindPopup('Arrivée');
-            map.fitBounds(L.latLngBounds(startPos, endPos).pad(0.12), { maxZoom: 14 });
-            queueMicrotask(() => map.invalidateSize());
-            window.addEventListener('resize', () => map.invalidateSize());
-
-            if (rideStatus === 'in_progress') {
-                var carIcon = L.divIcon({
-                    className: 'leaflet-marker-custom',
-                    html: '<div style="background:#2563eb;width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 12px rgba(37,99,235,.6)"></div>',
-                    iconSize: [18, 18],
-                    iconAnchor: [9, 9],
-                });
-                var carMarker = L.marker(startPos, { icon: carIcon }).addTo(map);
-                var currentStep = 0;
-                var steps = 80;
-                function animateTrip() {
-                    if (currentStep <= steps) {
-                        var lat = startPos[0] + (endPos[0] - startPos[0]) * (currentStep / steps);
-                        var lng = startPos[1] + (endPos[1] - startPos[1]) * (currentStep / steps);
-                        carMarker.setLatLng([lat, lng]);
-                        if (currentStep % 12 === 0) map.panTo([lat, lng]);
-                        currentStep++;
-                        setTimeout(animateTrip, 1800);
-                    }
-                }
-                animateTrip();
-            }
+            // Carte retirée à la demande.
 
             if (['pending', 'assigned', 'accepted', 'in_progress'].indexOf(rideStatus) !== -1) {
                 setInterval(function () {
@@ -847,43 +760,7 @@
                 return data;
             }
 
-            let map;
-            try {
-                map = L.map('map-container', { zoomControl: true }).setView([48.8566, 2.3522], 12);
-            } catch (mapErr) {
-                console.error(mapErr);
-                alert('La carte ne peut pas s\'afficher sur cette page.');
-                return;
-            }
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20,
-            }).addTo(map);
-
-            let pickupMarker = null;
-            let dropoffMarker = null;
-
-            function setRouteMarker(type, lat, lng, options) {
-                const iconHtml = `<span style="display:block;width:16px;height:16px;border-radius:50%;background:${options.color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);"></span>`;
-                const ic = L.divIcon({
-                    html: iconHtml,
-                    className: 'leaflet-marker-custom',
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8],
-                });
-                const m = L.marker([lat, lng], { icon: ic });
-                if (type === 'pickup') {
-                    if (pickupMarker) map.removeLayer(pickupMarker);
-                    pickupMarker = m.addTo(map);
-                } else {
-                    if (dropoffMarker) map.removeLayer(dropoffMarker);
-                    dropoffMarker = m.addTo(map);
-                }
-            }
-
-            queueMicrotask(() => map.invalidateSize());
-            window.addEventListener('resize', () => map.invalidateSize());
+            // Carte retirée à la demande: on conserve uniquement l'autocomplete + estimation.
 
             const mainActionBtn = document.getElementById('mainActionBtn');
             const vehicleGrid = document.getElementById('vehicleGrid');
@@ -974,10 +851,7 @@
                                         lng: parseFloat(item.lon),
                                         address: item.display_name
                                     };
-                                    map.setView([routeData[type].lat, routeData[type].lng], 15);
-                                    setRouteMarker(type, routeData[type].lat, routeData[type].lng, {
-                                        color: type === 'pickup' ? '#2563eb' : '#f59e0b',
-                                    });
+                                    // Pas de carte
                                 };
                                 results.appendChild(div);
                             });
@@ -1040,9 +914,18 @@
                         estimateRows.forEach((opt, index) => {
                             const card = document.createElement('div');
                             card.className = `vehicle-card-v2 ${index === 0 ? 'active' : ''}`;
+                            const img = opt.name === 'Berline Standard'
+                                ? '{{ asset('images/berline-standard.jpg') }}'
+                                : (opt.name === 'Van Luxe' ? '{{ asset('images/van-luxe.jpg') }}' : '{{ asset('images/sprinter-mercedes.jpg') }}');
+
+                            const subtitle = opt.name === 'Berline Standard'
+                                ? 'Tesla Model S, Toyota Camry'
+                                : (opt.name === 'Van Luxe' ? 'Mercedes V-Class (7-8 places)' : '9 places — Confort First Class');
+
                             card.innerHTML = `
-                                <div class="veh-thumb shadow-sm"><img src="${opt.id === 1 ? '{{ asset('images/berline-standard.jpg') }}' : (opt.id === 2 ? '{{ asset('images/van-luxe.jpg') }}' : '{{ asset('images/sprinter-mercedes.jpg') }}')}" class="w-100" style="height:72px;object-fit:cover;" alt=""></div>
+                                <div class="veh-thumb shadow-sm"><img src="${img}" class="w-100" style="height:72px;object-fit:cover;" alt=""></div>
                                 <div class="fw-bold small">${opt.name}</div>
+                                <div class="text-muted" style="font-size:.75rem; line-height:1.1;">${subtitle}</div>
                                 <div class="text-primary fw-bold small mt-1">${opt.price}€</div>`;
                             card.addEventListener('click', () => {
                                 document.querySelectorAll('.vehicle-card-v2').forEach(c => c.classList.remove('active'));
@@ -1057,11 +940,7 @@
                         routeData.distance = estimateRows[0].distance;
                         routeData.duration = estimateRows[0].duration;
 
-                        const bounds = L.latLngBounds(
-                            [routeData.pickup.lat, routeData.pickup.lng],
-                            [routeData.dropoff.lat, routeData.dropoff.lng],
-                        );
-                        map.fitBounds(bounds.pad(0.15), { maxZoom: 15 });
+                        // Pas de carte
 
                         // We prepare the final object for the store request
                         const finalTripData = {

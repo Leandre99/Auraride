@@ -71,7 +71,7 @@ class AdminController extends Controller
 
     public function trips()
     {
-        $trips = Trip::with(['client', 'driver', 'vehicle.type'])->latest()->paginate(20);
+        $trips = Trip::with(['client', 'driver', 'vehicle.vehicleType'])->latest()->paginate(20);
         $drivers = User::where('role', 'driver')
             ->where('is_approved', true)
             ->where('is_active', true)
