@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-aura sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light navbar-aura sticky-top">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
@@ -12,14 +12,15 @@
         </button>
         
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center">
                 <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('home') ? 'text-primary' : '' }}" href="{{ route('home') }}">Accueil</a></li>
                 <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('prices') ? 'text-primary' : '' }}" href="{{ route('prices') }}">Tarifs</a></li>
                 <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('about') ? 'text-primary' : '' }}" href="{{ route('about') }}">À Propos</a></li>
                 <li class="nav-item mx-2"><a class="nav-link fw-bold {{ Request::routeIs('contact') ? 'text-primary' : '' }}" href="{{ route('contact') }}">Contact</a></li>
             </ul>
-            
-            <div class="d-flex align-items-center gap-3">
+
+            {{-- ms-lg-auto + flex-shrink-0 : évite que le groupe de liens centrés réduise ce bloc à 0 px (bouton « S'inscrire » invisible). --}}
+            <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-lg-auto pb-3 pb-lg-0">
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-premium">Tableau de bord</a>
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
@@ -27,8 +28,8 @@
                         <button type="submit" class="btn btn-link text-muted text-decoration-none p-0">Déconnexion</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="text-muted text-decoration-none fw-medium me-2">Connexion</a>
-                    <a href="{{ route('register') }}" class="btn btn-premium px-4 shadow-sm">S'inscrire</a>
+                    <a href="{{ route('login') }}" class="text-muted text-decoration-none fw-medium">Connexion</a>
+                    <a href="{{ route('register') }}" class="btn btn-premium px-4 shadow-sm text-nowrap">S'inscrire</a>
                 @endauth
             </div>
         </div>

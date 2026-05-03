@@ -17,9 +17,13 @@
     .table-premium {
         background: #FFF;
         border-radius: 24px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         border: 1px solid var(--border-light);
+    }
+    .table-premium .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible;
     }
     
     .status-pill {
@@ -87,6 +91,14 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if(session('error'))
+                <div class="alert alert-danger border-0 rounded-4 mb-4">{{ session('error') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger border-0 rounded-4 mb-4">
+                    <ul class="mb-0 ps-3">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                </div>
+            @endif
 
             <div class="table-premium">
                 <div class="table-responsive">
@@ -125,21 +137,30 @@
                                             $badgeClass = match($trip->status) {
                                                 'completed' => 'bg-success-subtle text-success',
                                                 'cancelled' => 'bg-danger-subtle text-danger',
-                                                'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
+                                                'assigned', 'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
                                                 default => 'bg-warning-subtle text-warning',
                                             };
                                         @endphp
                                         <span class="status-pill {{ $badgeClass }}">{{ ucfirst($trip->status) }}</span>
                                     </td>
                                     <td class="px-4 text-end">
-                                        @if(!in_array($trip->status, ['completed', 'cancelled']))
-                                            <form action="{{ route('admin.trips.cancel', $trip) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Annuler</button>
-                                            </form>
-                                        @else
-                                            <button class="btn btn-sm btn-light disabled rounded-pill px-3">Clôturé</button>
-                                        @endif
+                                        <div class="d-flex justify-content-end flex-wrap gap-2">
+                                            @if($trip->status === 'pending')
+                                                @include('admin.partials.trip-assign-button', [
+                                                    'trip' => $trip,
+                                                    'buttonLabel' => 'Assigner',
+                                                    'buttonClass' => 'btn btn-primary btn-sm rounded-pill px-3',
+                                                ])
+                                            @endif
+                                            @if(!in_array($trip->status, ['completed', 'cancelled']))
+                                                <form action="{{ route('admin.trips.cancel', $trip) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Annuler</button>
+                                                </form>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-light disabled rounded-pill px-3">Clôturé</button>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -153,6 +174,8 @@
         </main>
     </div>
 </div>
+
+@include('admin.partials.assign-trip-modal-singleton', ['drivers' => $drivers])
 @endsection
 
 @push('scripts')

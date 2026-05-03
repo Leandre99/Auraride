@@ -18,6 +18,7 @@ class RentalController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'pickup_time' => 'required',
+            'with_driver' => 'nullable|boolean',
         ]);
 
         // Simple price calculation for demo (150-450 per day)
@@ -35,15 +36,19 @@ class RentalController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'pickup_time' => $request->pickup_time,
+            'with_driver' => $request->boolean('with_driver'),
             'total_price' => $totalPrice,
             'status' => 'pending',
         ]);
 
         $rental->load(['user', 'vehicleType']);
 
-        // Notify Admins
         $admins = User::where('role', 'admin')->get();
-        Notification::send($admins, new NewRentalRequested($rental));
+        try {
+            Notification::send($admins, new NewRentalRequested($rental));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json(['success' => true, 'rental' => $rental]);
     }

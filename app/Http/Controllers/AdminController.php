@@ -22,11 +22,12 @@ class AdminController extends Controller
         // Pending trips that need assignment
         $pendingTrips = Trip::with('client')->where('status', 'pending')->latest()->get();
         
-        // Drivers available for assignment (approved and active)
+        /* Chauffeurs éligibles : approuvé + actif ; certains environnements n'ont pas encore de véhicule lié. */
         $drivers = User::where('role', 'driver')
             ->where('is_approved', true)
             ->where('is_active', true)
             ->with('vehicle')
+            ->orderBy('name')
             ->get();
 
         return view('admin.dashboard', compact('stats', 'recentTrips', 'pendingTrips', 'drivers'));
@@ -71,7 +72,14 @@ class AdminController extends Controller
     public function trips()
     {
         $trips = Trip::with(['client', 'driver', 'vehicle.type'])->latest()->paginate(20);
-        return view('admin.trips.index', compact('trips'));
+        $drivers = User::where('role', 'driver')
+            ->where('is_approved', true)
+            ->where('is_active', true)
+            ->with('vehicle')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.trips.index', compact('trips', 'drivers'));
     }
 
     public function cancelTrip(Trip $trip)

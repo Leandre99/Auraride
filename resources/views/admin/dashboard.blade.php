@@ -36,12 +36,18 @@
         font-size: 1.2rem;
     }
 
+    /* overflow: visible évite les bugs de clic / backdrop avec boutons qui ouvrent des modales liées au tableau */
     .table-premium {
         background: #FFF;
         border-radius: 24px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         border: 1px solid var(--border-light);
+    }
+    .table-premium .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible;
+        border-radius: inherit;
     }
     .table-premium thead {
         background: #F8FAFC;
@@ -126,6 +132,17 @@
 
         <!-- Main Content Area -->
         <main>
+            @if (session('success'))
+                <div class="alert alert-success border-0 rounded-4 mb-4">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger border-0 rounded-4 mb-4">{{ session('error') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger border-0 rounded-4 mb-4">
+                    <ul class="mb-0 ps-3">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                </div>
+            @endif
             <!-- KPI Row -->
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
@@ -186,38 +203,7 @@
                                         <div class="small text-muted">{{ $trip->pickup_address }} <i class="bi bi-arrow-right"></i> {{ $trip->dropoff_address }}</div>
                                     </td>
                                     <td class="px-4 text-end">
-                                        <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#assignModal{{ $trip->id }}">
-                                            Assigner Chauffeur
-                                        </button>
-
-                                        <!-- Assign Modal -->
-                                        <div class="modal fade" id="assignModal{{ $trip->id }}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-0 rounded-4 shadow">
-                                                    <div class="modal-header border-0 pb-0">
-                                                        <h5 class="modal-title fw-bold">Assigner un chauffeur</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body text-start p-4">
-                                                        <form action="{{ route('trips.assign', $trip->id) }}" method="POST" class="assign-form">
-                                                            @csrf
-                                                            <div class="mb-3">
-                                                                <label class="form-label small fw-bold text-muted">CHAUFFEUR DISPONIBLE</label>
-                                                                <select name="driver_id" class="form-select rounded-3 py-2" required>
-                                                                    <option value="">Sélectionner un chauffeur...</option>
-                                                                    @foreach($drivers as $driver)
-                                                                        <option value="{{ $driver->id }}">
-                                                                            {{ $driver->name }} ({{ $driver->vehicle->model ?? 'Pas de véhicule' }})
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 fw-bold">Confirmer l'assignation</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @include('admin.partials.trip-assign-button', ['trip' => $trip, 'buttonLabel' => 'Assigner chauffeur'])
                                     </td>
                                 </tr>
                             @endforeach
@@ -262,7 +248,7 @@
                                             $badgeClass = match($trip->status) {
                                                 'completed' => 'bg-success-subtle text-success',
                                                 'cancelled' => 'bg-danger-subtle text-danger',
-                                                'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
+                                                'assigned', 'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
                                                 default => 'bg-warning-subtle text-warning',
                                             };
                                         @endphp
@@ -281,37 +267,10 @@
         </main>
     </div>
 </div>
+
+@include('admin.partials.assign-trip-modal-singleton', ['drivers' => $drivers])
 @endsection
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const forms = document.querySelectorAll('.assign-form');
-        forms.forEach(form => {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const url = this.getAttribute('action');
-                const formData = new FormData(this);
-                const submitBtn = this.querySelector('button[type="submit"]');
-                
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Assignation...';
-
-                try {
-                    const response = await axios.post(url, formData);
-                    if (response.data.success) {
-                        // Success animation or just reload
-                        location.reload(); 
-                    }
-                } catch (error) {
-                    alert('Erreur: ' + (error.response?.data?.error || 'Une erreur est survenue'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Confirmer l\'assignation';
-                }
-            });
-        });
-    });
-</script>
 @endpush

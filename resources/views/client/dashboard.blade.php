@@ -1,212 +1,347 @@
 @extends('layouts.app')
 
-@section('title', 'ATLAS AND CO - Centre de Commande')
+@section('title', 'Courses avec chauffeur — ATLAS AND CO')
 
 @push('styles')
     <style>
         body {
-            background: #F0F2F5;
+            background: #0f172a;
             overflow: hidden;
         }
 
         #map-container {
-            position: absolute;
-            top: 0;
+            position: fixed;
+            top: 90px;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             z-index: 1;
         }
 
-        /* Floating Command Center */
-        .command-center {
+        /* Lisibilité carte : léger voile sous le panneau */
+        #map-container::after {
+            content: '';
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 440px;
-            max-height: calc(100vh - 130px);
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 32px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+            inset: 0;
+            pointer-events: none;
+            z-index: 500;
+            background: linear-gradient(105deg, rgba(15, 23, 42, 0.35) 0%, transparent 45%, transparent 100%);
+        }
+
+        .leaflet-pane,
+        .leaflet-top,
+        .leaflet-bottom {
+            z-index: 2 !important;
+        }
+
+        #map-container.leaflet-container {
+            font-family: inherit;
+        }
+
+        .leaflet-marker-custom {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* Panneau réservation — carte posée sur la carte */
+        .command-center {
+            position: fixed;
+            top: 104px;
+            left: max(16px, env(safe-area-inset-left));
+            width: min(420px, calc(100vw - 32px));
+            max-height: calc(100vh - 118px - env(safe-area-inset-bottom));
+            z-index: 520;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.85) inset,
+                0 24px 50px rgba(15, 23, 42, 0.18),
+                0 0 0 1px rgba(15, 23, 42, 0.04);
+        }
+
+        .cc-accent {
+            height: 4px;
+            flex-shrink: 0;
+            background: linear-gradient(90deg, #2563eb, #6366f1);
         }
 
         .cc-header {
-            padding: 30px 30px 20px;
+            padding: 1.125rem 1.25rem 0.875rem;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .cc-content {
-            padding: 0 30px 30px;
+            padding: 1rem 1.25rem 1.125rem;
             overflow-y: auto;
             flex-grow: 1;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Input Styling */
+        .booking-stepper {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 0.875rem;
+        }
+
+        .booking-step {
+            flex: 1;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: center;
+            padding: 0.4rem 0.35rem;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        .booking-step--current {
+            background: linear-gradient(135deg, #eff6ff, #eef2ff);
+            color: #1d4ed8;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+        }
+
+        .cc-title-row h2 {
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .rental-hint details {
+            font-size: 0.8rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .rental-hint summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            list-style: none;
+        }
+
+        .rental-hint summary::-webkit-details-marker {
+            display: none;
+        }
+
         .ride-search-box {
-            background: #FFF;
-            border-radius: 20px;
-            padding: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 4px;
+            border: 1px solid #e2e8f0;
         }
 
         .ride-input-group {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #F1F5F9;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .ride-input-group:first-child {
+            border-radius: 12px 12px 0 0;
         }
 
         .ride-input-group:last-child {
             border-bottom: none;
+            border-radius: 0 0 12px 12px;
         }
 
         .dot-indicator {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            margin-right: 15px;
+            margin-right: 12px;
+            flex-shrink: 0;
         }
 
         .dot-pickup {
-            background: #2563EB;
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+            background: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .dot-dropoff {
-            background: #F59E0B;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            background: #ea580c;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
         }
 
         .ride-input {
             border: none;
             width: 100%;
             font-weight: 500;
-            font-size: 1.05rem;
-            color: #1E293B;
+            font-size: 0.95rem;
+            color: #0f172a;
+            background: transparent;
+        }
+
+        .ride-input::placeholder {
+            color: #94a3b8;
         }
 
         .ride-input:focus {
             outline: none;
         }
 
-        /* Vehicle Selection */
+        .ride-input-group:focus-within {
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin: 1rem 0 0.5rem;
+        }
+
         .vehicle-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 10px;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 380px) {
+            .vehicle-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .vehicle-card-v2 {
-            background: #FFF;
-            border: 2px solid transparent;
-            border-radius: 24px;
-            padding: 20px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
         }
 
         .vehicle-card-v2:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
         }
 
         .vehicle-card-v2.active {
-            border-color: var(--primary);
-            background: #F8FAFF;
+            border-color: #2563eb;
+            background: #f8fafc;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
         }
 
-        .vehicle-img {
-            width: 100%;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 15px;
+        .vehicle-card-v2 .veh-thumb {
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
         }
 
-        /* Floating Quick Actions */
+        #mainActionBtn {
+            border-radius: 14px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
         .quick-actions {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
+            position: fixed;
+            top: 104px;
+            right: max(16px, env(safe-area-inset-right));
+            z-index: 520;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .action-btn {
-            width: 55px;
-            height: 55px;
-            border-radius: 18px;
-            background: #FFF;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.15s, color 0.15s;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
         }
 
         .action-btn:hover {
-            transform: scale(1.1);
+            transform: translateY(-2px);
             color: var(--primary);
         }
 
-        /* Active Ride Modern Overlay */
         .modern-status-bar {
-            position: absolute;
-            bottom: 30px;
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom));
             left: 50%;
             transform: translateX(-50%);
-            width: 600px;
-            background: #1E293B;
-            border-radius: 24px;
-            padding: 20px 30px;
+            width: min(560px, calc(100vw - 32px));
+            background: #0f172a;
+            border-radius: 18px;
+            padding: 16px 22px;
             display: none;
-            z-index: 1000;
-            color: #FFF;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            z-index: 530;
+            color: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
         }
 
-        /* Autocomplete Results */
         .autocomplete-results {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: #FFF;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-height: 250px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            z-index: 1060;
+            max-height: 220px;
             overflow-y: auto;
-            margin-top: 5px;
+            margin-top: 6px;
             display: none;
-            border: 1px solid #F1F5F9;
+            border: 1px solid #e2e8f0;
         }
 
         .result-item {
-            padding: 12px 20px;
+            padding: 10px 14px;
             cursor: pointer;
-            border-bottom: 1px solid #F1F5F9;
-            font-size: 0.9rem;
-            transition: background 0.2s;
+            font-size: 0.82rem;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
         }
 
         .result-item:hover {
-            background: #F8FAFF;
+            background: #f8fafc;
         }
 
         .result-item:last-child {
             border-bottom: none;
+        }
+
+        /* Modale notation : même style carte, au-dessus de tout */
+        #ratingModal.command-center {
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: min(400px, calc(100vw - 24px));
+            max-height: min(90vh, 640px);
+            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.35);
+        }
+
+        #ratingModal .cc-accent {
+            display: none;
         }
     </style>
 @endpush
@@ -215,16 +350,32 @@
     <div id="map-container"></div>
 
     <div class="command-center" id="commandCenter">
+        <div class="cc-accent" aria-hidden="true"></div>
         <div class="cc-header">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <h2 class="h4 mb-0">Centre de Commande</h2>
-                <span class="badge bg-primary-subtle text-primary px-3 rounded-pill">Privé</span>
+            <div class="booking-stepper" role="presentation">
+                <span class="booking-step booking-step--current" id="bookingStepTrip">Trajet</span>
+                <span class="booking-step" id="bookingStepVehicle">Véhicule</span>
             </div>
-            <p class="text-muted small">Bienvenue chez ATLAS AND CO, {{ auth()->user()->name }}.</p>
+            <div class="cc-title-row d-flex justify-content-between align-items-start gap-2 mb-2">
+                <div>
+                    <h2 class="fw-bold mb-1 text-dark">Course avec chauffeur</h2>
+                    <p class="small text-muted mb-0 lh-sm">Une prise en charge <strong>taxi&nbsp;/&nbsp;VTC</strong> : départ → arrivée, chauffeur dédié.</p>
+                </div>
+                <span class="badge rounded-pill bg-primary text-white flex-shrink-0 align-self-start px-2 py-2" style="font-size: .65rem;">live</span>
+            </div>
+            <p class="small text-secondary mb-2">Bonjour <strong>{{ auth()->user()->name }}</strong>.</p>
+            <div class="rental-hint mb-0">
+                <details>
+                    <summary>Location plusieurs jours (avec ou sans chauffeur)&nbsp;?</summary>
+                    <p class="text-muted mb-0 mt-2 small">Ce n’est pas la même chose qu’ici. Les locations se font depuis l’accueil&nbsp;:</p>
+                    <a href="{{ route('home') }}#rental" class="d-inline-block mt-1 small fw-semibold">Ouvrir la section location →</a>
+                </details>
+            </div>
         </div>
 
         <div class="cc-content">
-            <div class="ride-search-box">
+            <p class="section-label mb-0" id="sectionRouteLabel">Où allez-vous&nbsp;?</p>
+            <div class="ride-search-box mt-2">
                 <div class="ride-input-group position-relative">
                     <div class="dot-indicator dot-pickup"></div>
                     <input type="text" class="ride-input" id="pickupInput" placeholder="Point de départ" autocomplete="off">
@@ -239,18 +390,18 @@
             </div>
 
             <div id="vehicleSection" style="display: none;">
-                <div class="vehicle-grid" id="vehicleGrid">
+                <p class="section-label mb-0" id="sectionVehicleLabel">Catégorie &amp; tarif estimé</p>
+                <div class="vehicle-grid mt-2" id="vehicleGrid">
                     <!-- Dynamic Content -->
                 </div>
 
-                <div class="mt-4 p-4 rounded-4 bg-light text-center">
-                    <div class="small text-muted mb-2"><i class="bi bi-info-circle me-1"></i> Règlement à bord du véhicule
-                    </div>
-                    <div class="fw-bold small text-primary">Terminal de paiement disponible</div>
+                <div class="mt-3 p-3 rounded-3 border text-center" style="border-color: #e2e8f0 !important; background: #fafafa;">
+                    <div class="small text-muted mb-1"><i class="bi bi-person-badge me-1 text-primary"></i> Tarif tout compris avec <strong>chauffeur</strong></div>
+                    <div class="small text-muted">À régler après le trajet à bord (TPE).</div>
                 </div>
             </div>
 
-            <button class="btn btn-premium w-100 py-3 mt-4" id="mainActionBtn">Continuer</button>
+            <button type="button" class="btn btn-premium w-100 py-3 mt-4" id="mainActionBtn">Continuer</button>
         </div>
     </div>
 
@@ -314,7 +465,7 @@
                 <input type="hidden" id="paymentMethod" value="cash">
             </div>
 
-            <button class="btn btn-premium w-100 py-3" id="submitRating">Envoyer mon avis</button>
+            <button type="button" class="btn btn-premium w-100 py-3" id="submitRating">Envoyer mon avis</button>
         </div>
     </div>
 @endsection
@@ -323,11 +474,77 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
 
-            const map = L.map('map-container', { zoomControl: false }).setView([40.7128, -74.0060], 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}.png').addTo(map);
+            const jsonHeaders = () => ({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            });
+
+            async function parseResponseBody(res) {
+                const text = await res.text();
+                try { return text ? JSON.parse(text) : {}; } catch { return { message: text || 'Réponse invalide' }; }
+            }
+
+            async function postJson(url, payload) {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: jsonHeaders(),
+                    body: JSON.stringify(payload),
+                });
+                const data = await parseResponseBody(res);
+                if (!res.ok) {
+                    const err = new Error(data.message || ('Erreur ' + res.status));
+                    err.data = data;
+                    err.status = res.status;
+                    throw err;
+                }
+                return data;
+            }
+
+            const tripRateUrl = (tripId) => `{{ url('/trips') }}/${tripId}/rate`;
+
+            let map;
+            try {
+                map = L.map('map-container', { zoomControl: true }).setView([48.8566, 2.3522], 12);
+            } catch (mapErr) {
+                console.error(mapErr);
+                alert('La carte ne peut pas s\'afficher sur cette page.');
+                return;
+            }
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20,
+            }).addTo(map);
+
+            let pickupMarker = null;
+            let dropoffMarker = null;
+
+            function setRouteMarker(type, lat, lng, options) {
+                const iconHtml = `<span style="display:block;width:16px;height:16px;border-radius:50%;background:${options.color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);"></span>`;
+                const ic = L.divIcon({
+                    html: iconHtml,
+                    className: 'leaflet-marker-custom',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8],
+                });
+                const m = L.marker([lat, lng], { icon: ic });
+                if (type === 'pickup') {
+                    if (pickupMarker) map.removeLayer(pickupMarker);
+                    pickupMarker = m.addTo(map);
+                } else {
+                    if (dropoffMarker) map.removeLayer(dropoffMarker);
+                    dropoffMarker = m.addTo(map);
+                }
+            }
+
+            queueMicrotask(() => map.invalidateSize());
+            window.addEventListener('resize', () => map.invalidateSize());
 
             const mainActionBtn = document.getElementById('mainActionBtn');
             const vehicleGrid = document.getElementById('vehicleGrid');
@@ -343,11 +560,55 @@
                 dropoff: null
             };
 
-            // Geocoding Logic
+            // Geocoding Logic (Nominatim — usage modeste conforme à leur policy)
             async function searchAddress(query) {
-                if (query.length < 3) return [];
-                const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
-                return response.data;
+                if (!query || query.trim().length < 3) return [];
+                try {
+                    const q = encodeURIComponent(query.trim());
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=5`, {
+                        headers: { Accept: 'application/json' },
+                        credentials: 'omit',
+                    });
+                    const data = await parseResponseBody(res);
+                    return Array.isArray(data) ? data : [];
+                } catch (_) {
+                    return [];
+                }
+            }
+
+            /** Si l'utilisateur a tapé du texte sans cliquer une suggestion, on prend la 1re proposition Nominatim. */
+            async function ensureRouteSlotsFromInputs() {
+                let ok = true;
+                const pickText = pickupInput?.value?.trim() ?? '';
+                const dropText = dropoffInput?.value?.trim() ?? '';
+
+                if (!routeData.pickup && pickText.length >= 3) {
+                    const hits = await searchAddress(pickText);
+                    const item = hits[0];
+                    if (item) {
+                        routeData.pickup = {
+                            lat: parseFloat(item.lat),
+                            lng: parseFloat(item.lon),
+                            address: item.display_name,
+                        };
+                        pickupInput.value = item.display_name;
+                        setRouteMarker('pickup', routeData.pickup.lat, routeData.pickup.lng, { color: '#2563eb' });
+                    } else ok = false;
+                }
+                if (!routeData.dropoff && dropText.length >= 3) {
+                    const hits = await searchAddress(dropText);
+                    const item = hits[0];
+                    if (item) {
+                        routeData.dropoff = {
+                            lat: parseFloat(item.lat),
+                            lng: parseFloat(item.lon),
+                            address: item.display_name,
+                        };
+                        dropoffInput.value = item.display_name;
+                        setRouteMarker('dropoff', routeData.dropoff.lat, routeData.dropoff.lng, { color: '#f59e0b' });
+                    } else ok = false;
+                }
+                return ok;
             }
 
             function setupAutocomplete(inputId, resultsId, type) {
@@ -374,8 +635,10 @@
                                         lng: parseFloat(item.lon),
                                         address: item.display_name
                                     };
-                                    map.setView([item.lat, item.lon], 15);
-                                    L.marker([item.lat, item.lon]).addTo(map);
+                                    map.setView([routeData[type].lat, routeData[type].lng], 15);
+                                    setRouteMarker(type, routeData[type].lat, routeData[type].lng, {
+                                        color: type === 'pickup' ? '#2563eb' : '#f59e0b',
+                                    });
                                 };
                                 results.appendChild(div);
                             });
@@ -395,33 +658,53 @@
             setupAutocomplete('pickupInput', 'pickupResults', 'pickup');
             setupAutocomplete('dropoffInput', 'dropoffResults', 'dropoff');
 
+            function setBookingStep(phase) {
+                const stepTrip = document.getElementById('bookingStepTrip');
+                const stepVeh = document.getElementById('bookingStepVehicle');
+                if (!stepTrip || !stepVeh) return;
+                stepTrip.classList.toggle('booking-step--current', phase === 'trip');
+                stepVeh.classList.toggle('booking-step--current', phase === 'vehicle');
+            }
+            setBookingStep('trip');
+
             mainActionBtn.addEventListener('click', async () => {
                 if (state === 0) {
                     if (!routeData.pickup || !routeData.dropoff) {
-                        alert('Veuillez sélectionner un point de départ et une destination parmi les suggestions.');
-                        return;
+                        mainActionBtn.disabled = true;
+                        mainActionBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Adresses...';
+                        const resolved = await ensureRouteSlotsFromInputs();
+                        mainActionBtn.disabled = false;
+                        mainActionBtn.innerHTML = 'Continuer';
+                        if (!resolved || !routeData.pickup || !routeData.dropoff) {
+                            alert('Indiquez un départ et une arrivée (au moins 3 caractères). Choisissez une suggestion ou laissez-nous géocoder au clic sur Continuer.');
+                            return;
+                        }
                     }
 
-                    mainActionBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Calcul...';
+                        mainActionBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Calcul...';
                     mainActionBtn.disabled = true;
 
                     try {
-                        const response = await axios.post('/trips/estimate', {
+                        const estimateRows = await postJson(@json(route('trips.estimate')), {
                             pickup_lat: routeData.pickup.lat, pickup_lng: routeData.pickup.lng,
-                            dropoff_lat: routeData.dropoff.lat, dropoff_lng: routeData.dropoff.lng
+                            dropoff_lat: routeData.dropoff.lat, dropoff_lng: routeData.dropoff.lng,
                         });
 
+                        if (!estimateRows || !estimateRows.length) {
+                            alert('Aucun type de véhicule disponible. Exécutez les seeders : php artisan db:seed.');
+                            mainActionBtn.innerHTML = 'Continuer';
+                            mainActionBtn.disabled = false;
+                            return;
+                        }
+
                         vehicleGrid.innerHTML = '';
-                        response.data.forEach((opt, index) => {
+                        estimateRows.forEach((opt, index) => {
                             const card = document.createElement('div');
                             card.className = `vehicle-card-v2 ${index === 0 ? 'active' : ''}`;
                             card.innerHTML = `
-                                <div class="rounded-4 overflow-hidden shadow-lg mb-2" style="transform: rotate(2deg);">
-                                    <img src="${opt.id === 1 ? '{{ asset('images/berline-standard.jpg') }}' : (opt.id === 2 ? '{{ asset('images/van-luxe.jpg') }}' : '{{ asset('images/sprinter-mercedes.jpg') }}')}" class="w-100 h-100" style="object-fit: cover;" alt="ATLAS AND CO Fleet">
-                                </div>
-                                <div class="fw-bold">${opt.name}</div>
-                                <div class="text-primary fw-bold">${opt.price}€</div>
-                            `;
+                                <div class="veh-thumb shadow-sm"><img src="${opt.id === 1 ? '{{ asset('images/berline-standard.jpg') }}' : (opt.id === 2 ? '{{ asset('images/van-luxe.jpg') }}' : '{{ asset('images/sprinter-mercedes.jpg') }}')}" class="w-100" style="height:72px;object-fit:cover;" alt=""></div>
+                                <div class="fw-bold small">${opt.name}</div>
+                                <div class="text-primary fw-bold small mt-1">${opt.price}€</div>`;
                             card.addEventListener('click', () => {
                                 document.querySelectorAll('.vehicle-card-v2').forEach(c => c.classList.remove('active'));
                                 card.classList.add('active');
@@ -432,8 +715,14 @@
                         });
 
                         // routeData was already partially filled by autocomplete, we complete it here
-                        routeData.distance = response.data[0].distance;
-                        routeData.duration = response.data[0].duration;
+                        routeData.distance = estimateRows[0].distance;
+                        routeData.duration = estimateRows[0].duration;
+
+                        const bounds = L.latLngBounds(
+                            [routeData.pickup.lat, routeData.pickup.lng],
+                            [routeData.dropoff.lat, routeData.dropoff.lng],
+                        );
+                        map.fitBounds(bounds.pad(0.15), { maxZoom: 15 });
 
                         // We prepare the final object for the store request
                         const finalTripData = {
@@ -455,21 +744,26 @@
                         gsap.set(vehicleSection, { display: "block", opacity: 0, y: 20 });
                         gsap.to(vehicleSection, { opacity: 1, y: 0, duration: 0.5 });
 
-                        mainActionBtn.innerHTML = 'Confirmer ATLAS AND CO';
+                        mainActionBtn.innerHTML = 'Confirmer la course';
                         mainActionBtn.disabled = false;
                         state = 1;
+                        setBookingStep('vehicle');
                     } catch (e) {
-                        mainActionBtn.innerHTML = 'Réessayer';
+                        const err = e.data;
+                        const msg = err?.message
+                            ?? (err?.errors ? Object.values(err.errors).flat().join('\n') : null)
+                            ?? e.message;
+                        alert('Impossible de calculer le trajet :\n' + msg);
+                        mainActionBtn.innerHTML = 'Continuer';
                         mainActionBtn.disabled = false;
+                        setBookingStep('trip');
                     }
                 } else if (state === 1) {
                     mainActionBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Envoi...';
                     mainActionBtn.disabled = true;
 
                     try {
-                        const response = await axios.post('/trips', window.currentBookingData);
-
-                        const trip = response.data;
+                        const trip = await postJson(@json(route('trips.store')), window.currentBookingData);
                         let currentTripId = trip.id;
 
                         if (window.Echo) {
@@ -518,10 +812,10 @@
 
                         document.getElementById('submitRating').addEventListener('click', async () => {
                             try {
-                                await axios.post(`/trips/${currentTripId}/rate`, {
+                                await postJson(tripRateUrl(currentTripId), {
                                     rating: document.getElementById('ratingValue').value,
                                     comment: document.getElementById('ratingComment').value,
-                                    payment_method: document.getElementById('paymentMethod').value
+                                    payment_method: document.getElementById('paymentMethod').value,
                                 });
                                 location.reload();
                             } catch (e) {
@@ -529,13 +823,20 @@
                             }
                         });
                     } catch (e) {
-                        mainActionBtn.innerHTML = 'Échec. Réessayez.';
+                        const err = e.data;
+                        const msg = err?.message
+                            ?? (err?.errors ? Object.values(err.errors).flat().join('\n') : null)
+                            ?? e.message;
+                        alert('La commande a échoué :\n' + msg);
+                        mainActionBtn.innerHTML = 'Confirmer la course';
                         mainActionBtn.disabled = false;
                     }
                 }
             });
 
-            gsap.from("#commandCenter", { x: -100, opacity: 0, duration: 1, ease: "power3.out" });
+            if (typeof gsap !== 'undefined') {
+                gsap.from('#commandCenter', { x: -28, opacity: 0, duration: 0.55, ease: 'power2.out' });
+            }
         });
     </script>
 @endpush

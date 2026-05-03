@@ -2,29 +2,19 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Models\Trip;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TripRequested implements ShouldBroadcast
+/**
+ * Événement domaine « nouvelle course » (sans broadcast obligatoire).
+ * Le tableau admin se met à jour par rechargement / navigation.
+ */
+class TripRequested
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, SerializesModels;
 
-    public $trip;
-
-    public function __construct($trip)
+    public function __construct(public Trip $trip)
     {
-        $this->trip = $trip;
-    }
-
-    public function broadcastOn(): array
-    {
-        return [
-            new PrivateChannel('admin'),
-        ];
     }
 }

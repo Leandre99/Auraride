@@ -35,6 +35,7 @@ class NewRentalRequested extends Notification
                     ->line('Du : ' . $this->rental->start_date)
                     ->line('Au : ' . $this->rental->end_date)
                     ->line('Heure de prise en charge : ' . $this->rental->pickup_time)
+                    ->line('Avec chauffeur demandé : ' . ($this->rental->with_driver ? 'Oui' : 'Non — conduite autonome / à préciser avec le client'))
                     ->action('Gérer les Locations', url('/admin/dashboard'))
                     ->line('Merci de contacter le client pour finaliser la location.');
     }

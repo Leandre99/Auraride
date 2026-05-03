@@ -74,13 +74,19 @@ class TripController extends Controller
         // Load client for the notification
         $trip->load('client');
 
-        // Notify Admins
         $admins = \App\Models\User::where('role', 'admin')->get();
-        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTripRequested($trip));
+        try {
+            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTripRequested($trip));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+        try {
+            event(new TripRequested($trip));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
-        event(new TripRequested($trip));
-
-        return response()->json($trip);
+        return response()->json($trip->fresh(['client']));
     }
 
     public function assign(Request $request, Trip $trip)
@@ -92,18 +98,32 @@ class TripController extends Controller
         $driver = \App\Models\User::find($request->driver_id);
         
         if ($driver->role !== 'driver') {
-            return response()->json(['error' => 'L\'utilisateur sélectionné n\'est pas un chauffeur.'], 422);
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'L\'utilisateur sélectionné n\'est pas un chauffeur.'], 422);
+            }
+
+            return back()->with('error', 'L\'utilisateur sélectionné n\'est pas un chauffeur.');
         }
 
         $trip->update([
             'driver_id' => $driver->id,
-            'vehicle_id' => $driver->vehicle->id ?? null,
+            'vehicle_id' => $driver->vehicle?->id,
             'status' => 'assigned',
         ]);
 
-        event(new \App\Events\TripAssigned($trip));
+        try {
+            event(new \App\Events\TripAssigned($trip));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
-        return response()->json(['success' => true, 'trip' => $trip]);
+        $trip->load(['client', 'driver', 'vehicle']);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'trip' => $trip]);
+        }
+
+        return back()->with('success', 'La course a été assignée au chauffeur.');
     }
 
     public function accept(Trip $trip)
@@ -117,7 +137,11 @@ class TripController extends Controller
             'status' => 'accepted',
         ]);
 
-        event(new TripAccepted($trip));
+        try {
+            event(new TripAccepted($trip));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json($trip);
     }

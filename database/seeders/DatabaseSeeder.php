@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Michael Driver',
                 'password' => Hash::make('password'),
                 'role' => 'driver',
+                'is_approved' => true,
+                'is_active' => true,
             ]
         );
 

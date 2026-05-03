@@ -12,8 +12,13 @@ class Rental extends Model
         'start_date',
         'end_date',
         'pickup_time',
+        'with_driver',
         'total_price',
         'status',
+    ];
+
+    protected $casts = [
+        'with_driver' => 'boolean',
     ];
 
     public function user()

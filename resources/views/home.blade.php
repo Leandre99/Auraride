@@ -3,8 +3,8 @@
 @section('title', 'Révolutionner le transport urbain')
 
 @section('content')
-<!-- Hero Section -->
-<section class="py-5 position-relative overflow-hidden" style="background: linear-gradient(180deg, #FFFFFF 0%, var(--bg-light) 100%);">
+<!-- Hero Section (id pour cibler les animations sans toucher à la navbar) -->
+<section id="hero" class="py-5 position-relative overflow-hidden" style="background: linear-gradient(180deg, #FFFFFF 0%, var(--bg-light) 100%);">
     <div class="container position-relative z-index-10 py-5">
         <div class="row align-items-center">
             <div class="col-lg-6">
@@ -131,12 +131,13 @@
                     </div>
                     <h3 class="fw-bold mb-3">VTC Premium</h3>
                     <p class="text-muted mb-4">Commandez un chauffeur privé en quelques secondes. Voyagez dans des véhicules de luxe avec un service irréprochable.</p>
+                    <div class="small text-muted mb-3 p-3 rounded-3 bg-light"><strong>VTC / taxi premium</strong> : vous êtes conduit par un chauffeur sur un trajet ponctuel (départ → arrivée).</div>
                     <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i> Chauffeurs professionnels</li>
-                        <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i> Véhicules haut de gamme</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i> Toujours <strong>avec chauffeur</strong></li>
+                        <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i> Chauffeurs professionnels &amp; véhicules haut de gamme</li>
                         <li><i class="bi bi-check2-circle text-primary me-2"></i> Disponibilité 24/7</li>
                     </ul>
-                    <a href="{{ route('register') }}" class="btn btn-outline-premium w-100 py-3">Réserver une course</a>
+                    <a href="{{ route('register') }}" class="btn btn-outline-premium w-100 py-3">Réserver une course avec chauffeur</a>
                 </div>
             </div>
             <div class="col-md-6">
@@ -144,8 +145,9 @@
                     <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center mb-4" style="width: 70px; height: 70px;">
                         <i class="bi bi-key fs-1"></i>
                     </div>
-                    <h3 class="fw-bold mb-3">Location de Véhicules</h3>
-                    <p class="text-muted mb-4">Louez nos véhicules d'exception pour vos besoins personnels ou professionnels, avec ou sans chauffeur.</p>
+                    <h3 class="fw-bold mb-3">Location de véhicules</h3>
+                    <div class="small text-muted mb-3 p-3 rounded-3 bg-light"><strong>Location</strong> : vous réservez un véhicule pour une <strong>période</strong> (dates de début / fin). Vous pouvez choisir <strong>avec ou sans chauffeur</strong>, selon offre.</div>
+                    <p class="text-muted mb-4">Louez nos véhicules d’exception pour vos déplacements personnels ou pros — ce n’est pas une course ponctuelle type taxi.</p>
                     <ul class="list-unstyled mb-4">
                         <li class="mb-2"><i class="bi bi-check2-circle text-warning me-2"></i> Flotte de prestige</li>
                         <li class="mb-2"><i class="bi bi-check2-circle text-warning me-2"></i> Durée flexible (jour/semaine)</li>
@@ -165,7 +167,7 @@
             <div class="row g-0">
                 <div class="col-lg-5 bg-dark p-5 text-white d-flex flex-column justify-content-center">
                     <h2 class="display-6 fw-bold mb-4">Louez votre <span class="text-primary-gradient">Liberté</span></h2>
-                    <p class="opacity-75 mb-5">Sélectionnez votre modèle, vos dates et profitez de l'excellence ATLAS AND CO à votre propre rythme.</p>
+                    <p class="opacity-75 mb-5">Sélectionnez votre modèle et vos dates. La location couvre une <strong>période</strong> ; précisez à l’agent si vous souhaitez le véhicule <strong>avec chauffeur</strong> ou en <strong>conduite autonome</strong>.</p>
                     
                     <div class="d-flex gap-4 mb-4">
                         <div class="text-center vehicle-type-btn active" data-type="1">
@@ -204,6 +206,14 @@
                                 <option value="2">Van Luxe (Mercedes V-Class)</option>
                                 <option value="3">Sprinter Mercedes (9 places)</option>
                             </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check p-4 rounded-3 bg-light border border-light mt-3">
+                                <input class="form-check-input mt-2" type="checkbox" value="1" name="with_driver" id="rentalWithDriver">
+                                <label class="form-check-label small mb-0" for="rentalWithDriver">
+                                    <strong>Inclure un chauffeur</strong> pour toute la période de location (facturation différente d’une course VTC ponctuelle — confirmation par téléphone).
+                                </label>
+                            </div>
                         </div>
                         <div class="col-12 mt-5">
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -365,14 +375,30 @@
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
 
                 try {
-                    const formData = new FormData(rentalForm);
-                    const response = await axios.post(rentalForm.action, formData);
-                    if(response.data.success) {
-                        alert('Votre demande de location a bien été envoyée ! Un agent ATLAS AND CO vous contactera par téléphone sous peu.');
+                    const fd = new FormData(rentalForm);
+                    if (!document.getElementById('rentalWithDriver').checked) {
+                        fd.delete('with_driver');
+                    }
+                    const res = await fetch(rentalForm.action, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: fd,
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.success) {
+                        alert('Votre demande de location a bien été envoyée ! Un agent ATLAS AND CO vous contactera pour confirmer la période et l’option chauffeur éventuelle.');
                         rentalForm.reset();
+                    } else {
+                        const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur ' + res.status);
+                        alert('Une erreur est survenue : ' + msg);
                     }
                 } catch (error) {
-                    alert('Une erreur est survenue. Veuillez vérifier vos informations ou réessayer plus tard.');
+                    alert('Une erreur est survenue. Réessayez plus tard.');
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Réserver la Location';
@@ -380,10 +406,10 @@
             });
         }
 
-        // Hero Animations
-        gsap.from(".display-3", { y: 50, opacity: 0, duration: 1, delay: 0.2 });
-        gsap.from(".lead", { y: 30, opacity: 0, duration: 1, delay: 0.4 });
-        gsap.from(".btn-premium, .btn-outline-premium", { y: 20, opacity: 0, duration: 1, delay: 0.6, stagger: 0.2 });
+        // Hero uniquement : ne pas sélectionner .btn-premium global (sinon le bouton « S'inscrire » de la navbar reste invisible)
+        gsap.from("#hero .display-3", { y: 50, opacity: 0, duration: 1, delay: 0.2 });
+        gsap.from("#hero .lead", { y: 30, opacity: 0, duration: 1, delay: 0.4 });
+        gsap.from("#hero .btn-premium, #hero .btn-outline-premium", { y: 20, opacity: 0, duration: 1, delay: 0.6, stagger: 0.2 });
     });
 </script>
 @endpush
