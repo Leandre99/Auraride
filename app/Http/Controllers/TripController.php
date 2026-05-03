@@ -179,7 +179,11 @@ class TripController extends Controller
 
         $trip->update(['status' => 'cancelled']);
 
-        return response()->json($trip);
+        if (request()->expectsJson()) {
+            return response()->json($trip);
+        }
+
+        return redirect()->back()->with('success', 'La course a été annulée.');
     }
 
     public function rate(Request $request, Trip $trip)
@@ -191,16 +195,21 @@ class TripController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
+            'payment_method' => 'nullable|in:card,cash',
         ]);
 
         $trip->update([
             'rating' => $request->rating,
             'comment' => $request->comment,
-            'payment_method' => 'cash', // Default to cash as per requirements
-            'payment_status' => 'pending', // Payment will be confirmed by driver/terminal
+            'payment_method' => $request->input('payment_method', 'cash'),
+            'payment_status' => 'pending',
         ]);
 
-        return response()->json(['success' => true]);
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Merci pour votre avis.');
     }
 
     public function confirmPayment(Trip $trip)
@@ -211,7 +220,11 @@ class TripController extends Controller
 
         $trip->update(['payment_status' => 'paid']);
 
-        return response()->json(['success' => true]);
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Paiement confirmé.');
     }
 
     private function calculateMockDistance($lat1, $lon1, $lat2, $lon2)

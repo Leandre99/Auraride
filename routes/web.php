@@ -33,7 +33,24 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Client Routes
 Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () {
     Route::get('/dashboard', function () {
-        return view('client.dashboard');
+        $trackingTrip = \App\Models\Trip::query()
+            ->where('client_id', auth()->id())
+            ->where('status', '!=', 'cancelled')
+            ->where(function ($q) {
+                $q->whereIn('status', ['pending', 'assigned', 'accepted', 'in_progress'])
+                    ->orWhere(function ($q2) {
+                        $q2->where('status', 'completed')
+                            ->where(function ($q3) {
+                                $q3->whereNull('rating')
+                                    ->orWhere('payment_status', '!=', 'paid');
+                            });
+                    });
+            })
+            ->orderByDesc('updated_at')
+            ->with(['driver', 'vehicle.vehicleType'])
+            ->first();
+
+        return view('client.dashboard', compact('trackingTrip'));
     })->name('client.dashboard');
 
     Route::post('/trips/estimate', [\App\Http\Controllers\TripController::class, 'estimate'])->name('trips.estimate');

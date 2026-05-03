@@ -3,6 +3,7 @@
 @section('title', 'Courses avec chauffeur — ATLAS AND CO')
 
 @push('styles')
+    @unless(isset($trackingTrip) && $trackingTrip)
     <style>
         body {
             background: #0f172a;
@@ -344,9 +345,229 @@
             display: none;
         }
     </style>
+    @else
+    <style>
+        body { background: #f8fafc; }
+        .client-tracking .tracking-status {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            color: #fff;
+            border-radius: 24px;
+            padding: 1.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.2);
+        }
+        .client-tracking .tracking-status .text-light-muted { color: rgba(255, 255, 255, 0.65); }
+        .client-tracking .map-panel {
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            min-height: 480px;
+        }
+        .client-tracking #tracking-map { height: 500px; border-radius: 24px; }
+        .client-tracking .dashboard-accent { color: #2563eb; }
+        .client-tracking .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 0.35rem;
+            margin-bottom: 1rem;
+        }
+        .client-tracking .star-rating input { display: none; }
+        .client-tracking .star-rating label {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            margin: 0;
+            line-height: 1;
+        }
+        .client-tracking .star-rating label:hover,
+        .client-tracking .star-rating label:hover ~ label,
+        .client-tracking .star-rating input:checked ~ label { color: #f59e0b; }
+        .client-tracking .animate-up { animation: auraFadeUp 0.5s ease forwards; }
+        @keyframes auraFadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    @endunless
 @endpush
 
 @section('content')
+    @if(isset($trackingTrip) && $trackingTrip)
+    @php
+        $driverPhone = $trackingTrip->driver?->phone_number;
+        $telHref = $driverPhone ? 'tel:' . preg_replace('/\s+/', '', $driverPhone) : '#';
+        $veh = $trackingTrip->vehicle;
+        $typeName = $veh?->vehicleType?->name ?? 'Véhicule';
+        $vehDesc = $veh
+            ? trim(($veh->model ?: $typeName) . ($veh->color ? ' (' . $veh->color . ')' : ''))
+            : $typeName;
+        $plate = $veh?->plate_number ?? '—';
+    @endphp
+    <section class="client-tracking py-4">
+        <div class="container">
+            @if (session('success'))
+                <div class="alert alert-success border-0 rounded-4 mb-4 shadow-sm">{{ session('success') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger border-0 rounded-4 mb-4 shadow-sm">
+                    <ul class="mb-0 ps-3">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                </div>
+            @endif
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+                <h2 class="fw-bold mb-0">Suivi de votre <span class="dashboard-accent">course</span></h2>
+                <div class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill border border-primary border-opacity-25">
+                    Connecté : {{ Auth::user()->name }}
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="tracking-status animate-up shadow-lg" id="status-card" data-trip-status="{{ $trackingTrip->status }}">
+                        @if($trackingTrip->status === 'pending')
+                            <h4 class="mb-3"><i class="bi bi-search me-2"></i>Recherche de chauffeur…</h4>
+                            <p class="mb-0 text-light-muted">Votre demande est envoyée aux chauffeurs disponibles.</p>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="spinner-border text-light spinner-border-sm me-2" role="status"></div>
+                                <span class="text-light-muted">Veuillez patienter…</span>
+                            </div>
+                        @elseif($trackingTrip->status === 'assigned')
+                            <h4 class="mb-3"><i class="bi bi-person-check me-2"></i>Chauffeur désigné</h4>
+                            <p class="mb-0 text-light-muted">Un chauffeur vous a été assigné. Il peut accepter la course sous peu.</p>
+                            @if($trackingTrip->driver)
+                                <p class="mb-0 mt-3"><strong>{{ $trackingTrip->driver->name }}</strong></p>
+                            @endif
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="spinner-border text-light spinner-border-sm me-2" role="status"></div>
+                                <span class="text-light-muted">En attente de confirmation…</span>
+                            </div>
+                        @elseif($trackingTrip->status === 'accepted')
+                            <h4 class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Chauffeur trouvé !</h4>
+                            <p class="mb-0"><strong>{{ $trackingTrip->driver?->name ?? 'Votre chauffeur' }}</strong> se dirige vers vous.</p>
+                            <p class="mb-0 small text-light-muted mt-2">{{ $vehDesc }} — {{ $plate }}</p>
+                            <hr class="border-secondary opacity-25">
+                            <div class="d-flex align-items-center mb-0">
+                                <div class="spinner-grow text-light spinner-grow-sm me-2" role="status"></div>
+                                <span>Prise en charge sous peu</span>
+                            </div>
+                        @elseif($trackingTrip->status === 'in_progress')
+                            <h4 class="mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Course en cours</h4>
+                            <p class="mb-0 text-light-muted">Vous êtes en route vers votre destination.</p>
+                            <hr class="border-secondary opacity-25">
+                            <p class="mb-0">Destination : <strong>{{ $trackingTrip->dropoff_address }}</strong></p>
+                        @elseif($trackingTrip->status === 'completed')
+                            <h4 class="mb-3"><i class="bi bi-flag-fill me-2"></i>Course terminée</h4>
+                            <p class="mb-3 text-light-muted">Merci d'avoir voyagé avec nous.</p>
+                            <div class="bg-white text-dark p-4 rounded-4 shadow-sm mb-0">
+                                @if(!$trackingTrip->rating)
+                                    <h5 class="fw-bold text-center mb-3">Votre avis</h5>
+                                    <form id="payment-form" action="{{ route('trips.rate', $trackingTrip) }}" method="POST">
+                                        @csrf
+                                        <div class="star-rating mb-3">
+                                            <input type="radio" id="star5" name="rating" value="5" required />
+                                            <label for="star5" title="Excellent"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star4" name="rating" value="4" />
+                                            <label for="star4" title="Très bien"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star3" name="rating" value="3" />
+                                            <label for="star3" title="Bien"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star2" name="rating" value="2" />
+                                            <label for="star2" title="Passable"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star1" name="rating" value="1" />
+                                            <label for="star1" title="Médiocre"><i class="bi bi-star-fill"></i></label>
+                                        </div>
+                                        <div class="mb-3 text-center">
+                                            <label class="form-label d-block mb-2 small fw-semibold">Mode de paiement</label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="payment_method" id="pay_card" value="card" checked autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="pay_card"><i class="bi bi-credit-card me-2"></i>Carte</label>
+                                                <input type="radio" class="btn-check" name="payment_method" id="pay_cash" value="cash" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="pay_cash"><i class="bi bi-cash-stack me-2"></i>Espèces</label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <textarea name="comment" class="form-control border bg-light" rows="3" placeholder="Commentaire (optionnel)"></textarea>
+                                        </div>
+                                        <button type="submit" id="submit-btn" class="btn btn-premium w-100 py-3 fw-bold">
+                                            <i class="bi bi-check-circle me-2"></i>Valider & noter
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="text-center">
+                                        @if($trackingTrip->payment_status === 'paid')
+                                            <i class="bi bi-check-circle-fill text-success fs-1 mb-3 d-block"></i>
+                                            <h6 class="fw-bold">Paiement effectué</h6>
+                                            <p class="text-muted small mb-0">Règlement par {{ $trackingTrip->payment_method === 'card' ? 'carte' : 'espèces' }}.</p>
+                                            @if($trackingTrip->rating)
+                                                <p class="mb-0 mt-2">Note : <strong>{{ $trackingTrip->rating }}/5</strong> <i class="bi bi-star-fill text-warning"></i></p>
+                                            @endif
+                                        @else
+                                            <i class="bi bi-hourglass-split text-warning fs-1 mb-3 d-block"></i>
+                                            <h6 class="fw-bold">Paiement en attente</h6>
+                                            @if($trackingTrip->payment_method === 'card')
+                                                <p class="text-muted small">Réglez <strong>{{ number_format($trackingTrip->price, 2) }} €</strong> par carte.</p>
+                                                <form action="{{ route('trips.pay', $trackingTrip) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-premium w-100 fw-bold">Payer maintenant</button>
+                                                </form>
+                                            @else
+                                                <p class="text-muted small">Remettez <strong>{{ number_format($trackingTrip->price, 2) }} €</strong> en espèces au chauffeur. Il confirmera la réception.</p>
+                                            @endif
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if(in_array($trackingTrip->status, ['pending', 'assigned', 'accepted']))
+                            <hr class="border-secondary opacity-25">
+                            <form action="{{ route('trips.cancel', $trackingTrip) }}" method="POST" onsubmit="return confirm('Annuler cette course ?');">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-light w-100">Annuler la course</button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+                        <h5 class="fw-bold mb-3">Détails du trajet</h5>
+                        <p class="text-muted small mb-1 text-uppercase">Départ</p>
+                        <p class="fw-bold mb-3">{{ $trackingTrip->pickup_address }}</p>
+                        <p class="text-muted small mb-1 text-uppercase">Arrivée</p>
+                        <p class="fw-bold mb-3">{{ $trackingTrip->dropoff_address }}</p>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Tarif estimé</span>
+                            <span class="fw-bold text-success fs-5">{{ number_format($trackingTrip->price ?? 0, 2) }} €</span>
+                        </div>
+                    </div>
+
+                    @if($trackingTrip->driver)
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+                            <h5 class="fw-bold mb-3">Chauffeur & véhicule</h5>
+                            <div class="d-flex align-items-center mt-2">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-person-fill text-primary fs-3"></i>
+                                </div>
+                                <div>
+                                    <p class="fw-bold mb-0">{{ $trackingTrip->driver->name }}</p>
+                                    <p class="text-muted small mb-0">{{ $vehDesc }} · {{ $plate }}</p>
+                                </div>
+                            </div>
+                            @if(in_array($trackingTrip->status, ['accepted', 'in_progress']) && $driverPhone)
+                                <hr>
+                                <a href="{{ $telHref }}" class="btn btn-outline-premium w-100"><i class="bi bi-telephone-fill me-2"></i>Appeler le chauffeur</a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                <div class="col-lg-8">
+                    <div id="tracking-map" class="map-panel shadow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @else
     <div id="map-container"></div>
 
     <div class="command-center" id="commandCenter">
@@ -468,10 +689,116 @@
             <button type="button" class="btn btn-premium w-100 py-3" id="submitRating">Envoyer mon avis</button>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('scripts')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    @if(isset($trackingTrip) && $trackingTrip)
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            var rideStatus = @json($trackingTrip->status);
+            var startPos = [{{ (float) $trackingTrip->pickup_lat }}, {{ (float) $trackingTrip->pickup_lng }}];
+            var endPos = [{{ (float) $trackingTrip->dropoff_lat }}, {{ (float) $trackingTrip->dropoff_lng }}];
+            var mapEl = document.getElementById('tracking-map');
+            if (!mapEl || typeof L === 'undefined') return;
+            var map = L.map('tracking-map', { zoomControl: true }).setView(startPos, 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OSM &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20,
+            }).addTo(map);
+            var pickupIcon = L.divIcon({
+                html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
+                className: 'leaflet-marker-custom',
+                iconSize: [14, 14],
+                iconAnchor: [7, 7],
+            });
+            var dropIcon = L.divIcon({
+                html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
+                className: 'leaflet-marker-custom',
+                iconSize: [14, 14],
+                iconAnchor: [7, 7],
+            });
+            L.marker(startPos, { icon: pickupIcon }).addTo(map).bindPopup('Départ');
+            L.marker(endPos, { icon: dropIcon }).addTo(map).bindPopup('Arrivée');
+            map.fitBounds(L.latLngBounds(startPos, endPos).pad(0.12), { maxZoom: 14 });
+            queueMicrotask(() => map.invalidateSize());
+            window.addEventListener('resize', () => map.invalidateSize());
+
+            if (rideStatus === 'in_progress') {
+                var carIcon = L.divIcon({
+                    className: 'leaflet-marker-custom',
+                    html: '<div style="background:#2563eb;width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 12px rgba(37,99,235,.6)"></div>',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9],
+                });
+                var carMarker = L.marker(startPos, { icon: carIcon }).addTo(map);
+                var currentStep = 0;
+                var steps = 80;
+                function animateTrip() {
+                    if (currentStep <= steps) {
+                        var lat = startPos[0] + (endPos[0] - startPos[0]) * (currentStep / steps);
+                        var lng = startPos[1] + (endPos[1] - startPos[1]) * (currentStep / steps);
+                        carMarker.setLatLng([lat, lng]);
+                        if (currentStep % 12 === 0) map.panTo([lat, lng]);
+                        currentStep++;
+                        setTimeout(animateTrip, 1800);
+                    }
+                }
+                animateTrip();
+            }
+
+            if (['pending', 'assigned', 'accepted', 'in_progress'].indexOf(rideStatus) !== -1) {
+                setInterval(function () {
+                    fetch(window.location.href)
+                        .then(function (r) { return r.text(); })
+                        .then(function (html) {
+                            var doc = new DOMParser().parseFromString(html, 'text/html');
+                            var el = doc.querySelector('#status-card');
+                            var newStatus = el && el.getAttribute('data-trip-status');
+                            if (newStatus && newStatus !== rideStatus) window.location.reload();
+                        });
+                }, 3000);
+            }
+
+            if (rideStatus === 'completed') {
+                setInterval(function () {
+                    fetch(window.location.href)
+                        .then(function (r) { return r.text(); })
+                        .then(function (html) {
+                            var doc = new DOMParser().parseFromString(html, 'text/html');
+                            if (!doc.querySelector('#status-card')) {
+                                window.location.reload();
+                                return;
+                            }
+                            var el = doc.querySelector('#status-card');
+                            var newStatus = el && el.getAttribute('data-trip-status');
+                            if (newStatus && newStatus !== rideStatus) window.location.reload();
+                            var oldCard = document.getElementById('status-card');
+                            var newCard = doc.getElementById('status-card');
+                            if (oldCard && newCard && newCard.innerHTML !== oldCard.innerHTML) window.location.reload();
+                        });
+                }, 3000);
+            }
+
+            var payForm = document.getElementById('payment-form');
+            if (payForm) {
+                payForm.addEventListener('submit', function (e) {
+                    var card = document.getElementById('pay_card');
+                    if (card && card.checked) {
+                        e.preventDefault();
+                        var btn = document.getElementById('submit-btn');
+                        if (btn) {
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Traitement…';
+                            btn.disabled = true;
+                        }
+                        setTimeout(function () { payForm.submit(); }, 1500);
+                    }
+                });
+            }
+        });
+    </script>
+    @else
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const csrfMeta = document.querySelector('meta[name="csrf-token"]');
@@ -505,8 +832,6 @@
                 }
                 return data;
             }
-
-            const tripRateUrl = (tripId) => `{{ url('/trips') }}/${tripId}/rate`;
 
             let map;
             try {
@@ -763,65 +1088,8 @@
                     mainActionBtn.disabled = true;
 
                     try {
-                        const trip = await postJson(@json(route('trips.store')), window.currentBookingData);
-                        let currentTripId = trip.id;
-
-                        if (window.Echo) {
-                            const channel = window.Echo.private(`trip.${trip.id}`);
-
-                            channel.listen('TripAccepted', (e) => {
-                                gsap.to("#commandCenter", { x: -500, opacity: 0, duration: 0.8, ease: "power4.in", display: "none" });
-                                document.getElementById('driverInfo').innerText = `${e.trip.driver?.name || 'Michael'} • Tesla Model S`;
-                                gsap.set(rideStatusBar, { display: "block", opacity: 0, y: 50 });
-                                gsap.to(rideStatusBar, { opacity: 1, y: 0, duration: 1 });
-                            });
-
-                            channel.listen('TripStarted', (e) => {
-                                document.querySelector('.modern-status-bar .opacity-75').innerText = "Course en cours...";
-                            });
-
-                            channel.listen('TripCompleted', (e) => {
-                                gsap.to(rideStatusBar, { opacity: 0, y: 50, duration: 0.5, display: "none" });
-                                gsap.set("#ratingModal", { display: "flex", opacity: 0, scale: 0.9 });
-                                gsap.to("#ratingModal", { opacity: 1, scale: 1, duration: 0.8, ease: "power4.out" });
-                            });
-                        }
-
-                        mainActionBtn.innerHTML = 'Recherche d\'un chauffeur...';
-                        mainActionBtn.style.background = '#64748B';
-
-                        // Rating Logic
-                        const stars = document.querySelectorAll('#starRating i');
-                        stars.forEach(star => {
-                            star.addEventListener('click', () => {
-                                const val = star.getAttribute('data-value');
-                                document.getElementById('ratingValue').value = val;
-                                stars.forEach(s => {
-                                    s.className = s.getAttribute('data-value') <= val ? 'bi bi-star-fill' : 'bi bi-star';
-                                });
-                            });
-                        });
-
-                        document.querySelectorAll('[data-method]').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                document.querySelectorAll('[data-method]').forEach(b => b.classList.remove('active'));
-                                btn.classList.add('active');
-                                document.getElementById('paymentMethod').value = btn.getAttribute('data-method');
-                            });
-                        });
-
-                        document.getElementById('submitRating').addEventListener('click', async () => {
-                            try {
-                                await postJson(tripRateUrl(currentTripId), {
-                                    rating: document.getElementById('ratingValue').value,
-                                    comment: document.getElementById('ratingComment').value,
-                                    payment_method: document.getElementById('paymentMethod').value,
-                                });
-                                location.reload();
-                            } catch (e) {
-                                alert('Erreur lors de l\'envoi de votre retour.');
-                            }
-                        });
+                        await postJson(@json(route('trips.store')), window.currentBookingData);
+                        window.location.reload();
                     } catch (e) {
                         const err = e.data;
                         const msg = err?.message
@@ -839,4 +1107,5 @@
             }
         });
     </script>
+    @endif
 @endpush

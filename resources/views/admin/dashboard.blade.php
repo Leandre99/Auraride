@@ -18,12 +18,15 @@
         background: #FFF;
         border-radius: 24px;
         padding: 30px;
-        border: 1px solid var(--border-light);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        transition: transform 0.3s ease;
+        border: 0;
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
         height: 100%;
     }
-    .kpi-card:hover { transform: translateY(-5px); }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    }
 
     .kpi-icon {
         width: 45px;
@@ -112,10 +115,17 @@
 </div>
 
 <div class="container pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4 pt-2">
+        <h2 class="fw-bold mb-0">Espace <span class="text-primary">Administration</span></h2>
+        <div class="badge bg-white text-primary px-3 py-2 rounded-pill border border-primary border-opacity-25 shadow-sm">
+            Connecté : {{ Auth::user()->name }}
+        </div>
+    </div>
+
     <div class="admin-container">
         <!-- Sidebar Navigation -->
         <aside>
-            <div class="glass-panel p-4 h-100 shadow-sm border-0 bg-white">
+            <div class="glass-panel p-4 h-100 shadow-sm border-0 bg-white rounded-4">
                 <div class="small text-muted fw-bold mb-3 px-2">MENUS PRINCIPAUX</div>
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
                 <a href="{{ route('admin.users') }}" class="sidebar-link"><i class="bi bi-people"></i> Utilisateurs</a>
