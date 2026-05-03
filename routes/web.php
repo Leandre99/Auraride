@@ -60,7 +60,55 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
 // Driver Routes placeholder
 Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () {
     Route::get('/dashboard', function () {
-        return view('driver.dashboard');
+        $driverId = auth()->id();
+
+        $activeTrip = \App\Models\Trip::query()
+            ->where('driver_id', $driverId)
+            ->where(function ($q) {
+                $q->whereIn('status', ['assigned', 'accepted', 'in_progress'])
+                    ->orWhere(function ($q2) {
+                        $q2->where('status', 'completed')
+                            ->where(function ($q3) {
+                                $q3->whereNull('payment_status')
+                                    ->orWhere('payment_status', '!=', 'paid');
+                            });
+                    });
+            })
+            ->orderByDesc('updated_at')
+            ->with(['client', 'vehicle.vehicleType'])
+            ->first();
+
+        $availableTrips = \App\Models\Trip::query()
+            ->where('driver_id', $driverId)
+            ->where('status', 'assigned')
+            ->when($activeTrip, fn ($q) => $q->where('id', '!=', $activeTrip->id))
+            ->orderByDesc('created_at')
+            ->with('client')
+            ->get();
+
+        $todayStart = now()->startOfDay();
+        $completedRidesCount = \App\Models\Trip::query()
+            ->where('driver_id', $driverId)
+            ->where('status', 'completed')
+            ->where('updated_at', '>=', $todayStart)
+            ->count();
+
+        $totalGains = (float) \App\Models\Trip::query()
+            ->where('driver_id', $driverId)
+            ->where('status', 'completed')
+            ->where('payment_status', 'paid')
+            ->where('updated_at', '>=', $todayStart)
+            ->sum('price');
+
+        $isApproved = (bool) auth()->user()->is_approved;
+
+        return view('driver.dashboard', compact(
+            'activeTrip',
+            'availableTrips',
+            'completedRidesCount',
+            'totalGains',
+            'isApproved'
+        ));
     })->name('driver.dashboard');
 
     Route::post('/trips/{trip}/accept', [\App\Http\Controllers\TripController::class, 'accept'])->name('trips.accept');

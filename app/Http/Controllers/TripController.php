@@ -130,7 +130,11 @@ class TripController extends Controller
     {
         // Now driver accepts a trip assigned to them
         if ($trip->status !== 'assigned' || $trip->driver_id !== auth()->id()) {
-            return response()->json(['error' => 'Cette course ne vous est pas assignée ou n\'est plus disponible.'], 422);
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'Cette course ne vous est pas assignée ou n\'est plus disponible.'], 422);
+            }
+
+            return redirect()->back()->with('error', 'Cette course ne vous est pas assignée ou n\'est plus disponible.');
         }
 
         $trip->update([
@@ -143,7 +147,11 @@ class TripController extends Controller
             report($e);
         }
 
-        return response()->json($trip);
+        if (request()->expectsJson()) {
+            return response()->json($trip);
+        }
+
+        return redirect()->back()->with('success', 'Course acceptée.');
     }
 
     public function start(Trip $trip)
@@ -152,9 +160,21 @@ class TripController extends Controller
             abort(403);
         }
 
+        if ($trip->status !== 'accepted') {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'La course doit être acceptée avant le départ.'], 422);
+            }
+
+            return redirect()->back()->with('error', 'La course doit être acceptée avant le départ.');
+        }
+
         $trip->update(['status' => 'in_progress']);
 
-        return response()->json($trip);
+        if (request()->expectsJson()) {
+            return response()->json($trip);
+        }
+
+        return redirect()->back()->with('success', 'Course démarrée.');
     }
 
     public function complete(Trip $trip)
@@ -163,11 +183,21 @@ class TripController extends Controller
             abort(403);
         }
 
+        if ($trip->status !== 'in_progress') {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => 'La course doit être en cours pour être terminée.'], 422);
+            }
+
+            return redirect()->back()->with('error', 'La course doit être en cours pour être terminée.');
+        }
+
         $trip->update(['status' => 'completed']);
 
-        // TODO: Trigger payment
+        if (request()->expectsJson()) {
+            return response()->json($trip);
+        }
 
-        return response()->json($trip);
+        return redirect()->back()->with('success', 'Course terminée. En attente du règlement client.');
     }
 
     public function cancel(Trip $trip)

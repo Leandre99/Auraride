@@ -816,16 +816,30 @@
                 try { return text ? JSON.parse(text) : {}; } catch { return { message: text || 'Réponse invalide' }; }
             }
 
+            // URLs relatives pour éviter les erreurs CORS quand APP_URL ≠ l'hôte du navigateur.
+            const estimateUrl = '/client/trips/estimate';
+            const storeUrl = '/client/trips';
+
             async function postJson(url, payload) {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: jsonHeaders(),
-                    body: JSON.stringify(payload),
-                });
+                let res;
+                try {
+                    res = await fetch(url, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: jsonHeaders(),
+                        body: JSON.stringify(payload),
+                    });
+                } catch (e) {
+                    const err = new Error(
+                        'Connexion au serveur impossible. Vérifiez que vous utilisez la même adresse que dans votre navigateur (évitez de mélanger localhost et 127.0.0.1), puis rafraîchissez la page.'
+                    );
+                    err.cause = e;
+                    throw err;
+                }
                 const data = await parseResponseBody(res);
                 if (!res.ok) {
-                    const err = new Error(data.message || ('Erreur ' + res.status));
+                    const fromValidation = data.errors ? Object.values(data.errors).flat().join('\n') : null;
+                    const err = new Error(fromValidation || data.message || ('Erreur ' + res.status));
                     err.data = data;
                     err.status = res.status;
                     throw err;
@@ -1010,7 +1024,7 @@
                     mainActionBtn.disabled = true;
 
                     try {
-                        const estimateRows = await postJson(@json(route('trips.estimate')), {
+                        const estimateRows = await postJson(estimateUrl, {
                             pickup_lat: routeData.pickup.lat, pickup_lng: routeData.pickup.lng,
                             dropoff_lat: routeData.dropoff.lat, dropoff_lng: routeData.dropoff.lng,
                         });
@@ -1088,7 +1102,7 @@
                     mainActionBtn.disabled = true;
 
                     try {
-                        await postJson(@json(route('trips.store')), window.currentBookingData);
+                        await postJson(storeUrl, window.currentBookingData);
                         window.location.reload();
                     } catch (e) {
                         const err = e.data;

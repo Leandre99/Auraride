@@ -1,294 +1,369 @@
 @extends('layouts.app')
 
-@section('title', 'ATLAS AND CO - Cockpit Chauffeur')
+@section('title', 'Espace chauffeur — ATLAS AND CO')
 
 @push('styles')
 <style>
-    body { background: #0F172A; overflow: hidden; }
+    .driver-page {
+        background: #f8fafc;
+        min-height: calc(100vh - 90px);
+    }
 
-    #map-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
+    .driver-page .active-trip-card {
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+        color: #fff;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.15);
+    }
+
+    .driver-page .active-trip-card .text-muted-lite {
+        color: rgba(255, 255, 255, 0.65) !important;
+    }
+
+    .driver-page .map-panel {
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        min-height: 400px;
+    }
+
+    .driver-page #driver-tracking-map {
         height: 100%;
-        z-index: 1;
-        opacity: 0.8;
+        min-height: 420px;
+        border-radius: 24px;
     }
 
-    /* Driver HUD */
-    .driver-hud {
-        position: absolute;
-        bottom: 30px;
-        left: 30px;
-        right: 30px;
-        z-index: 100;
-        display: grid;
-        grid-template-columns: 350px 1fr 350px;
-        gap: 20px;
-        pointer-events: none;
+    .driver-page .dashboard-accent {
+        color: #2563eb;
     }
 
-    .hud-panel {
-        background: rgba(15, 23, 42, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 32px;
-        padding: 25px;
-        pointer-events: auto;
-        color: #FFF;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    .driver-page .ride-offer-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Status Toggle HUD */
-    .status-hud {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    
-    .hud-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: rgba(255,255,255,0.05);
-        padding: 15px 20px;
-        border-radius: 20px;
-        margin-top: auto;
+    .driver-page .ride-offer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1) !important;
     }
 
-    /* Stats HUD */
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-    .stat-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 4px solid #1E293B;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    .stat-circle.active { border-color: var(--primary); }
-
-    /* New Ride Request HUD (Floating Center) */
-    .request-hud-center {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0.9);
-        width: 480px;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .request-hud-center.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translate(-50%, -50%) scale(1);
+    .driver-page .animate-up {
+        animation: driverFadeUp 0.45s ease forwards;
     }
 
-    .pulse-glow {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        border-radius: inherit;
-        box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.4; }
-        50% { transform: scale(1.05); opacity: 0.1; }
-        100% { transform: scale(1); opacity: 0.4; }
-    }
-
-    .hud-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        opacity: 0.6;
-        font-weight: 700;
-    }
-
-    .waiting-approval {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        z-index: 1000;
-        color: #FFF;
-        width: 400px;
+    @keyframes driverFadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 @endpush
 
 @section('content')
-<div id="map-container"></div>
+<div class="driver-page py-4">
+    <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success border-0 rounded-4 mb-4 shadow-sm">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger border-0 rounded-4 mb-4 shadow-sm">{{ session('error') }}</div>
+        @endif
 
-@if(auth()->user()->is_approved)
-<div class="driver-hud">
-    <!-- Left: Status & Profile -->
-    <div class="hud-panel status-hud">
-        <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="rounded-circle" style="width: 60px; height: 60px; background: url('https://i.pravatar.cc/150?img=11') center/cover;"></div>
-            <div>
-                <h5 class="mb-0">{{ auth()->user()->name }}</h5>
-                <div class="small text-primary fw-bold">Partenaire Gold</div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+            <h2 class="fw-bold mb-0">Espace <span class="dashboard-accent">Chauffeur</span></h2>
+            <div class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill border border-primary border-opacity-25">
+                Connecté : {{ Auth::user()->name }}
             </div>
         </div>
 
-        <div class="mt-4">
-            <div class="hud-label mb-2">Performance du jour</div>
-            <div class="stat-row">
-                <div class="stat-circle active">
-                    <div class="fw-bold h5 mb-0">12</div>
-                    <div class="small opacity-50" style="font-size: 0.6rem;">Courses</div>
+        @if (!$isApproved)
+            <div class="card border-0 shadow-sm p-5 text-center rounded-4 border-warning border-start border-5">
+                <i class="bi bi-hourglass-split text-warning display-4 mb-3 d-block"></i>
+                <h5 class="fw-bold">Compte en attente de validation</h5>
+                <p class="text-muted mb-0">Un administrateur doit approuver votre profil avant que vous puissiez recevoir et accepter des courses.</p>
+            </div>
+        @elseif ($activeTrip)
+            @php
+                $clientPhone = $activeTrip->client?->phone_number;
+                $clientTel = $clientPhone ? 'tel:' . preg_replace('/\s+/', '', $clientPhone) : null;
+                $statusLabel = match ($activeTrip->status) {
+                    'assigned' => 'À accepter',
+                    'accepted' => 'Acceptée',
+                    'in_progress' => 'En cours',
+                    'completed' => 'Terminée',
+                    default => ucfirst($activeTrip->status),
+                };
+            @endphp
+            <div class="row mb-4 g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden active-trip-card animate-up">
+                        <div class="card-body p-4 p-lg-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                                <h4 class="fw-bold mb-0">Course en cours</h4>
+                                <span class="badge bg-primary fs-6 rounded-pill px-3">{{ $statusLabel }}</span>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p class="text-muted-lite small mb-1 text-uppercase">Départ</p>
+                                    <p class="fw-bold fs-6 mb-0">{{ $activeTrip->pickup_address }}</p>
+                                </div>
+                                <div class="col-md-6 mt-3 mt-md-0">
+                                    <p class="text-muted-lite small mb-1 text-uppercase">Destination</p>
+                                    <p class="fw-bold fs-6 mb-0">{{ $activeTrip->dropoff_address }}</p>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border-0 rounded-3 mb-4 text-dark">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <div>
+                                        <span class="d-block text-muted small">Client</span>
+                                        <strong>{{ $activeTrip->client?->name ?? '—' }}</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="d-block text-muted small">Tarif</span>
+                                        <strong class="text-success fs-5">{{ number_format($activeTrip->price ?? 0, 2) }} €</strong>
+                                    </div>
+                                </div>
+                                @if ($clientTel)
+                                    <hr class="my-3">
+                                    <a href="{{ $clientTel }}" class="btn btn-outline-secondary btn-sm w-100">
+                                        <i class="bi bi-telephone-fill me-2"></i>Contacter le client
+                                    </a>
+                                @endif
+                            </div>
+
+                            <div class="d-flex flex-column gap-3">
+                                @if ($activeTrip->status === 'assigned')
+                                    <form action="{{ route('trips.accept', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Accepter la course</button>
+                                    </form>
+                                @elseif ($activeTrip->status === 'accepted')
+                                    <form action="{{ route('trips.start', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Commencer la course</button>
+                                    </form>
+                                @elseif ($activeTrip->status === 'in_progress')
+                                    <form action="{{ route('trips.complete', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold">Terminer la course</button>
+                                    </form>
+                                @elseif ($activeTrip->status === 'completed' && ($activeTrip->payment_status ?? 'pending') !== 'paid')
+                                    <div class="alert alert-warning w-100 text-center mb-0 border-0 rounded-3">
+                                        <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                                        <strong>En attente du paiement client</strong>
+                                        <p class="mb-2 small mt-2 text-dark">
+                                            Montant : {{ number_format($activeTrip->price ?? 0, 2) }} €
+                                            ({{ $activeTrip->payment_method === 'cash' ? 'espèces' : 'carte' }}).
+                                        </p>
+                                        @if ($activeTrip->payment_method === 'cash')
+                                            <form action="{{ route('trips.confirm-payment', $activeTrip) }}" method="POST" class="mt-3">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm w-100 py-2 fw-bold">
+                                                    <i class="bi bi-cash-stack me-2"></i>Confirmer réception des espèces
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-circle">
-                    <div class="fw-bold h5 mb-0">4.9</div>
-                    <div class="small opacity-50" style="font-size: 0.6rem;">Note</div>
-                </div>
-                <div class="stat-circle">
-                    <div class="fw-bold h5 mb-0">98%</div>
-                    <div class="small opacity-50" style="font-size: 0.6rem;">Accept.</div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 map-panel">
+                        <div id="driver-tracking-map" class="w-100"></div>
+                    </div>
                 </div>
             </div>
-        </div>
+        @else
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <h4 class="fw-bold mb-4">Courses disponibles</h4>
+                    <div id="driver-available-trips">
+                        @if ($availableTrips->isEmpty())
+                            <div class="card border-0 shadow-sm p-5 text-center rounded-4">
+                                <i class="bi bi-search text-muted display-4 mb-3 d-block"></i>
+                                <h5 class="fw-bold">Aucune course pour le moment</h5>
+                                <p class="text-muted mb-0">Les nouvelles missions apparaîtront ici dès qu’un administrateur vous les aura assignées.</p>
+                            </div>
+                        @else
+                            @foreach ($availableTrips as $trip)
+                                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden ride-offer-card">
+                                    <div class="card-body p-4">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-7">
+                                                <p class="mb-1 text-muted small">
+                                                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>{{ $trip->pickup_address }}
+                                                </p>
+                                                <p class="mb-0 text-muted small">
+                                                    <i class="bi bi-flag-fill text-danger me-2"></i>{{ $trip->dropoff_address }}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-2 text-center mt-3 mt-md-0">
+                                                <p class="mb-0 fw-bold fs-5 text-success">{{ number_format($trip->price ?? 0, 2) }} €</p>
+                                                @if ($trip->distance)
+                                                    <small class="text-muted">{{ number_format($trip->distance, 1) }} km</small>
+                                                @endif
+                                            </div>
+                                            <div class="col-md-3 text-end mt-3 mt-md-0">
+                                                <form action="{{ route('trips.accept', $trip) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-premium px-4 py-2 rounded-3 fw-bold w-100 w-md-auto">Accepter</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 bg-white mb-4 text-center">
+                        <h5 class="fw-bold mb-3">Statistiques du jour</h5>
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <p class="text-muted small mb-1">Courses</p>
+                                <h4 class="fw-bold mb-0 text-dark">{{ $completedRidesCount }}</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted small mb-1">Gains encaissés</p>
+                                <h4 class="fw-bold mb-0 text-success">{{ number_format($totalGains, 2) }} €</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Restez disponible : les courses vous sont attribuées depuis l’espace admin.</p>
 
-        <div class="hud-toggle">
-            <span class="fw-bold" id="statusText">HORS LIGNE</span>
-            <div class="form-check form-switch p-0 m-0">
-                <input class="form-check-input ms-0" type="checkbox" id="onlineToggle" style="width: 50px; height: 26px; cursor: pointer;">
+                    <div class="card border-0 shadow-sm p-4 rounded-4">
+                        <h5 class="fw-bold mb-3">Mon compte</h5>
+                        <ul class="nav flex-column gap-2">
+                            <li class="nav-item">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="nav-link text-danger border-0 bg-transparent p-0 w-100 text-start">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Middle: Navigation Hint (Optional) -->
-    <div></div>
-
-    <!-- Right: Earnings HUD -->
-    <div class="hud-panel">
-        <div class="hud-label mb-3">Revenus Session</div>
-        <div class="display-4 fw-bold text-primary-gradient mb-1">142,50€</div>
-        <div class="small opacity-50 mb-4">+12% par rapport à hier</div>
-
-        <div class="hud-label mb-2">Prochaine Prime</div>
-        <div class="progress bg-secondary bg-opacity-25 mb-2" style="height: 8px; border-radius: 10px;">
-            <div class="progress-bar bg-primary" style="width: 75%; border-radius: 10px;"></div>
-        </div>
-        <div class="d-flex justify-content-between small opacity-75">
-            <span>3/4 courses pour 20€</span>
-            <span>75%</span>
-        </div>
+        @endif
     </div>
 </div>
-
-<!-- Request Modal HUD -->
-<div class="hud-panel request-hud-center p-0 overflow-hidden" id="requestAlert">
-    <div class="pulse-glow"></div>
-    <div class="bg-primary p-4 text-center">
-        <div class="hud-label text-white opacity-75">Nouvelle Offre</div>
-        <div class="display-4 fw-bold text-white"><span id="reqPrice">0.00</span>€</div>
-    </div>
-    <div class="p-4">
-        <div class="row mb-4">
-            <div class="col-6">
-                <div class="hud-label mb-1">Départ</div>
-                <div class="fw-bold text-truncate" id="reqPickup">--</div>
-            </div>
-            <div class="col-6">
-                <div class="hud-label mb-1">Distance</div>
-                <div class="fw-bold">2.4 km</div>
-            </div>
-        </div>
-        <div class="d-flex gap-3 mt-4">
-            <button class="btn btn-premium flex-grow-1 py-3" id="acceptBtn">ACCEPTER</button>
-            <button class="btn btn-outline-light border-secondary flex-grow-1 py-3" id="declineBtn">IGNORER</button>
-        </div>
-    </div>
-</div>
-@else
-<div class="waiting-approval hud-panel">
-    <div class="rounded-circle bg-warning-subtle text-warning d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-        <i class="bi bi-clock-history h2 mb-0"></i>
-    </div>
-    <h3 class="mb-3">Compte en attente</h3>
-    <p class="opacity-75 mb-0">Votre compte chauffeur doit être validé par un administrateur avant de pouvoir accepter des courses.</p>
-</div>
-@endif
 @endsection
 
 @push('scripts')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@if ($isApproved && $activeTrip)
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+    document.addEventListener('DOMContentLoaded', function () {
+        var rideStatus = @json($activeTrip->status);
+        var paymentStatus = @json($activeTrip->payment_status ?? 'pending');
+        var startPos = [{{ (float) $activeTrip->pickup_lat }}, {{ (float) $activeTrip->pickup_lng }}];
+        var endPos = [{{ (float) $activeTrip->dropoff_lat }}, {{ (float) $activeTrip->dropoff_lng }}];
+        var el = document.getElementById('driver-tracking-map');
+        if (!el || typeof L === 'undefined') return;
 
-        const map = L.map('map-container', { zoomControl: false }).setView([40.7128, -74.0060], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        var map = L.map('driver-tracking-map', { zoomControl: true }).setView(startPos, 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OSM &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20,
+        }).addTo(map);
 
-        const onlineToggle = document.getElementById('onlineToggle');
-        const statusText = document.getElementById('statusText');
-        const requestAlert = document.getElementById('requestAlert');
-        const acceptBtn = document.getElementById('acceptBtn');
+        var pickupIcon = L.divIcon({
+            html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#2563eb;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
+            className: 'leaflet-marker-custom',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+        });
+        var dropIcon = L.divIcon({
+            html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)"></span>',
+            className: 'leaflet-marker-custom',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+        });
+        L.marker(startPos, { icon: pickupIcon }).addTo(map).bindPopup('Départ');
+        L.marker(endPos, { icon: dropIcon }).addTo(map).bindPopup('Arrivée');
+        map.fitBounds(L.latLngBounds(startPos, endPos).pad(0.12), { maxZoom: 14 });
+        queueMicrotask(function () { map.invalidateSize(); });
+        window.addEventListener('resize', function () { map.invalidateSize(); });
 
-        if (onlineToggle) {
-            onlineToggle.addEventListener('change', function() {
-                if(this.checked) {
-                    statusText.innerText = 'EN LIGNE';
-                    statusText.className = 'text-success fw-bold';
-                    
-                    if (window.Echo) {
-                        // Listen for trips assigned specifically to this driver
-                        window.Echo.private(`drivers.${ {{ auth()->id() }} }`)
-                            .listen('TripAssigned', (e) => showRequest(e.trip));
-                    }
-                } else {
-                    statusText.innerText = 'HORS LIGNE';
-                    statusText.className = 'text-white fw-bold';
-                    if (window.Echo) window.Echo.leave(`drivers.${ {{ auth()->id() }} }`);
+        if (rideStatus === 'in_progress') {
+            var carIcon = L.divIcon({
+                className: 'leaflet-marker-custom',
+                html: '<div style="background:#2563eb;width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 12px rgba(37,99,235,.6)"></div>',
+                iconSize: [18, 18],
+                iconAnchor: [9, 9],
+            });
+            var carMarker = L.marker(startPos, { icon: carIcon }).addTo(map);
+            var step = 0;
+            var steps = 80;
+            function tick() {
+                if (step <= steps) {
+                    var lat = startPos[0] + (endPos[0] - startPos[0]) * (step / steps);
+                    var lng = startPos[1] + (endPos[1] - startPos[1]) * (step / steps);
+                    carMarker.setLatLng([lat, lng]);
+                    if (step % 12 === 0) map.panTo([lat, lng]);
+                    step++;
+                    setTimeout(tick, 1800);
                 }
-            });
+            }
+            tick();
         }
 
-        let currentTrip = null;
-
-        function showRequest(trip) {
-            currentTrip = trip;
-            document.getElementById('reqPrice').innerText = trip.price;
-            document.getElementById('reqPickup').innerText = trip.pickup_address;
-            requestAlert.classList.add('active');
+        if (['assigned', 'accepted', 'in_progress'].indexOf(rideStatus) !== -1) {
+            setInterval(function () {
+                fetch(window.location.href)
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        if (!doc.querySelector('.active-trip-card')) {
+                            window.location.reload();
+                            return;
+                        }
+                        var m = html.match(/var rideStatus = "([^"]+)"/);
+                        if (m && m[1] !== rideStatus) window.location.reload();
+                    });
+            }, 3000);
         }
 
-        if (acceptBtn) {
-            acceptBtn.addEventListener('click', async () => {
-                if (!currentTrip) return;
-                try {
-                    await axios.post(`/driver/trips/${currentTrip.id}/accept`);
-                    alert('Course acceptée ! Navigation vers le point de départ...');
-                    requestAlert.classList.remove('active');
-                    currentTrip = null;
-                } catch (e) {
-                    alert('Erreur lors de l\'acceptation : ' + (e.response?.data?.error || 'Inconnu'));
-                }
-            });
-
-            document.getElementById('declineBtn').addEventListener('click', () => {
-                requestAlert.classList.remove('active');
-                currentTrip = null;
-            });
+        if (rideStatus === 'completed' && paymentStatus !== 'paid') {
+            setInterval(function () {
+                fetch(window.location.href)
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        if (!html.includes('En attente du paiement client')) {
+                            window.location.reload();
+                        }
+                    });
+            }, 3000);
         }
-
-        // Intro animation
-        gsap.from(".hud-panel", { y: 100, opacity: 0, duration: 1, stagger: 0.2, ease: "power4.out" });
     });
 </script>
+@elseif ($isApproved && !$activeTrip)
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var container = document.getElementById('driver-available-trips');
+        if (!container) return;
+        setInterval(function () {
+            fetch(window.location.href)
+                .then(function (r) { return r.text(); })
+                .then(function (html) {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var next = doc.getElementById('driver-available-trips');
+                    if (next && container.innerHTML !== next.innerHTML) {
+                        window.location.reload();
+                    }
+                    if (doc.querySelector('.active-trip-card')) {
+                        window.location.reload();
+                    }
+                });
+        }, 4000);
+    });
+</script>
+@endif
 @endpush
