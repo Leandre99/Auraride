@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TripController;
 
 Route::get('/', function () {
     return view('home');
@@ -146,5 +147,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-rentals', [\App\Http\Controllers\RentalController::class, 'myRentals'])->name('my.rentals');
     Route::get('/profile', [App\Http\Controllers\AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
-
 });
+
+Route::middleware(['auth', 'role:client'])
+    ->prefix('client')
+    ->group(function () {
+        Route::get('/trips/{trip}/track', [TripController::class, 'track'])
+            ->name('client.trips.track');
+    });

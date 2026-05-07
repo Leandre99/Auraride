@@ -445,7 +445,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (res.ok) {
-                window.location.reload();
+                const data = await res.json();
+                window.location.href = '/client/trips/' + data.id + '/track';
             } else {
                 const err = await res.json();
                 alert(err.message || 'Erreur lors de la réservation');

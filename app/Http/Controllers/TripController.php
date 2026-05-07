@@ -129,6 +129,7 @@ class TripController extends Controller
         }
 
         return response()->json($trip->fresh(['client']));
+        
     }
 
     public function assign(Request $request, Trip $trip)
@@ -309,5 +310,14 @@ class TripController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return round($earthRadius * $c, 2); // Arrondi à 2 décimales
+    }
+
+    public function track(Trip $trip)
+    {
+        if ($trip->client_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('client.tracking', compact('trip'));
     }
 }
