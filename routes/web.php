@@ -133,5 +133,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/trips', [\App\Http\Controllers\AdminController::class, 'trips'])->name('admin.trips');
     Route::post('/trips/{trip}/cancel', [\App\Http\Controllers\AdminController::class, 'cancelTrip'])->name('admin.trips.cancel');
     Route::post('/trips/{trip}/assign', [\App\Http\Controllers\TripController::class, 'assign'])->name('trips.assign');
+
+    Route::get('/rentals', [\App\Http\Controllers\AdminController::class, 'rentals'])->name('admin.rentals');
+    Route::get('/rentals/{rental}/edit', [\App\Http\Controllers\AdminController::class, 'editRental'])->name('admin.rentals.edit');
+    Route::post('/rentals/{rental}/update-status', [\App\Http\Controllers\AdminController::class, 'updateRentalStatus'])->name('admin.rentals.update-status');
+
+});
+
+// ========== RENTAL ROUTES (Location de véhicules) ==========
+Route::middleware(['auth'])->group(function () {
     Route::post('/rentals', [\App\Http\Controllers\RentalController::class, 'store'])->name('rentals.store');
+    Route::get('/my-rentals', [\App\Http\Controllers\RentalController::class, 'myRentals'])->name('my.rentals');
+    Route::get('/profile', [App\Http\Controllers\AuthController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
+
 });

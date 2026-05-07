@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
+
             // Redirect based on role
             $role = Auth::user()->role;
             if ($role === 'driver') {
@@ -37,7 +37,7 @@ class AuthController extends Controller
             } elseif ($role === 'admin') {
                 return redirect()->intended('/admin/dashboard');
             }
-            
+
             return redirect()->intended('/dashboard');
         }
 
@@ -96,4 +96,40 @@ class AuthController extends Controller
 
         return redirect('/');
     }
+
+    // À la fin du fichier, avant la dernière accolade
+
+public function editProfile()
+{
+    $user = auth()->user();
+    return view('profile.edit', compact('user'));
+}
+
+public function updateProfile(Request $request)
+{
+    $user = auth()->user();
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'phone_number' => 'nullable|string|max:20',
+        'current_password' => 'nullable|required_with:password',
+        'password' => 'nullable|min:8|confirmed',
+    ]);
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->phone_number = $request->phone_number;
+
+    if ($request->filled('password')) {
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mot de passe actuel incorrect']);
+        }
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+
+    return redirect()->route('profile.edit')->with('success', 'Profil mis à jour');
+}
 }
