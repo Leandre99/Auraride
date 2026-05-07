@@ -3,52 +3,53 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Trip;
 use App\Models\VehicleType;
-
+use App\Models\User;
 use App\Events\TripRequested;
 use App\Events\TripAccepted;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TripConfirmationClient;
+use App\Mail\TripNotificationAdmin;
+use Illuminate\Support\Facades\Log;
 
 class TripController extends Controller
 {
     public function estimate(Request $request)
     {
         $request->validate([
-            'pickup_lat' => 'required',
-            'pickup_lng' => 'required',
-            'dropoff_lat' => 'required',
-            'dropoff_lng' => 'required',
+            'pickup_lat' => 'required|numeric|between:-90,90',
+            'pickup_lng' => 'required|numeric|between:-180,180',
+            'dropoff_lat' => 'required|numeric|between:-90,90',
+            'dropoff_lng' => 'required|numeric|between:-180,180',
         ]);
 
-        // Mock distance calculation (Haversine or simple Euclidean for demo)
-        // In a real app, use OSRM or Google Maps API here.
-        $distance = $this->calculateMockDistance(
-            $request->pickup_lat, $request->pickup_lng,
-            $request->dropoff_lat, $request->dropoff_lng
+        $distance = $this->calculateDistance(
+            $request->pickup_lat,
+            $request->pickup_lng,
+            $request->dropoff_lat,
+            $request->dropoff_lng
         );
 
-        // On force les 3 catégories du produit (évite les doublons / anciennes lignes).
+        // Distance minimum de 0.5 km pour éviter les prix aberrants
+        $distance = max($distance, 0.5);
+
         $allowed = ['Berline Standard', 'Van Luxe', 'Sprinter Mercedes'];
         $vehicleTypes = VehicleType::query()
             ->whereIn('name', $allowed)
-            ->orderByRaw("CASE name
-                WHEN 'Berline Standard' THEN 1
-                WHEN 'Van Luxe' THEN 2
-                WHEN 'Sprinter Mercedes' THEN 3
-                ELSE 99
-            END")
             ->get()
             ->map(function ($type) use ($distance) {
-            $price = $type->base_fare + ($type->per_km_rate * $distance);
-            return [
-                'id' => $type->id,
-                'name' => $type->name,
-                'price' => round($price, 2),
-                'distance' => round($distance, 2),
-                'duration' => round($distance * 2, 0), // Mock 2 mins per km
-            ];
-        });
+                $price = $type->base_fare + ($type->per_km_rate * $distance);
+                $price = max($price, 8.00); // Prix minimum 8€
+
+                return [
+                    'id' => $type->id,
+                    'name' => $type->name,
+                    'price' => round($price, 2),
+                    'distance' => round($distance, 2),
+                    'duration' => round($distance * 2, 0), // ~2 min/km
+                ];
+            });
 
         return response()->json($vehicleTypes);
     }
@@ -65,11 +66,15 @@ class TripController extends Controller
             'dropoff_lng' => 'required',
             'price' => 'required|numeric',
             'distance' => 'required|numeric',
-            'duration' => 'required|numeric',
         ]);
 
+        $client = auth()->user();
+        $vehicleType = VehicleType::find($request->vehicle_type_id);
+
+        // Création du trajet
         $trip = Trip::create([
-            'client_id' => auth()->id(),
+            'client_id' => $client->id,
+            'vehicle_type_id' => $request->vehicle_type_id,
             'status' => 'pending',
             'pickup_address' => $request->pickup_address,
             'dropoff_address' => $request->dropoff_address,
@@ -79,22 +84,48 @@ class TripController extends Controller
             'dropoff_lng' => $request->dropoff_lng,
             'price' => $request->price,
             'distance' => $request->distance,
-            'duration' => $request->duration,
+            'payment_status' => 'pending',
         ]);
 
-        // Load client for the notification
+        // Charger la relation client pour les notifications
         $trip->load('client');
 
-        $admins = \App\Models\User::where('role', 'admin')->get();
+        // ========== ENVOI DES EMAILS ==========
+
+        // 1. Email au client (confirmation)
         try {
+            Mail::to($client->email)->send(new TripConfirmationClient($trip, $client, $vehicleType));
+            Log::info('Email client envoyé pour le trajet #' . $trip->id);
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi email client : ' . $e->getMessage());
+        }
+
+        // 2. Email aux admins (notification)
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+            }
+            Log::info('Email admin envoyé pour le trajet #' . $trip->id);
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi email admin : ' . $e->getMessage());
+        }
+
+        // ========== NOTIFICATIONS EXISTANTES ==========
+
+        // Notification via base de données
+        try {
+            $admins = User::where('role', 'admin')->get();
             \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTripRequested($trip));
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('Erreur notification DB : ' . $e->getMessage());
         }
+
+        // Événement WebSocket
         try {
             event(new TripRequested($trip));
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('Erreur événement WebSocket : ' . $e->getMessage());
         }
 
         return response()->json($trip->fresh(['client']));
@@ -106,13 +137,12 @@ class TripController extends Controller
             'driver_id' => 'required|exists:users,id',
         ]);
 
-        $driver = \App\Models\User::find($request->driver_id);
-        
+        $driver = User::find($request->driver_id);
+
         if ($driver->role !== 'driver') {
             if ($request->wantsJson()) {
                 return response()->json(['error' => 'L\'utilisateur sélectionné n\'est pas un chauffeur.'], 422);
             }
-
             return back()->with('error', 'L\'utilisateur sélectionné n\'est pas un chauffeur.');
         }
 
@@ -139,18 +169,14 @@ class TripController extends Controller
 
     public function accept(Trip $trip)
     {
-        // Now driver accepts a trip assigned to them
         if ($trip->status !== 'assigned' || $trip->driver_id !== auth()->id()) {
             if (request()->expectsJson()) {
                 return response()->json(['error' => 'Cette course ne vous est pas assignée ou n\'est plus disponible.'], 422);
             }
-
             return redirect()->back()->with('error', 'Cette course ne vous est pas assignée ou n\'est plus disponible.');
         }
 
-        $trip->update([
-            'status' => 'accepted',
-        ]);
+        $trip->update(['status' => 'accepted']);
 
         try {
             event(new TripAccepted($trip));
@@ -175,7 +201,6 @@ class TripController extends Controller
             if (request()->expectsJson()) {
                 return response()->json(['error' => 'La course doit être acceptée avant le départ.'], 422);
             }
-
             return redirect()->back()->with('error', 'La course doit être acceptée avant le départ.');
         }
 
@@ -198,7 +223,6 @@ class TripController extends Controller
             if (request()->expectsJson()) {
                 return response()->json(['error' => 'La course doit être en cours pour être terminée.'], 422);
             }
-
             return redirect()->back()->with('error', 'La course doit être en cours pour être terminée.');
         }
 
@@ -213,7 +237,6 @@ class TripController extends Controller
 
     public function cancel(Trip $trip)
     {
-        // Both client and driver can cancel for now
         if ($trip->client_id !== auth()->id() && $trip->driver_id !== auth()->id()) {
             abort(403);
         }
@@ -268,13 +291,23 @@ class TripController extends Controller
         return redirect()->back()->with('success', 'Paiement confirmé.');
     }
 
-    private function calculateMockDistance($lat1, $lon1, $lat2, $lon2)
+    /**
+     * Calcul de la distance réelle entre deux points GPS (formule Haversine)
+     * Retourne la distance en kilomètres
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
-        $theta = $lon1 - $lon2;
-        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
-        $dist = acos($dist);
-        $dist = rad2deg($dist);
-        $miles = $dist * 60 * 1.1515;
-        return $miles * 1.609344; // Convert to KM
+        $earthRadius = 6371; // Rayon de la Terre en km
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return round($earthRadius * $c, 2); // Arrondi à 2 décimales
     }
 }

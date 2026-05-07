@@ -15,8 +15,8 @@ class VehicleTypeSeeder extends Seeder
         VehicleType::updateOrCreate(
             ['name' => 'Berline Standard'],
             [
-                'base_fare' => 0.00,
-                'per_km_rate' => 1.50,
+                'base_fare' => 3.00,      // ← modifié
+                'per_km_rate' => 2.50,    // ← modifié
                 'capacity' => 4,
             ]
         );
@@ -24,8 +24,8 @@ class VehicleTypeSeeder extends Seeder
         VehicleType::updateOrCreate(
             ['name' => 'Van Luxe'],
             [
-                'base_fare' => 0.00,
-                'per_km_rate' => 2.50,
+                'base_fare' => 5.00,      // ← modifié
+                'per_km_rate' => 3.50,    // ← modifié
                 'capacity' => 8,
             ]
         );
@@ -33,8 +33,8 @@ class VehicleTypeSeeder extends Seeder
         VehicleType::updateOrCreate(
             ['name' => 'Sprinter Mercedes'],
             [
-                'base_fare' => 0.00,
-                'per_km_rate' => 4.00,
+                'base_fare' => 7.00,      // ← modifié
+                'per_km_rate' => 4.50,    // ← modifié
                 'capacity' => 9,
             ]
         );
