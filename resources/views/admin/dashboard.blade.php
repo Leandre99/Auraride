@@ -129,7 +129,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
                 <a href="{{ route('admin.users') }}" class="sidebar-link"><i class="bi bi-people"></i> Utilisateurs</a>
                 <a href="{{ route('admin.trips') }}" class="sidebar-link"><i class="bi bi-map"></i> Courses</a>
-                <a href="#" class="sidebar-link"><i class="bi bi-credit-card"></i> Paiements</a>
+                <a href="{{ route('admin.rentals') }}" class="sidebar-link"><i class="bi bi-car-front"></i> Locations</a>
 
                 <hr class="my-4 opacity-10">
 
@@ -138,7 +138,7 @@
                 <a href="#" class="sidebar-link"><i class="bi bi-shield-check"></i> Sécurité</a>
             </div>
         </aside>
-
+ 
         <!-- Main Content Area -->
         <main>
             @if (session('success'))
