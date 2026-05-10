@@ -113,6 +113,7 @@
         </div>
     </div>
 
+<div class="container pb-5">
     <div class="admin-container">
         <!-- Sidebar Navigation -->
         @include('admin.partials.sidebar')

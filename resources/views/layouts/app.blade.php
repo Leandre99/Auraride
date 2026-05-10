@@ -31,6 +31,12 @@
             --glass-bg: rgba(255, 255, 255, 0.85);
         }
 
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+        }
+
         body {
             background-color: var(--bg-light);
             color: var(--text-main);
@@ -113,9 +119,17 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
-            margin-top: -60px;
+            margin-top: -40px;
             position: relative;
             z-index: 10;
+            width: 100%;
+            max-width: 100%;
+        }
+        @media (max-width: 991.98px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
         }
         @media (min-width: 992px) {
             .admin-container {
