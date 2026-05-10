@@ -132,21 +132,21 @@
             @endif
             <!-- KPI Row -->
             <div class="row g-4 mb-5">
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
                         <div class="text-muted small fw-bold">TOTAL UTILISATEURS</div>
                         <div class="h3 fw-bold mb-0">{{ $stats['users_count'] }}</div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-success-subtle text-success"><i class="bi bi-currency-euro"></i></div>
                         <div class="text-muted small fw-bold">REVENUS TOTAUX</div>
                         <div class="h3 fw-bold mb-0">{{ number_format($stats['total_revenue'], 2) }}€</div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-warning-subtle text-warning"><i class="bi bi-geo-alt-fill"></i></div>
                         <div class="text-muted small fw-bold">COURSES ACTIVES</div>

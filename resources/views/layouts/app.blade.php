@@ -184,6 +184,36 @@
             }
         }
 
+        /* Admin Sidebar Mobile */
+        @media (max-width: 991.98px) {
+            .admin-sidebar .glass-panel {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 10px;
+                padding: 10px !important;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .admin-sidebar .sidebar-link {
+                margin-bottom: 0 !important;
+                padding: 8px 15px !important;
+                font-size: 0.85rem;
+            }
+            .admin-sidebar .sidebar-link i {
+                margin-right: 8px;
+            }
+            .admin-sidebar hr, .admin-sidebar .text-muted {
+                display: none !important; /* Hide labels and dividers on mobile to save space */
+            }
+        }
+        
+        /* Admin Table Mobile Fix */
+        .table-premium {
+            max-width: 100vw;
+            overflow-x: auto;
+        }
+
         .main-wrapper {
             min-height: calc(100vh - 90px);
             position: relative;
