@@ -96,8 +96,8 @@
 </section>
 
 <!-- Stats Section -->
-<section class="py-4 bg-primary text-white">
-    <div class="container py-2">
+<section class="py-5 bg-primary text-white">
+    <div class="container py-4">
         <div class="row g-4 text-center">
             <div class="col-md-3">
                 <div class="h2 fw-bold mb-1">24h/24 · 7j/7</div>
