@@ -20,7 +20,13 @@
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         border: 1px solid #e5e7eb;
-        height: 500px;
+        height: 300px; /* Mobile height */
+    }
+
+    @media (min-width: 992px) {
+        .map-container {
+            height: 500px; /* Desktop height */
+        }
     }
 
     #tripMap {
@@ -181,15 +187,8 @@
 @section('content')
 <div class="dashboard-container">
     <div class="row g-4">
-        <!-- Colonne Carte -->
-        <div class="col-lg-7">
-            <div class="map-container">
-                <div id="tripMap"></div>
-            </div>
-        </div>
-
-        <!-- Colonne Formulaire -->
-        <div class="col-lg-5">
+        <!-- Colonne Formulaire (Apparaît en premier sur mobile) -->
+        <div class="col-lg-5 order-1 order-lg-2">
             <div class="booking-card">
                 <div class="booking-header">
                     <h4 class="fw-bold mb-1">📍 Nouvelle course</h4>
@@ -266,6 +265,13 @@
                         <button class="btn btn-link w-100 text-muted small" id="backBtn">← Retour</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Colonne Carte -->
+        <div class="col-lg-7 order-2 order-lg-1">
+            <div class="map-container">
+                <div id="tripMap"></div>
             </div>
         </div>
     </div>
