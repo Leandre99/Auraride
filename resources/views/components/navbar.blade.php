@@ -65,7 +65,16 @@
                             @endif
 
                             @if(Auth::user()->role === 'admin')
-                            <li>
+                            {{-- Mobile Admin Links --}}
+                            <li class="d-lg-none"><hr class="dropdown-divider my-1"></li>
+                            <li class="d-lg-none"><div class="dropdown-header text-uppercase small fw-bold">Admin</div></li>
+                            <li class="d-lg-none"><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li class="d-lg-none"><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('admin.users') }}"><i class="bi bi-people"></i> Utilisateurs</a></li>
+                            <li class="d-lg-none"><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('admin.trips') }}"><i class="bi bi-map"></i> Courses</a></li>
+                            <li class="d-lg-none"><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('admin.rentals') }}"><i class="bi bi-car-front"></i> Locations</a></li>
+                            
+                            {{-- Desktop Admin Link --}}
+                            <li class="d-none d-lg-block">
                                 <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('admin.dashboard') }}">
                                     <i class="bi bi-shield-lock-fill"></i> Administration
                                 </a>

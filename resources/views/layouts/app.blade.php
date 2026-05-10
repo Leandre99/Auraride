@@ -176,7 +176,7 @@
         }
         @media (max-width: 991.98px) {
             .executive-header {
-                padding: 30px 0 60px;
+                padding: 20px 0 40px;
                 text-align: center;
             }
             .executive-header h1 {
