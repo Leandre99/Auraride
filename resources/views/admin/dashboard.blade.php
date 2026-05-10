@@ -83,14 +83,6 @@
         color: #FFF;
     }
 
-    .admin-container {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 30px;
-        margin-top: -100px;
-        position: relative;
-        z-index: 10;
-    }
 </style>
 @endpush
 

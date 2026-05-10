@@ -108,6 +108,24 @@
         }
 
         /* Navbar Mobile Fix */
+        /* Admin Layout Responsive */
+        .admin-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+        @media (min-width: 992px) {
+            .admin-container {
+                grid-template-columns: 280px 1fr;
+                gap: 30px;
+                margin-top: -100px;
+            }
+        }
+
+        /* Navbar Mobile Enhancements */
         @media (max-width: 991.98px) {
             .navbar-aura {
                 background: #FFFFFF !important;
@@ -117,9 +135,52 @@
                 background: #FFFFFF;
                 margin: 0 -12px;
                 padding: 20px;
-                border-radius: 0 0 20px 20px;
-                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+                border-radius: 0 0 24px 24px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
                 border-top: 1px solid #f1f5f9;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            .nav-item {
+                border-bottom: 1px solid #f8fafc;
+                padding: 5px 0;
+            }
+            .nav-item:last-child { border-bottom: none; }
+            
+            /* User Menu Mobile */
+            .user-menu-mobile {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 2px solid #f1f5f9;
+            }
+
+            /* Fix dropdowns on mobile to be full width or list-like */
+            .navbar-collapse .dropdown-menu {
+                position: static !important;
+                float: none !important;
+                width: 100% !important;
+                margin-top: 10px !important;
+                box-shadow: none !important;
+                background: #f8fafc !important;
+                border-radius: 12px !important;
+                border: 1px solid #f1f5f9 !important;
+                transform: none !important;
+            }
+        }
+
+        /* Executive Header Responsive */
+        .executive-header {
+            padding: 40px 0 80px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #FFF;
+        }
+        @media (max-width: 991.98px) {
+            .executive-header {
+                padding: 30px 0 60px;
+                text-align: center;
+            }
+            .executive-header h1 {
+                font-size: 1.75rem !important;
             }
         }
 

@@ -11,7 +11,12 @@
     .dashboard-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 1.5rem;
+        padding: 1rem;
+    }
+    @media (min-width: 992px) {
+        .dashboard-container {
+            padding: 2rem 1.5rem;
+        }
     }
 
     /* Carte */

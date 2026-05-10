@@ -20,14 +20,14 @@
             </ul>
 
             {{-- Menu utilisateur --}}
-            <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-lg-auto pb-3 pb-lg-0">
+            <div class="user-menu-mobile d-flex align-items-center gap-3 flex-shrink-0 ms-lg-auto pb-3 pb-lg-0">
                 @auth
-                    <div class="dropdown">
-                        <button class="btn btn-link text-decoration-none dropdown-toggle p-0 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none;">
-                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <div class="dropdown w-100">
+                        <button class="btn btn-link text-decoration-none dropdown-toggle p-0 d-flex align-items-center gap-2 w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none;">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
                                 <span class="fw-bold small">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                             </div>
-                            <div class="text-start d-none d-md-block">
+                            <div class="text-start">
                                 <span class="d-block fw-semibold small text-dark">{{ Auth::user()->name }}</span>
                                 <span class="d-block text-muted small" style="font-size: 0.7rem;">
                                     @if(Auth::user()->role === 'client')
