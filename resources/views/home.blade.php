@@ -96,23 +96,23 @@
 </section>
 
 <!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container py-5">
+<section class="py-4 bg-primary text-white">
+    <div class="container py-2">
         <div class="row g-4 text-center">
             <div class="col-md-3">
-                <div class="display-5 fw-bold mb-1">24h/24 · 7j/7</div>
+                <div class="h2 fw-bold mb-1">24h/24 · 7j/7</div>
                 <div class="small opacity-75">Disponibilité</div>
             </div>
             <div class="col-md-3">
-                <div class="display-5 fw-bold mb-1">4.9/5</div>
+                <div class="h2 fw-bold mb-1">4.9/5</div>
                 <div class="small opacity-75">Note moyenne</div>
             </div>
             <div class="col-md-3">
-                <div class="display-5 fw-bold mb-1">< 5 min</div>
+                <div class="h2 fw-bold mb-1">< 5 min</div>
                 <div class="small opacity-75">Temps de réponse</div>
             </div>
             <div class="col-md-3">
-                <div class="display-5 fw-bold mb-1">100%</div>
+                <div class="h2 fw-bold mb-1">100%</div>
                 <div class="small opacity-75">Chauffeurs certifiés</div>
             </div>
         </div>

@@ -77,15 +77,7 @@
 
 <div class="container pb-5">
     <div class="admin-container">
-        <aside>
-            <div class="glass-panel p-4 h-100 shadow-sm border-0 bg-white">
-                <div class="small text-muted fw-bold mb-3 px-2">MENUS PRINCIPAUX</div>
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                <a href="{{ route('admin.users') }}" class="sidebar-link active"><i class="bi bi-people"></i> Utilisateurs</a>
-                <a href="{{ route('admin.trips') }}" class="sidebar-link"><i class="bi bi-map"></i> Courses</a>
-                <a href="#" class="sidebar-link"><i class="bi bi-credit-card"></i> Paiements</a>
-            </div>
-        </aside>
+        @include('admin.partials.sidebar')
 
         <main>
             @if(session('success'))
