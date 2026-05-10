@@ -145,6 +145,21 @@
                                     </td>
                                     <td class="px-4 text-end">
                                         <div class="d-flex justify-content-end flex-wrap gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 show-trip-details"
+                                                data-id="{{ $trip->id }}"
+                                                data-pickup="{{ $trip->pickup_address }}"
+                                                data-dropoff="{{ $trip->dropoff_address }}"
+                                                data-date="{{ $trip->created_at->format('d/m/Y H:i') }}"
+                                                data-client="{{ $trip->client->name }}"
+                                                data-driver="{{ $trip->driver->name ?? 'Non assigné' }}"
+                                                data-price="{{ number_format($trip->price, 2) }}€"
+                                                data-payment-status="{{ $trip->payment_status == 'paid' ? 'Payé' : 'À régler' }}"
+                                                data-rating="{{ $trip->rating ?? 0 }}"
+                                                data-comment="{{ $trip->comment }}"
+                                                data-review-date="{{ $trip->updated_at->format('d/m/Y') }}">
+                                                Voir détails
+                                            </button>
+
                                             @if($trip->status === 'pending')
                                                 @include('admin.partials.trip-assign-button', [
                                                     'trip' => $trip,
@@ -176,8 +191,120 @@
 </div>
 
 @include('admin.partials.assign-trip-modal-singleton', ['drivers' => $drivers])
+
+<!-- Modale de Détails de la Course -->
+<div class="modal fade" id="tripDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold">Détails de la course #<span id="modalTripId"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <div class="mb-4">
+                    <div class="small text-muted text-uppercase fw-bold mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Itinéraire</div>
+                    <div class="p-3 bg-light rounded-4 border border-light">
+                        <div class="d-flex gap-2 mb-2">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <div class="small"><strong>Départ :</strong> <span id="modalPickup"></span></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-flag-fill text-danger"></i>
+                            <div class="small"><strong>Arrivée :</strong> <span id="modalDropoff"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Date & Heure</div>
+                        <div class="small fw-bold" id="modalDate"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Prix & Statut</div>
+                        <div class="small fw-bold text-primary" id="modalPrice"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Client</div>
+                        <div class="small fw-bold" id="modalClient"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Chauffeur</div>
+                        <div class="small fw-bold" id="modalDriver"></div>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-5">
+
+                <div class="review-section">
+                    <div class="small text-muted text-uppercase fw-bold mb-3" style="font-size: 0.7rem; letter-spacing: 0.5px;">Avis client</div>
+                    <div id="modalReviewContent" class="p-3 bg-white border rounded-4">
+                        <!-- Peuplé par JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0 mt-3">
+                <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('tripDetailsModal');
+    if (!modalEl) return;
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    
+    document.querySelectorAll('.show-trip-details').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const data = this.dataset;
+            document.getElementById('modalTripId').innerText = data.id;
+            document.getElementById('modalPickup').innerText = data.pickup;
+            document.getElementById('modalDropoff').innerText = data.dropoff;
+            document.getElementById('modalDate').innerText = data.date;
+            document.getElementById('modalClient').innerText = data.client;
+            document.getElementById('modalDriver').innerText = data.driver;
+            document.getElementById('modalPrice').innerText = data.price + ' (' + data.paymentStatus + ')';
+            
+            const reviewContent = document.getElementById('modalReviewContent');
+            const rating = parseInt(data.rating);
+            
+            if (rating > 0) {
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += `<i class="bi bi-star${i <= rating ? '-fill text-warning' : ''} fs-5"></i> `;
+                }
+                
+                let commentHtml = '';
+                if (data.comment && data.comment !== 'null' && data.comment.trim() !== '') {
+                    commentHtml = `
+                        <div class="mt-3 p-3 bg-light rounded-3 border-start border-4 border-primary shadow-sm" style="font-style: italic;">
+                            "${data.comment}"
+                        </div>
+                    `;
+                }
+                
+                reviewContent.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>${stars}</div>
+                        <span class="badge bg-warning text-dark rounded-pill">${rating}/5</span>
+                    </div>
+                    ${commentHtml}
+                    <div class="small text-muted mt-3 text-end">— ${data.client}, le ${data.reviewDate}</div>
+                `;
+            } else {
+                reviewContent.innerHTML = `<div class="text-center py-2 text-muted small italic"><i class="bi bi-chat-left-dots me-2"></i>Aucun avis laissé par le client</div>`;
+                reviewContent.classList.add('bg-light');
+            }
+            
+            modal.show();
+        });
+    });
+});
+</script>
 @endpush

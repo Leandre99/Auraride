@@ -11,6 +11,7 @@ Route::get('/', function () {
 Route::get('/about', function () { return view('about'); })->name('about');
 Route::get('/contact', function () { return view('contact'); })->name('contact');
 Route::get('/tarifs', function () { return view('prices'); })->name('prices');
+Route::get('/location', fn() => view('rentals.location'))->name('location');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
@@ -115,6 +116,7 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
     Route::post('/trips/{trip}/accept', [\App\Http\Controllers\TripController::class, 'accept'])->name('trips.accept');
     Route::post('/trips/{trip}/start', [\App\Http\Controllers\TripController::class, 'start'])->name('trips.start');
     Route::post('/trips/{trip}/complete', [\App\Http\Controllers\TripController::class, 'complete'])->name('trips.complete');
+    Route::post('/trips/{trip}/mark-paid', [\App\Http\Controllers\TripController::class, 'markPaid'])->name('trips.mark-paid');
 });
 
 // Shared Trip Routes
@@ -138,8 +140,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/rentals', [\App\Http\Controllers\AdminController::class, 'rentals'])->name('admin.rentals');
     Route::get('/rentals/{rental}/edit', [\App\Http\Controllers\AdminController::class, 'editRental'])->name('admin.rentals.edit');
     Route::post('/rentals/{rental}/update-status', [\App\Http\Controllers\AdminController::class, 'updateRentalStatus'])->name('admin.rentals.update-status');
-
 });
+
+// Chatbot Route
+Route::post('/chatbot/message', [\App\Http\Controllers\ChatbotController::class, 'message'])->name('chatbot.message');
+
+
 
 // ========== RENTAL ROUTES (Location de véhicules) ==========
 Route::middleware(['auth'])->group(function () {

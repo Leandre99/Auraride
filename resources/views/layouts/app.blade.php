@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATLAS AND CO - @yield('title', 'Next-Gen Transit')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -127,5 +128,127 @@
     @vite(['resources/js/app.js'])
     
     @stack('scripts')
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-container" style="position:fixed; bottom:28px; right:28px; z-index:9999;">
+        <!-- Chat Bubble -->
+        <button id="chatbot-bubble" style="background:#2563EB; color:white; border:none; border-radius:50%; width:58px; height:58px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.2); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="bi bi-chat-dots-fill" style="font-size: 1.5rem;"></i>
+        </button>
+
+        <!-- Chat Panel -->
+        <div id="chatbot-panel" style="display:none; width:320px; height:450px; background:white; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.15); overflow:hidden; flex-direction:column; position:absolute; bottom:70px; right:0; border: 1px solid #e5e7eb;">
+            <!-- Header -->
+            <div style="background:#2563EB; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span class="fw-bold">Assistant Atlas And Co</span>
+                <button id="chatbot-close" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <!-- Messages Area -->
+            <div id="chatbot-messages" style="flex-grow:1; padding:15px; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; gap:10px;">
+                <div style="background:#e5e7eb; padding:10px 15px; border-radius:12px; align-self:start; max-width:85%; font-size:0.9rem; color: #1e293b;">
+                    Bonjour ! Je suis l'assistant virtuel d'ATLAS AND CO. Comment puis-je vous aider aujourd'hui ?
+                </div>
+            </div>
+            <!-- Input Area -->
+            <div style="padding:15px; border-top:1px solid #e5e7eb; display:flex; gap:10px;">
+                <input type="text" id="chatbot-input" placeholder="Écrivez votre message..." style="flex-grow:1; border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; font-size:0.9rem; outline:none;">
+                <button id="chatbot-send" style="background:#2563EB; color:white; border:none; border-radius:8px; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bubble = document.getElementById('chatbot-bubble');
+            const panel = document.getElementById('chatbot-panel');
+            const closeBtn = document.getElementById('chatbot-close');
+            const input = document.getElementById('chatbot-input');
+            const sendBtn = document.getElementById('chatbot-send');
+            const messagesContainer = document.getElementById('chatbot-messages');
+
+            bubble.addEventListener('click', () => {
+                panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+                if (panel.style.display === 'flex') {
+                    input.focus();
+                }
+            });
+
+            closeBtn.addEventListener('click', () => {
+                panel.style.display = 'none';
+            });
+
+            function appendMessage(text, role) {
+                const msg = document.createElement('div');
+                msg.style.padding = '10px 15px';
+                msg.style.borderRadius = '12px';
+                msg.style.maxWidth = '85%';
+                msg.style.fontSize = '0.9rem';
+                msg.style.wordBreak = 'break-word';
+
+                if (role === 'user') {
+                    msg.style.background = '#2563EB';
+                    msg.style.color = 'white';
+                    msg.style.alignSelf = 'end';
+                } else {
+                    msg.style.background = '#e5e7eb';
+                    msg.style.color = '#1e293b';
+                    msg.style.alignSelf = 'start';
+                }
+
+                msg.innerText = text;
+                messagesContainer.appendChild(msg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            async function sendMessage() {
+                const text = input.value.trim();
+                if (!text) return;
+
+                input.value = '';
+                appendMessage(text, 'user');
+
+                // Typing indicator
+                const typing = document.createElement('div');
+                typing.id = 'chatbot-typing';
+                typing.style.background = '#e5e7eb';
+                typing.style.padding = '10px 15px';
+                typing.style.borderRadius = '12px';
+                typing.style.alignSelf = 'start';
+                typing.style.fontSize = '0.9rem';
+                typing.style.color = '#1e293b';
+                typing.innerText = '...';
+                messagesContainer.appendChild(typing);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                try {
+                    const response = await fetch('{{ route("chatbot.message") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ message: text })
+                    });
+                    const data = await response.json();
+                    
+                    const typingElem = document.getElementById('chatbot-typing');
+                    if (typingElem) typingElem.remove();
+                    
+                    appendMessage(data.reply, 'bot');
+                } catch (error) {
+                    const typingElem = document.getElementById('chatbot-typing');
+                    if (typingElem) typingElem.remove();
+                    appendMessage('Désolé, je rencontre un problème. Contactez-nous au 0758279237.', 'bot');
+                }
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        });
+    </script>
 </body>
 </html>

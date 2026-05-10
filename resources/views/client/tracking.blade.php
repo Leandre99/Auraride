@@ -124,14 +124,23 @@
                             @if($trip->vehicle)
                             <p class="text-muted small mb-0">{{ $trip->vehicle->model ?? '' }} - {{ $trip->vehicle->plate_number ?? '' }}</p>
                             @endif
+                            @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']) && $trip->driver?->phone_number)
+                            <p class="mb-0 small mt-2">
+                                📞 {{ $trip->driver->phone_number }}
+                                <a href="tel:{{ $trip->driver->phone_number }}" class="btn btn-outline-primary btn-sm ms-2" style="padding: 2px 8px; font-size: 0.75rem;">Appeler</a>
+                            </p>
+                            @endif
+
+                            @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']) && $trip->driver?->phone_number)
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trip->driver->phone_number) }}?text=Bonjour%20je%20suis%20votre%20client%20pour%20la%20course%20du%20{{ urlencode($trip->created_at->format('d/m/Y')) }}"
+                               target="_blank"
+                               class="btn btn-success w-100 mt-2">
+                              <i class="bi bi-whatsapp me-2"></i> Contacter le chauffeur sur WhatsApp
+                            </a>
+                            @endif
                         </div>
                     </div>
-                    @if(in_array($trip->status, ['accepted', 'in_progress']) && $trip->driver->phone_number)
-                    <hr>
-                    <a href="tel:{{ $trip->driver->phone_number }}" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-telephone-fill me-2"></i>Appeler le chauffeur
-                    </a>
-                    @endif
+
                 </div>
                 @endif
             </div>

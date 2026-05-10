@@ -225,13 +225,45 @@
                     <div id="stepVehicules" style="display: none;">
                         <div id="vehiclesList" class="mb-4"></div>
 
-                        <div class="text-center mb-3">
-                            <span class="text-muted small">Tarif estimé</span>
-                            <div class="price-badge" id="estimatedPrice">0€</div>
+                        <!-- Informations principales -->
+                        <div id="tripDetails" class="mb-4 p-3 bg-light rounded-4 d-none">
+                            <div class="row g-2 text-center small">
+                                <div class="col-4 border-end">
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Distance</div>
+                                    <div class="fw-bold text-dark" id="detailDistance">-</div>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Durée</div>
+                                    <div class="fw-bold text-dark" id="detailDuration">-</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">CO₂</div>
+                                    <div class="fw-bold text-dark" id="detailCO2">-</div>
+                                </div>
+                            </div>
                         </div>
 
-                        <button class="btn-reserve" id="confirmBtn">✅ Confirmer la course</button>
-                        <button class="btn btn-link w-100 mt-2 text-muted small" id="backBtn">← Retour</button>
+                        <div class="text-center mb-4">
+                            <span class="text-muted small">Tarif estimé</span>
+                            <div id="estimatedPriceContainer">
+                                <div class="text-muted small">HT : <span id="estimatedPriceHT">0.00</span>€</div>
+                                <div class="price-badge" style="color: #2563eb; font-weight: bold; font-size: 1.5rem;">TTC : <span id="estimatedPriceTTC">0.00</span>€</div>
+                            </div>
+                        </div>
+
+                        <button class="btn-reserve mb-3" id="confirmBtn">✅ Confirmer la course</button>
+
+                        <!-- Lien de réassurance Mappy -->
+                        <div id="mappySection" class="mt-2 mb-3 pt-3 border-top text-center d-none">
+                            <p class="text-muted mb-2" style="font-size: 0.75rem; line-height: 1.4;">
+                                Notre estimation est basée sur des données fiables. Vous pouvez vérifier votre itinéraire de manière indépendante :
+                            </p>
+                            <a href="#" id="mappyLink" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none hover-primary transition-all" style="font-size: 0.8rem;">
+                                Vérifier l'itinéraire et estimer le coût sur Mappy <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </div>
+
+                        <button class="btn btn-link w-100 text-muted small" id="backBtn">← Retour</button>
                     </div>
                 </div>
             </div>
@@ -353,6 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    let routeLine = null;
+
     // ---------- AFFICHAGE VÉHICULES ----------
     async function displayVehicles() {
         const vehicles = await getEstimation();
@@ -360,6 +394,44 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Aucun véhicule disponible');
             return;
         }
+
+        // --- Appel OSRM pour la distance réelle de route et le tracé ---
+        try {
+            // On demande le trajet complet avec la géométrie (geojson)
+            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
+            const osrmRes = await fetch(osrmUrl);
+            const osrmData = await osrmRes.json();
+            
+            if (osrmData.routes && osrmData.routes.length > 0) {
+                const route = osrmData.routes[0];
+                const realDistanceKm = (route.distance / 1000).toFixed(2);
+                const realDurationMin = Math.round(route.duration / 60);
+
+                // Tracé de l'itinéraire sur la carte
+                if (routeLine) map.removeLayer(routeLine);
+                routeLine = L.geoJSON(route.geometry, {
+                    style: { color: '#2563eb', weight: 5, opacity: 0.8 }
+                }).addTo(map);
+                map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+                vehicles.forEach(v => {
+                    v.distance = parseFloat(realDistanceKm);
+                    v.duration = realDurationMin;
+
+                    // Tarification demandée : 1.50 / 2.50 / 4.00
+                    let rate = 1.50; // Par défaut (Berline Standard)
+                    if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
+                    if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
+
+                    v.price_ht = (v.distance * rate).toFixed(2);
+                    v.price_ttc = (v.price_ht * 1.10).toFixed(2);
+                    v.price = v.price_ttc; // Pour la soumission au backend
+                });
+            }
+        } catch (error) {
+            console.error("Erreur OSRM:", error);
+        }
+
         vehiclesData = vehicles;
         const container = document.getElementById('vehiclesList');
         container.innerHTML = '';
@@ -373,20 +445,40 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="fw-bold">${v.name}</div>
                         <div class="small text-muted">Chauffeur inclus</div>
                     </div>
-                    <div class="text-primary fw-bold">${v.price}€</div>
+                    <div class="text-end">
+                        <div class="small text-muted">HT : ${v.price_ht}€</div>
+                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">TTC : ${v.price_ttc}€</div>
+                    </div>
                 </div>
             `;
             div.onclick = () => {
                 document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
                 div.classList.add('selected');
                 selectedVehicle = v;
-                document.getElementById('estimatedPrice').innerText = v.price + '€';
+                updatePriceSummary(v);
             };
             container.appendChild(div);
         });
 
-        selectedVehicle = vehicles[0];
-        document.getElementById('estimatedPrice').innerText = vehicles[0].price + '€';
+        const v = vehicles[0];
+        selectedVehicle = v;
+        updatePriceSummary(v);
+
+        // Mise à jour des détails (Distance, Durée, CO2) avec les valeurs réelles
+        document.getElementById('detailDistance').innerText = v.distance + ' km';
+        document.getElementById('detailDuration').innerText = v.duration + ' min';
+        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg'; 
+        document.getElementById('tripDetails').classList.remove('d-none');
+
+        // Configuration du lien Mappy
+        const mappyUrl = `https://fr.mappy.com/itineraire#from=${encodeURIComponent(pickupAddress)}&to=${encodeURIComponent(dropoffAddress)}`;
+        document.getElementById('mappyLink').href = mappyUrl;
+        document.getElementById('mappySection').classList.remove('d-none');
+    }
+
+    function updatePriceSummary(v) {
+        document.getElementById('estimatedPriceHT').innerText = v.price_ht;
+        document.getElementById('estimatedPriceTTC').innerText = v.price_ttc;
     }
 
     // ---------- CHANGEMENT D'ÉTAPE ----------

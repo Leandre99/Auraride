@@ -119,18 +119,23 @@
                                     <div>
                                         <span class="d-block text-muted small">Client</span>
                                         <strong>{{ $activeTrip->client?->name ?? '—' }}</strong>
+                                        @if(in_array($activeTrip->status, ['assigned', 'accepted', 'in_progress']) && $activeTrip->client?->phone_number)
+                                            <div class="small mt-1">
+                                                📞 {{ $activeTrip->client->phone_number }}
+                                                <a href="tel:{{ preg_replace('/\s+/', '', $activeTrip->client->phone_number) }}" class="btn btn-outline-primary btn-sm ms-2" style="padding: 2px 8px; font-size: 0.7rem;">Appeler le client</a>
+                                            </div>
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $activeTrip->client->phone_number) }}?text=Bonjour%20je%20suis%20votre%20chauffeur%20Atlas%20And%20Co%2C%20je%20suis%20en%20route."
+                                               target="_blank"
+                                               class="btn btn-success w-100 mt-2">
+                                              <i class="bi bi-whatsapp me-2"></i> Contacter le client sur WhatsApp
+                                            </a>
+                                        @endif
                                     </div>
                                     <div class="text-end">
                                         <span class="d-block text-muted small">Tarif</span>
                                         <strong class="text-success fs-5">{{ number_format($activeTrip->price ?? 0, 2) }} €</strong>
                                     </div>
                                 </div>
-                                @if ($clientTel)
-                                    <hr class="my-3">
-                                    <a href="{{ $clientTel }}" class="btn btn-outline-secondary btn-sm w-100">
-                                        <i class="bi bi-telephone-fill me-2"></i>Contacter le client
-                                    </a>
-                                @endif
                             </div>
 
                             <div class="d-flex flex-column gap-3">
@@ -150,21 +155,21 @@
                                         <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold">Terminer la course</button>
                                     </form>
                                 @elseif ($activeTrip->status === 'completed' && ($activeTrip->payment_status ?? 'pending') !== 'paid')
-                                    <div class="alert alert-warning w-100 text-center mb-0 border-0 rounded-3">
-                                        <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
-                                        <strong>En attente du paiement client</strong>
-                                        <p class="mb-2 small mt-2 text-dark">
-                                            Montant : {{ number_format($activeTrip->price ?? 0, 2) }} €
-                                            ({{ $activeTrip->payment_method === 'cash' ? 'espèces' : 'carte' }}).
-                                        </p>
-                                        @if ($activeTrip->payment_method === 'cash')
-                                            <form action="{{ route('trips.confirm-payment', $activeTrip) }}" method="POST" class="mt-3">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm w-100 py-2 fw-bold">
-                                                    <i class="bi bi-cash-stack me-2"></i>Confirmer réception des espèces
+                                    <div id="payment-block">
+                                        <div class="alert alert-light border border-primary rounded-3 text-center mb-0" id="payment-options-block">
+                                            <p class="fw-bold mb-3 text-dark">Valider le paiement de {{ number_format($activeTrip->price ?? 0, 2) }} €</p>
+                                            <div class="d-flex gap-2 flex-wrap flex-md-nowrap">
+                                                <button type="button" class="btn btn-outline-success w-100 fw-bold py-2 payment-btn" data-method="cash" data-url="{{ route('trips.mark-paid', $activeTrip) }}">
+                                                    💵 Payé en main propre
                                                 </button>
-                                            </form>
-                                        @endif
+                                                <button type="button" class="btn btn-outline-primary w-100 fw-bold py-2 payment-btn" data-method="card" data-url="{{ route('trips.mark-paid', $activeTrip) }}">
+                                                    💳 Payé par terminal
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-success border-0 rounded-3 text-center mb-0 d-none" id="payment-success-badge">
+                                            <strong id="payment-success-text">✓ Payé</strong>
+                                        </div>
                                     </div>
                                 @endif
                             </div>
@@ -331,16 +336,46 @@
             }, 3000);
         }
 
-        if (rideStatus === 'completed' && paymentStatus !== 'paid') {
-            setInterval(function () {
-                fetch(window.location.href)
-                    .then(function (r) { return r.text(); })
-                    .then(function (html) {
-                        if (!html.includes('En attente du paiement client')) {
+        var paymentBtns = document.querySelectorAll('.payment-btn');
+        if (paymentBtns.length > 0) {
+            paymentBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var method = this.getAttribute('data-method');
+                    var url = this.getAttribute('data-url');
+                    
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    this.disabled = true;
+                    var otherBtns = document.querySelectorAll('.payment-btn');
+                    otherBtns.forEach(b => b.disabled = true);
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ payment_method: method })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('payment-options-block').classList.add('d-none');
+                            var successBadge = document.getElementById('payment-success-badge');
+                            successBadge.classList.remove('d-none');
+                            document.getElementById('payment-success-text').innerText = '✓ Payé — ' + (method === 'cash' ? 'Main propre' : 'Terminal');
+                            setTimeout(() => window.location.reload(), 2000);
+                        } else {
+                            alert('Erreur lors du paiement.');
                             window.location.reload();
                         }
+                    })
+                    .catch(e => {
+                        alert('Erreur réseau.');
+                        window.location.reload();
                     });
-            }, 3000);
+                });
+            });
         }
     });
 </script>

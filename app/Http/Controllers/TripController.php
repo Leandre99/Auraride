@@ -274,7 +274,34 @@ class TripController extends Controller
             return response()->json(['success' => true]);
         }
 
-        return redirect()->back()->with('success', 'Merci pour votre avis.');
+        return redirect()->route('home')->with('success', 'Merci pour votre avis !');
+    }
+
+    public function markPaid(Request $request, Trip $trip)
+    {
+        if ($trip->driver_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'payment_method' => 'required|in:cash,card',
+        ]);
+
+        $trip->update([
+            'payment_status' => 'paid',
+            'payment_method' => $request->payment_method,
+        ]);
+
+        $trip->load('client');
+        if ($trip->client) {
+            \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Paiement confirmé.');
     }
 
     public function confirmPayment(Trip $trip)

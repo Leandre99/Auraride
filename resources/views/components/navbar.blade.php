@@ -51,12 +51,7 @@
                             @if(Auth::user()->role === 'client')
                             <li>
                                 <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('my.rentals') }}">
-                                    <i class="bi bi-car-front"></i> Mon historique
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('client.dashboard') }}">
-                                    <i class="bi bi-clock-history"></i> Mes courses
+                                    <i class="bi bi-clock-history"></i> Mon historique
                                 </a>
                             </li>
                             @endif

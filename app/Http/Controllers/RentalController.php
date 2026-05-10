@@ -4,12 +4,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rental;
+use App\Models\Trip;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentalConfirmationClient;
 use App\Mail\RentalNotificationAdmin;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RentalController extends Controller
 {
@@ -71,14 +73,39 @@ class RentalController extends Controller
         ]);
     }
 
-    // Optionnel : voir l'historique des locations de l'utilisateur
-    public function myRentals()
+    // Voir l'historique des réservations (VTC + Locations)
+    public function myRentals(Request $request)
     {
-        $rentals = Rental::where('user_id', Auth::id())
-                        ->with('vehicleType')
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+        $user_id = Auth::id();
 
-        return view('user.rentals', compact('rentals'));
+        $rentals = Rental::where('user_id', $user_id)
+            ->with('vehicleType')
+            ->get()
+            ->map(function ($rental) {
+                $rental->item_type = 'rental';
+                return $rental;
+            });
+
+        $trips = Trip::where('client_id', $user_id)
+            ->with('vehicleType')
+            ->get()
+            ->map(function ($trip) {
+                $trip->item_type = 'trip';
+                return $trip;
+            });
+
+        $merged = $rentals->concat($trips)->sortByDesc('created_at')->values();
+
+        $page = $request->get('page', 1);
+        $perPage = 10;
+        $items = new LengthAwarePaginator(
+            $merged->forPage($page, $perPage),
+            $merged->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('client.historique', compact('items'));
     }
 }
