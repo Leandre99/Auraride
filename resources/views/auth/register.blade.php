@@ -5,24 +5,24 @@
 @push('styles')
 <style>
     .auth-fixed-wrapper {
-        min-height: calc(100vh - 180px);
+        min-height: calc(100vh - 90px);
         display: flex;
         justify-content: center;
         align-items: center;
-        background: radial-gradient(circle at top right, #EBF2FF, transparent);
-        padding: 80px 20px;
+        background: #F8FAFC;
+        padding: 40px 20px;
     }
     
     .auth-card {
         width: 100%;
-        max-width: 460px;
-        max-height: 85vh;
+        max-width: 480px;
+        max-height: 90vh;
         overflow-y: auto;
-        padding: 40px;
+        padding: 35px;
         background: #FFF;
-        border-radius: 24px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.08);
-        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0,0,0,0.05);
     }
     .auth-card::-webkit-scrollbar { width: 5px; }
     .auth-card::-webkit-scrollbar-thumb { background: #EEE; border-radius: 10px; }

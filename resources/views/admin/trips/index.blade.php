@@ -16,21 +16,46 @@
 
     .table-premium {
         background: #FFF;
-        border-radius: 24px;
-        overflow: visible;
+        border-radius: 20px;
+        overflow: hidden; /* Fix double borders */
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         border: 1px solid var(--border-light);
     }
     .table-premium .table-responsive {
         overflow-x: auto;
-        overflow-y: visible;
     }
     
     .status-pill {
-        padding: 6px 16px;
+        padding: 6px 14px;
         border-radius: 30px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: #FFF;
+        color: #64748b;
+    }
+    .btn-action:hover {
+        background: var(--primary);
+        color: #FFF;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .btn-action-danger:hover {
+        background: #ef4444;
+        color: #FFF;
+        border-color: #ef4444;
     }
 
     .sidebar-link {
@@ -95,33 +120,33 @@
             <div class="table-premium">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead>
+                        <thead class="bg-light">
                             <tr>
-                                <th class="px-4 py-3">ID / Date</th>
-                                <th class="py-3">Clients / Chauffeur</th>
-                                <th class="py-3">Trajet</th>
-                                <th class="py-3">Prix</th>
-                                <th class="py-3">Statut</th>
-                                <th class="py-3 text-end px-4">Actions</th>
+                                <th class="px-4 py-3 text-muted small fw-bold">ID / DATE</th>
+                                <th class="py-3 text-muted small fw-bold">CLIENTS / CHAUFFEUR</th>
+                                <th class="py-3 text-muted small fw-bold">TRAJET</th>
+                                <th class="py-3 text-muted small fw-bold">PRIX</th>
+                                <th class="py-3 text-muted small fw-bold">STATUT</th>
+                                <th class="py-3 text-end px-4 text-muted small fw-bold">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($trips as $trip)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <div class="fw-bold">#{{ $trip->id }}</div>
+                                        <div class="fw-bold text-dark">#{{ $trip->id }}</div>
                                         <div class="small text-muted">{{ $trip->created_at->format('d/m/Y H:i') }}</div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold">{{ $trip->client->name }}</div>
-                                        <div class="small text-primary"><i class="bi bi-person-badge"></i> {{ $trip->driver->name ?? 'Non assigné' }}</div>
+                                        <div class="fw-bold text-dark">{{ $trip->client->name }}</div>
+                                        <div class="small text-primary fw-medium"><i class="bi bi-person-badge me-1"></i>{{ $trip->driver->name ?? 'Non assigné' }}</div>
                                     </td>
                                     <td>
-                                        <div class="small fw-bold">DE: {{ $trip->pickup_address }}</div>
-                                        <div class="small text-muted">À: {{ $trip->dropoff_address }}</div>
+                                        <div class="small fw-bold text-dark">DE: {{ Str::limit($trip->pickup_address, 30) }}</div>
+                                        <div class="small text-muted">À: {{ Str::limit($trip->dropoff_address, 30) }}</div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold">{{ number_format($trip->price, 2) }}€</div>
+                                        <div class="fw-bold text-dark">{{ number_format($trip->price, 2) }}€</div>
                                         <div class="small text-muted">{{ $trip->payment_status == 'paid' ? 'Payé' : 'À régler' }}</div>
                                     </td>
                                     <td>
@@ -136,8 +161,8 @@
                                         <span class="status-pill {{ $badgeClass }}">{{ ucfirst($trip->status) }}</span>
                                     </td>
                                     <td class="px-4 text-end">
-                                        <div class="d-flex justify-content-end flex-wrap gap-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 show-trip-details"
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button type="button" class="btn-action show-trip-details" title="Voir détails"
                                                 data-id="{{ $trip->id }}"
                                                 data-pickup="{{ $trip->pickup_address }}"
                                                 data-dropoff="{{ $trip->dropoff_address }}"
@@ -149,23 +174,24 @@
                                                 data-rating="{{ $trip->rating ?? 0 }}"
                                                 data-comment="{{ $trip->comment }}"
                                                 data-review-date="{{ $trip->updated_at->format('d/m/Y') }}">
-                                                Voir détails
+                                                <i class="bi bi-eye"></i>
                                             </button>
 
                                             @if($trip->status === 'pending')
                                                 @include('admin.partials.trip-assign-button', [
                                                     'trip' => $trip,
-                                                    'buttonLabel' => 'Assigner',
-                                                    'buttonClass' => 'btn btn-primary btn-sm rounded-pill px-3',
+                                                    'buttonLabel' => '<i class="bi bi-person-plus"></i>',
+                                                    'buttonClass' => 'btn-action',
                                                 ])
                                             @endif
+
                                             @if(!in_array($trip->status, ['completed', 'cancelled']))
                                                 <form action="{{ route('admin.trips.cancel', $trip) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Annuler</button>
+                                                    <button type="submit" class="btn-action btn-action-danger" title="Annuler" onclick="return confirm('Annuler cette course ?')">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
                                                 </form>
-                                            @else
-                                                <button type="button" class="btn btn-sm btn-light disabled rounded-pill px-3">Clôturé</button>
                                             @endif
                                         </div>
                                     </td>
@@ -174,7 +200,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="p-4 border-top">
+                <div class="p-4 border-top bg-light bg-opacity-50">
                     {{ $trips->links() }}
                 </div>
             </div>
@@ -186,57 +212,70 @@
 
 <!-- Modale de Détails de la Course -->
 <div class="modal fade" id="tripDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">Détails de la course #<span id="modalTripId"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white p-4 border-0">
+                <h5 class="modal-title fw-bold">Récapitulatif Course #<span id="modalTripId"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body pt-3">
-                <div class="mb-4">
-                    <div class="small text-muted text-uppercase fw-bold mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">Itinéraire</div>
-                    <div class="p-3 bg-light rounded-4 border border-light">
-                        <div class="d-flex gap-2 mb-2">
-                            <i class="bi bi-geo-alt-fill text-primary"></i>
-                            <div class="small"><strong>Départ :</strong> <span id="modalPickup"></span></div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="p-4 bg-light rounded-4 h-100 border border-light">
+                            <h6 class="text-uppercase small fw-bold text-primary mb-4">Itinéraire & Statut</h6>
+                            <div class="d-flex gap-3 mb-4">
+                                <div class="d-flex flex-column align-items-center">
+                                    <div class="rounded-circle bg-primary" style="width: 12px; height: 12px;"></div>
+                                    <div style="width: 2px; flex-grow: 1; background: #e2e8f0; margin: 4px 0;"></div>
+                                    <div class="rounded-circle bg-danger" style="width: 12px; height: 12px;"></div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="mb-4">
+                                        <div class="small text-muted mb-1">DÉPART</div>
+                                        <div class="fw-bold" id="modalPickup"></div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-muted mb-1">ARRIVÉE</div>
+                                        <div class="fw-bold" id="modalDropoff"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="d-flex gap-2">
-                            <i class="bi bi-flag-fill text-danger"></i>
-                            <div class="small"><strong>Arrivée :</strong> <span id="modalDropoff"></span></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="p-4 border rounded-4 h-100 shadow-sm">
+                            <h6 class="text-uppercase small fw-bold text-primary mb-4">Informations Clés</h6>
+                            <div class="mb-3 d-flex justify-content-between">
+                                <span class="text-muted small">Date :</span>
+                                <span class="fw-bold small" id="modalDate"></span>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between">
+                                <span class="text-muted small">Montant :</span>
+                                <span class="fw-bold text-primary" id="modalPrice"></span>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between">
+                                <span class="text-muted small">Client :</span>
+                                <span class="fw-bold small" id="modalClient"></span>
+                            </div>
+                            <div class="mb-0 d-flex justify-content-between">
+                                <span class="text-muted small">Chauffeur :</span>
+                                <span class="fw-bold small" id="modalDriver"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-3 mb-4">
-                    <div class="col-6">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Date & Heure</div>
-                        <div class="small fw-bold" id="modalDate"></div>
-                    </div>
-                    <div class="col-6">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Prix & Statut</div>
-                        <div class="small fw-bold text-primary" id="modalPrice"></div>
-                    </div>
-                    <div class="col-6">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Client</div>
-                        <div class="small fw-bold" id="modalClient"></div>
-                    </div>
-                    <div class="col-6">
-                        <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Chauffeur</div>
-                        <div class="small fw-bold" id="modalDriver"></div>
-                    </div>
-                </div>
-
-                <hr class="my-4 opacity-5">
-
-                <div class="review-section">
-                    <div class="small text-muted text-uppercase fw-bold mb-3" style="font-size: 0.7rem; letter-spacing: 0.5px;">Avis client</div>
-                    <div id="modalReviewContent" class="p-3 bg-white border rounded-4">
-                        <!-- Peuplé par JS -->
+                <div class="mt-4" id="modalReviewSection">
+                    <div class="p-4 bg-white border rounded-4 shadow-sm">
+                        <h6 class="text-uppercase small fw-bold text-primary mb-3">Avis du client</h6>
+                        <div id="modalReviewContent">
+                            <!-- Peuplé par JS -->
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-top-0 pt-0 mt-3">
-                <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Fermer</button>
+            <div class="modal-footer p-4 border-0 pt-0">
+                <button type="button" class="btn btn-dark w-100 py-3 rounded-3 fw-bold" data-bs-dismiss="modal">Fermer les détails</button>
             </div>
         </div>
     </div>

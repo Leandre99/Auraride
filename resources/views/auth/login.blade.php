@@ -5,22 +5,22 @@
 @push('styles')
 <style>
     .auth-fixed-wrapper {
-        min-height: calc(100vh - 180px);
+        min-height: calc(100vh - 90px);
         display: flex;
         justify-content: center;
         align-items: center;
-        background: radial-gradient(circle at top right, #EBF2FF, transparent);
-        padding: 60px 20px;
+        background: #F8FAFC;
+        padding: 40px 20px;
     }
     
     .auth-card {
         width: 100%;
-        max-width: 420px;
-        padding: 50px;
+        max-width: 440px;
+        padding: 40px;
         background: #FFF;
-        border-radius: 24px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.08);
-        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0,0,0,0.05);
     }
 </style>
 @endpush

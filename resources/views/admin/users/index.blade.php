@@ -16,18 +16,39 @@
 
     .table-premium {
         background: #FFF;
-        border-radius: 24px;
+        border-radius: 20px;
         overflow: hidden;
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         border: 1px solid var(--border-light);
     }
-    .table-premium thead {
-        background: #F8FAFC;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
+    .table-premium .table-responsive {
+        overflow-x: auto;
     }
-    
+
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: #FFF;
+        color: #64748b;
+    }
+    .btn-action:hover {
+        background: var(--primary);
+        color: #FFF;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .btn-action-danger:hover {
+        background: #ef4444;
+        color: #FFF;
+        border-color: #ef4444;
+    }
+
     .status-pill {
         padding: 6px 16px;
         border-radius: 30px;
@@ -98,13 +119,14 @@
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead>
+                        <thead class="bg-light">
                             <tr>
-                                <th class="px-4 py-3">Nom / Email</th>
-                                <th class="py-3">Rôle</th>
-                                <th class="py-3">Statut Appr.</th>
-                                <th class="py-3">Compte</th>
-                                <th class="py-3 text-end px-4">Actions</th>
+                                <th class="px-4 py-3 text-muted small fw-bold">NOM / EMAIL</th>
+                                <th class="py-3 text-muted small fw-bold">RÔLE</th>
+                                <th class="py-3 text-muted small fw-bold">TÉLÉPHONE</th>
+                                <th class="py-3 text-muted small fw-bold">INSCRIPTION</th>
+                                <th class="py-3 text-muted small fw-bold">STATUT</th>
+                                <th class="py-3 text-end px-4 text-muted small fw-bold">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -137,19 +159,27 @@
                                     </td>
                                     <td class="px-4 text-end">
                                         <div class="d-flex justify-content-end gap-2">
-                                            @if($user->role == 'driver' && !$user->is_approved)
-                                                <form action="{{ route('admin.users.approve', $user) }}" method="POST">
+                                            @if($user->role === 'driver' && !$user->is_approved)
+                                                <form action="{{ route('admin.drivers.approve', $user) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Approuver</button>
+                                                    <button type="submit" class="btn-action" title="Approuver le chauffeur">
+                                                        <i class="bi bi-check-circle text-success"></i>
+                                                    </button>
                                                 </form>
                                             @endif
                                             
-                                            <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
+                                            <form action="{{ route('admin.users.toggle', $user) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm {{ $user->is_active ? 'btn-outline-danger' : 'btn-primary' }} rounded-pill px-3">
-                                                    {{ $user->is_active ? 'Suspendre' : 'Réactiver' }}
+                                                <button type="submit" class="btn-action {{ $user->is_active ? 'btn-action-danger' : '' }}" title="{{ $user->is_active ? 'Suspendre' : 'Activer' }}">
+                                                    <i class="bi bi-{{ $user->is_active ? 'person-x' : 'person-check' }}"></i>
                                                 </button>
                                             </form>
+
+                                            @if($user->role === 'driver' && $user->cv_path)
+                                                <a href="{{ asset('storage/' . $user->cv_path) }}" target="_blank" class="btn-action" title="Voir CV">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

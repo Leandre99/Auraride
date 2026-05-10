@@ -16,47 +16,37 @@
 
     .table-premium {
         background: #FFF;
-        border-radius: 24px;
-        overflow: visible;
+        border-radius: 20px;
+        overflow: hidden;
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         border: 1px solid var(--border-light);
     }
     .table-premium .table-responsive {
         overflow-x: auto;
-        overflow-y: visible;
     }
 
-    .status-pill {
-        padding: 6px 16px;
-        border-radius: 30px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .sidebar-link {
-        display: flex;
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
         align-items: center;
-        padding: 12px 20px;
-        color: var(--text-main);
-        text-decoration: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        margin-bottom: 5px;
-        font-weight: 500;
+        justify-content: center;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: #FFF;
+        color: #64748b;
     }
-    .sidebar-link i { margin-right: 15px; font-size: 1.1rem; }
-    .sidebar-link:hover, .sidebar-link.active {
+    .btn-action:hover {
         background: var(--primary);
         color: #FFF;
+        border-color: var(--primary);
+        transform: translateY(-2px);
     }
-
-    .admin-container {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 30px;
-        margin-top: -100px;
-        position: relative;
-        z-index: 10;
+    .btn-action-danger:hover {
+        background: #ef4444;
+        color: #FFF;
+        border-color: #ef4444;
     }
 </style>
 @endpush
@@ -90,16 +80,16 @@
             <div class="table-premium">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead>
+                        <thead class="bg-light">
                             <tr>
-                                <th class="px-4 py-3">ID / Date</th>
-                                <th class="py-3">Client</th>
-                                <th class="py-3">Véhicule</th>
-                                <th class="py-3">Période</th>
-                                <th class="py-3">Chauffeur</th>
-                                <th class="py-3">Prix total</th>
-                                <th class="py-3">Statut</th>
-                                <th class="py-3 text-end px-4">Actions</th>
+                                <th class="px-4 py-3 text-muted small fw-bold">ID / DATE</th>
+                                <th class="py-3 text-muted small fw-bold">CLIENT</th>
+                                <th class="py-3 text-muted small fw-bold">VÉHICULE</th>
+                                <th class="py-3 text-muted small fw-bold">PÉRIODE</th>
+                                <th class="py-3 text-muted small fw-bold">CHAUFFEUR</th>
+                                <th class="py-3 text-muted small fw-bold">PRIX TOTAL</th>
+                                <th class="py-3 text-muted small fw-bold">STATUT</th>
+                                <th class="py-3 text-end px-4 text-muted small fw-bold">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,16 +153,16 @@
                                         <span class="status-pill {{ $badgeClass }}">{{ $statusText }}</span>
                                     </td>
                                     <td class="px-4 text-end">
-                                        <div class="d-flex justify-content-end flex-wrap gap-2">
-                                            <a href="{{ route('admin.rentals.edit', $rental) }}" class="btn btn-primary btn-sm rounded-pill px-3">
-                                                <i class="bi bi-pencil"></i> Traiter
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{{ route('admin.rentals.edit', $rental) }}" class="btn-action" title="Traiter la demande">
+                                                <i class="bi bi-pencil"></i>
                                             </a>
                                             @if($rental->status === 'pending')
                                                 <form action="{{ route('admin.rentals.update-status', $rental) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <input type="hidden" name="status" value="cancelled">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Annuler cette demande ?')">
-                                                        Annuler
+                                                    <button type="submit" class="btn-action btn-action-danger" title="Annuler" onclick="return confirm('Annuler cette demande ?')">
+                                                        <i class="bi bi-x-circle"></i>
                                                     </button>
                                                 </form>
                                             @endif
