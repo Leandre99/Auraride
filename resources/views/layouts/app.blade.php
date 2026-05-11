@@ -389,8 +389,9 @@
     <!-- Navbar -->
     @include('components.navbar')
 
-    <div class="main-wrapper">
+    <div class="main-wrapper d-flex flex-column min-vh-100">
         @yield('content')
+        @include('components.footer')
     </div>
 
     <!-- Footer could go here -->
