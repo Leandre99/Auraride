@@ -6,10 +6,10 @@
 <style>
     body { background: #F8FAFC; }
     .executive-header {
-        padding: 40px 0;
+        padding: 60px 0;
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         color: #FFF;
-        margin-bottom: -80px;
+        margin-bottom: -60px;
         padding-bottom: 120px;
     }
     .log-card {

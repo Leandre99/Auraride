@@ -8,9 +8,10 @@
         background: #f3f4f6;
     }
 
-    .dashboard-container {
+    .dashboard-container-fluid {
         width: 100%;
-        padding: 0;
+        padding: 20px;
+        background: #f8fafc;
     }
     @media (min-width: 992px) {
         .dashboard-container {
@@ -112,8 +113,13 @@
         flex: 1;
         border: none;
         background: transparent;
-        font-size: 0.9rem;
+        font-size: 1rem;
         outline: none;
+        padding: 12px 0;
+    }
+    
+    .booking-body {
+        padding: 2rem !important;
     }
 
     .vehicle-option {
@@ -192,14 +198,14 @@
 <div class="dashboard-container-fluid">
     <div class="row g-0">
         <!-- Colonne Carte (Plus grande sur Desktop) -->
-        <div class="col-lg-8 order-2 order-lg-1 animate__animated animate__fadeIn">
-            <div class="map-container shadow-lg border-0" style="height: 600px;">
+        <div class="col-lg-7 order-2 order-lg-1 animate__animated animate__fadeIn">
+            <div class="map-container shadow-lg border-0" style="height: 700px;">
                 <div id="tripMap"></div>
             </div>
         </div>
 
         <!-- Colonne Formulaire (Plus compacte et centrée sur Desktop) -->
-        <div class="col-lg-4 order-1 order-lg-2 animate__animated animate__slideInRight">
+        <div class="col-lg-5 order-1 order-lg-2 animate__animated animate__slideInRight px-lg-4">
             <div class="booking-card shadow-lg border-0 sticky-top" style="top: 20px;">
                 <div class="booking-header bg-primary text-white p-4 rounded-top-4">
                     <h4 class="fw-bold mb-1">📍 Réserver une course</h4>
@@ -215,15 +221,15 @@
 
                     <!-- Étape 1 : Trajet -->
                     <div id="stepTrajet">
-                        <div class="location-input bg-light border-0 p-2">
-                            <div class="input-row relative border-bottom-0 pb-0">
+                        <div class="location-input bg-light border-0 p-3 rounded-4">
+                            <div class="input-row relative border-bottom pb-2 mb-2">
                                 <div class="input-dot pickup"></div>
-                                <input type="text" id="pickupInput" class="py-3 px-2 w-100" placeholder="Lieu de départ..." autocomplete="off">
+                                <input type="text" id="pickupInput" class="w-100" placeholder="Lieu de départ..." autocomplete="off">
                                 <div id="pickupResults" class="autocomplete-results shadow" style="display: none;"></div>
                             </div>
-                            <div class="input-row relative pt-0">
+                            <div class="input-row relative pt-2">
                                 <div class="input-dot dropoff"></div>
-                                <input type="text" id="dropoffInput" class="py-3 px-2 w-100" placeholder="Destination..." autocomplete="off">
+                                <input type="text" id="dropoffInput" class="w-100" placeholder="Destination..." autocomplete="off">
                                 <div id="dropoffResults" class="autocomplete-results shadow" style="display: none;"></div>
                             </div>
                         </div>

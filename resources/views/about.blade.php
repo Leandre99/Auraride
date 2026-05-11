@@ -16,7 +16,7 @@
         </div>
     </header>
 
-    <section class="py-5 bg-white" style="margin-top: -60px; position: relative; z-index: 20;">
+    <section class="py-5 bg-white" style="margin-top: -40px; position: relative; z-index: 20;">
         <div class="container py-5">
             <div class="row align-items-center mb-5 pb-5">
                 <div class="col-lg-6 animate__animated animate__fadeInLeft">

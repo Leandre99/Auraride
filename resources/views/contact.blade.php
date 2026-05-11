@@ -16,7 +16,7 @@
         </div>
     </header>
 
-    <section class="py-5 bg-white" style="margin-top: -60px; position: relative; z-index: 20;">
+    <section class="py-5 bg-white" style="margin-top: -40px; position: relative; z-index: 20;">
         <div class="container py-5">
             <div class="row g-5">
                 <div class="col-lg-5 animate__animated animate__fadeInLeft">
