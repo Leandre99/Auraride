@@ -5,7 +5,7 @@
 @section('content')
 <section class="py-5 bg-white">
     <div class="container py-5">
-        <div class="row align-items-center mb-5">
+        <div class="row align-items-center mb-5 pb-5">
             <div class="col-lg-6">
                 <h1 class="display-4 mb-4">Notre mission : <span class="text-primary-gradient">élever le transport.</span></h1>
                 <p class="lead text-muted mb-4">Fondée en 2024, ATLAS AND CO est née d'une idée simple : la mobilité urbaine doit être bien plus qu'un simple trajet d'un point A à un point B. Ce doit être une expérience.</p>
@@ -16,46 +16,72 @@
             </div>
         </div>
 
-        <div class="row g-5 py-5">
+        <div class="row g-4 pt-5">
             <div class="col-md-4">
-                <h3 class="mb-3">Innovation</h3>
-                <p class="text-muted">Nous utilisons des algorithmes de pointe et l'IA pour optimiser les trajets et réduire les temps d'attente pour nos utilisateurs.</p>
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-light">
+                    <div class="kpi-icon bg-primary text-white mb-3 shadow-sm"><i class="bi bi-cpu-fill"></i></div>
+                    <h4 class="mb-3">Innovation</h4>
+                    <p class="text-muted mb-0">Nous utilisons des algorithmes de pointe et l'IA pour optimiser les trajets et réduire les temps d'attente pour nos utilisateurs.</p>
+                </div>
             </div>
             <div class="col-md-4">
-                <h3 class="mb-3">Durabilité</h3>
-                <p class="text-muted">Notre engagement envers l'environnement signifie privilégier les véhicules électriques et hybrides dans notre flotte.</p>
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-light">
+                    <div class="kpi-icon bg-success text-white mb-3 shadow-sm"><i class="bi bi-leaf-fill"></i></div>
+                    <h4 class="mb-3">Durabilité</h4>
+                    <p class="text-muted mb-0">Notre engagement envers l'environnement signifie privilégier les véhicules électriques et hybrides dans notre flotte.</p>
+                </div>
             </div>
             <div class="col-md-4">
-                <h3 class="mb-3">Excellence</h3>
-                <p class="text-muted">Chaque chauffeur est formé pour offrir une expérience 5 étoiles, garantissant votre confort et votre sécurité.</p>
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-light">
+                    <div class="kpi-icon bg-warning text-dark mb-3 shadow-sm"><i class="bi bi-star-fill"></i></div>
+                    <h4 class="mb-3">Excellence</h4>
+                    <p class="text-muted mb-0">Chaque chauffeur est formé pour offrir une expérience 5 étoiles, garantissant votre confort et votre sécurité.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 bg-light">
-    <div class="container py-5 text-center">
-        <h2 class="mb-5">Notre équipe de direction</h2>
-        <div class="row g-4">
-            <div class="col-md-3">
-                <img src="https://i.pravatar.cc/150?img=12" class="rounded-circle mb-3 shadow-sm" style="width: 120px; height: 120px;" alt="">
-                <h5>Sarah Jenkins</h5>
-                <p class="text-primary small fw-bold">CEO & Fondatrice</p>
+<section class="py-5 bg-light border-top">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Notre équipe de direction</h2>
+            <div class="text-primary fw-bold">Les visages derrière ATLAS AND CO</div>
+        </div>
+        
+        <!-- Le BOSS -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-white rounded-4 shadow-sm border">
+                    <img src="https://i.pravatar.cc/150?img=12" class="rounded-circle mb-3 shadow" style="width: 140px; height: 140px; object-fit: cover; border: 4px solid var(--primary);" alt="CEO">
+                    <h4 class="mb-1">Sarah Jenkins</h4>
+                    <p class="text-primary fw-bold text-uppercase small letter-spacing-1">Fondatrice & Directrice Générale</p>
+                    <p class="text-muted small mb-0">Visionnaire à l'origine de la révolution ATLAS, Sarah pilote la stratégie globale avec 15 ans d'expérience dans la Tech.</p>
+                </div>
             </div>
-            <div class="col-md-3">
-                <img src="https://i.pravatar.cc/150?img=13" class="rounded-circle mb-3 shadow-sm" style="width: 120px; height: 120px;" alt="">
-                <h5>David Chen</h5>
-                <p class="text-primary small fw-bold">CTO</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3 text-center">
+                <div class="p-4">
+                    <img src="https://i.pravatar.cc/150?img=13" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
+                    <h5 class="mb-1">David Chen</h5>
+                    <p class="text-primary small fw-bold">CTO</p>
+                </div>
             </div>
-            <div class="col-md-3">
-                <img src="https://i.pravatar.cc/150?img=14" class="rounded-circle mb-3 shadow-sm" style="width: 120px; height: 120px;" alt="">
-                <h5>Elena Rodriguez</h5>
-                <p class="text-primary small fw-bold">Directrice des Opérations</p>
+            <div class="col-md-3 text-center">
+                <div class="p-4">
+                    <img src="https://i.pravatar.cc/150?img=14" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
+                    <h5 class="mb-1">Elena Rodriguez</h5>
+                    <p class="text-primary small fw-bold">Dir. Opérations</p>
+                </div>
             </div>
-            <div class="col-md-3">
-                <img src="https://i.pravatar.cc/150?img=15" class="rounded-circle mb-3 shadow-sm" style="width: 120px; height: 120px;" alt="">
-                <h5>Marcus Thorne</h5>
-                <p class="text-primary small fw-bold">Directeur de la Sécurité</p>
+            <div class="col-md-3 text-center">
+                <div class="p-4">
+                    <img src="https://i.pravatar.cc/150?img=15" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
+                    <h5 class="mb-1">Marcus Thorne</h5>
+                    <p class="text-primary small fw-bold">Dir. Sécurité</p>
+                </div>
             </div>
         </div>
     </div>

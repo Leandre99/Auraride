@@ -3,9 +3,17 @@
 @section('title', 'Location de véhicules')
 
 @section('content')
+<!-- Executive Header -->
+<div class="executive-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-2">Location de Prestige</h1>
+        <p class="lead opacity-75 mb-0">Réservez un véhicule d'exception pour vos déplacements.</p>
+    </div>
+</div>
+
 <!-- Car Rental Booking Section -->
 <section id="rental" class="py-5 bg-white">
-    <div class="container py-5">
+    <div class="container admin-container">
         <div class="glass-panel p-0 overflow-hidden border-0 shadow-lg">
             <div class="row g-0">
                 <div class="col-lg-5 bg-dark p-5 text-white d-flex flex-column justify-content-center">

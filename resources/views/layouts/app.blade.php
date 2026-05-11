@@ -198,43 +198,50 @@
             }
         }
 
-        /* KPI Cards Mobile */
+        /* KPI Cards Premium Style */
         .kpi-card {
             background: #FFF;
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid #eef2f7;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: transform 0.3s ease;
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
         }
+        
+        .kpi-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 991.98px) {
-            .admin-dashboard-kpis {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-            .admin-dashboard-kpis > div {
-                width: 100% !important;
-                margin-bottom: 0 !important;
-            }
             .kpi-card {
-                padding: 12px !important;
-                height: 100%;
+                padding: 1rem !important;
+                border-radius: 14px;
             }
             .kpi-card .h3 {
-                font-size: 1rem !important;
-                margin-bottom: 2px !important;
+                font-size: 1.1rem !important;
+                margin-top: 5px;
             }
             .kpi-card .small {
-                font-size: 0.6rem !important;
-                line-height: 1.1;
+                font-size: 0.65rem !important;
+                letter-spacing: 0.02em;
             }
             .kpi-icon {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 0.9rem !important;
-                margin-bottom: 5px !important;
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 1rem !important;
+                margin-bottom: 8px !important;
+                border-radius: 8px !important;
             }
         }
         

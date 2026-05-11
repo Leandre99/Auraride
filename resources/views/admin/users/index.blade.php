@@ -215,7 +215,7 @@
                             @endif
                             <div class="mt-3 d-flex flex-column gap-2">
                                 @if($user->role === 'driver' && !$user->is_approved)
-                                    <form action="{{ route('admin.drivers.approve', $user) }}" method="POST" class="w-100">
+                                    <form action="{{ route('admin.users.approve', $user) }}" method="POST" class="w-100">
                                         @csrf
                                         <button type="submit" class="btn btn-success btn-sm w-100 py-2">
                                             <i class="bi bi-check-circle me-1"></i> Approuver le chauffeur

@@ -127,7 +127,7 @@ class AdminController extends Controller
         $rental = Rental::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:pending,confirmed,rejected,cancelled',
+            'status' => 'required|in:pending,approved,cancelled,completed',
             'admin_notes' => 'nullable|string'
         ]);
 
@@ -144,9 +144,9 @@ class AdminController extends Controller
         }
 
         $statusMessages = [
-            'confirmed' => 'confirmée',
-            'rejected' => 'refusée',
-            'cancelled' => 'annulée',
+            'approved' => 'approuvée',
+            'cancelled' => 'annulée / refusée',
+            'completed' => 'terminée',
             'pending' => 'remise en attente'
         ];
 
@@ -158,24 +158,24 @@ class AdminController extends Controller
     public function confirmRental(Rental $rental)
     {
         $oldStatus = $rental->status;
-        $rental->update(['status' => 'confirmed']);
+        $rental->update(['status' => 'approved']);
         
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'La location a été confirmée.');
+        return back()->with('success', 'La location a été approuvée.');
     }
 
     public function rejectRental(Rental $rental)
     {
         $oldStatus = $rental->status;
-        $rental->update(['status' => 'rejected']);
+        $rental->update(['status' => 'cancelled']);
         
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'La location a été refusée.');
+        return back()->with('success', 'La location a été refusée (annulée).');
     }
 }

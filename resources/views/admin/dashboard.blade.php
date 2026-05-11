@@ -99,13 +99,6 @@
 </div>
 
 <div class="container pb-5">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4 pt-2">
-        <div class="badge bg-white text-primary px-3 py-2 rounded-pill border border-primary border-opacity-25 shadow-sm">
-            Connecté : {{ Auth::user()->name }}
-        </div>
-    </div>
-
-<div class="container pb-5">
     <div class="admin-container">
         <!-- Sidebar Navigation -->
         @include('admin.partials.sidebar')
@@ -124,33 +117,41 @@
                 </div>
             @endif
             <!-- KPI Row -->
-            <div class="row admin-dashboard-kpis g-3 mb-4">
+            <div class="row g-2 g-md-4 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
-                        <div class="text-muted small fw-bold">TOTAL UTILISATEURS</div>
-                        <div class="h3 fw-bold mb-0">{{ $stats['users_count'] }}</div>
+                        <div>
+                            <div class="text-muted small fw-bold">UTILISATEURS</div>
+                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['users_count'] }}</div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-success-subtle text-success"><i class="bi bi-currency-euro"></i></div>
-                        <div class="text-muted small fw-bold">REVENUS TOTAUX</div>
-                        <div class="h3 fw-bold mb-0">{{ number_format($stats['total_revenue'], 2) }}€</div>
+                        <div>
+                            <div class="text-muted small fw-bold">REVENUS</div>
+                            <div class="h3 fw-bold mb-0 text-dark">{{ number_format($stats['total_revenue'], 2) }}€</div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-warning-subtle text-warning"><i class="bi bi-geo-alt-fill"></i></div>
-                        <div class="text-muted small fw-bold">COURSES ACTIVES</div>
-                        <div class="h3 fw-bold mb-0">{{ $stats['active_trips'] }}</div>
+                        <div>
+                            <div class="text-muted small fw-bold">ACTIVES</div>
+                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['active_trips'] }}</div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-danger-subtle text-danger"><i class="bi bi-lightning-fill"></i></div>
-                        <div class="text-muted small fw-bold">COURSES (24H)</div>
-                        <div class="h3 fw-bold mb-0">{{ $stats['trips_today'] }}</div>
+                        <div>
+                            <div class="text-muted small fw-bold">JOUR (24H)</div>
+                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['trips_today'] }}</div>
+                        </div>
                     </div>
                 </div>
             </div>

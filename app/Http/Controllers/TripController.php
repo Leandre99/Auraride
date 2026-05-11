@@ -156,6 +156,19 @@ class TripController extends Controller
             return back()->with('error', 'L\'utilisateur sélectionné n\'est pas un chauffeur.');
         }
 
+        // Vérification si le chauffeur a déjà une course en cours
+        $activeTrip = Trip::where('driver_id', $driver->id)
+            ->whereIn('status', ['assigned', 'accepted', 'in_progress'])
+            ->exists();
+
+        if ($activeTrip) {
+            $msg = "Le chauffeur {$driver->name} a déjà une course en cours et ne peut pas être assigné à une nouvelle mission tant qu'il n'a pas terminé.";
+            if ($request->wantsJson()) {
+                return response()->json(['error' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
+
         $trip->update([
             'driver_id' => $driver->id,
             'vehicle_id' => $driver->vehicle?->id,
