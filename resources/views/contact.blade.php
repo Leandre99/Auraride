@@ -49,7 +49,7 @@
                         </div>
                         <div>
                             <div class="fw-bold">Centre d'appel</div>
-                            <div class="text-muted small">+1 (555) 000-0000</div>
+                            <a href="tel:651295339" class="text-primary text-decoration-none small">6 51 29 53 39</a>
                         </div>
                     </div>
                 </div>
