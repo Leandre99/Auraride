@@ -142,12 +142,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/rentals/{rental}/update-status', [\App\Http\Controllers\AdminController::class, 'updateRentalStatus'])->name('admin.rentals.update-status');
     Route::post('/rentals/{rental}/confirm', [\App\Http\Controllers\AdminController::class, 'confirmRental'])->name('admin.rentals.confirm');
     Route::post('/rentals/{rental}/reject', [\App\Http\Controllers\AdminController::class, 'rejectRental'])->name('admin.rentals.reject');
+    Route::get('/logs', [\App\Http\Controllers\AdminController::class, 'logs'])->name('admin.logs');
 });
 
 // Chatbot Route
 Route::post('/chatbot/message', [\App\Http\Controllers\ChatbotController::class, 'message'])->name('chatbot.message');
-
-
 
 // ========== RENTAL ROUTES (Location de véhicules) ==========
 Route::middleware(['auth'])->group(function () {

@@ -13,5 +13,8 @@
         <a href="{{ route('admin.rentals') }}" class="sidebar-link {{ Request::routeIs('admin.rentals') ? 'active' : '' }}">
             <i class="bi bi-car-front"></i> Locations
         </a>
+        <a href="{{ route('admin.logs') }}" class="sidebar-link {{ Request::routeIs('admin.logs') ? 'active' : '' }}">
+            <i class="bi bi-journal-text"></i> Traçabilité
+        </a>
     </div>
 </aside>

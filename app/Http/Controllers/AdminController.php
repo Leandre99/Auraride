@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Trip;
 use App\Models\Rental;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentalStatusUpdated;
@@ -58,6 +59,8 @@ class AdminController extends Controller
         $user->update(['is_active' => !$user->is_active]);
         $status = $user->is_active ? 'activé' : 'suspendu';
 
+        ActivityLog::log('user_toggle_active', "L'admin a {$status} le compte de {$user->name} ({$user->email})", $user);
+
         return back()->with('success', "Le compte de {$user->name} a été {$status}.");
     }
 
@@ -68,6 +71,8 @@ class AdminController extends Controller
         }
 
         $user->update(['is_approved' => true]);
+
+        ActivityLog::log('driver_approved', "L'admin a approuvé le chauffeur {$user->name}", $user);
 
         return back()->with('success', "Le chauffeur {$user->name} a été approuvé.");
     }
@@ -92,6 +97,9 @@ class AdminController extends Controller
         }
 
         $trip->update(['status' => 'cancelled']);
+        
+        ActivityLog::log('trip_cancelled_admin', "L'admin a annulé la course #{$trip->id}", $trip);
+
         return back()->with('success', 'La course a été annulée par l\'administrateur.');
     }
 
@@ -136,6 +144,8 @@ class AdminController extends Controller
         $rental->admin_notes = $request->admin_notes;
         $rental->save();
 
+        ActivityLog::log('rental_status_updated', "L'admin a mis à jour le statut de la location #{$rental->id} de {$oldStatus} vers {$request->status}", $rental);
+
         // Envoyer un email au client via file d'attente pour éviter le timeout
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
@@ -160,6 +170,8 @@ class AdminController extends Controller
         $oldStatus = $rental->status;
         $rental->update(['status' => 'approved']);
         
+        ActivityLog::log('rental_approved', "L'admin a approuvé la demande de location #{$rental->id}", $rental);
+        
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
@@ -172,10 +184,18 @@ class AdminController extends Controller
         $oldStatus = $rental->status;
         $rental->update(['status' => 'cancelled']);
         
+        ActivityLog::log('rental_rejected', "L'admin a rejeté la demande de location #{$rental->id}", $rental);
+        
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
 
         return back()->with('success', 'La location a été refusée (annulée).');
+    }
+
+    public function logs()
+    {
+        $logs = ActivityLog::with('user')->latest()->paginate(50);
+        return view('admin.logs.index', compact('logs'));
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentalConfirmationClient;
 use App\Mail\RentalNotificationAdmin;
+use App\Models\ActivityLog;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class RentalController extends Controller
@@ -57,6 +58,8 @@ class RentalController extends Controller
             'total_price' => $totalPrice,
             'status' => 'pending'
         ]);
+        
+        ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
 
         // 4. Emails (Tentative d'envoi via file d'attente pour éviter timeout)
         try {

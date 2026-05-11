@@ -11,6 +11,7 @@ use App\Events\TripAccepted;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TripConfirmationClient;
 use App\Mail\TripNotificationAdmin;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Log;
 
 class TripController extends Controller
@@ -182,6 +183,8 @@ class TripController extends Controller
         }
 
         $trip->load(['client', 'driver', 'vehicle']);
+        
+        ActivityLog::log('trip_assigned', "La course #{$trip->id} a été assignée au chauffeur {$driver->name}", $trip);
 
         if ($request->wantsJson()) {
             return response()->json(['success' => true, 'trip' => $trip]);
@@ -203,6 +206,7 @@ class TripController extends Controller
 
         try {
             event(new TripAccepted($trip));
+            ActivityLog::log('trip_accepted', "Le chauffeur {$trip->driver->name} a accepté la course #{$trip->id}", $trip);
         } catch (\Throwable $e) {
             report($e);
         }
@@ -228,6 +232,8 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'in_progress']);
+        
+        ActivityLog::log('trip_started', "Le chauffeur {$trip->driver->name} a démarré la course #{$trip->id}", $trip);
 
         if (request()->expectsJson()) {
             return response()->json($trip);
@@ -250,6 +256,8 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'completed']);
+        
+        ActivityLog::log('trip_completed', "Le chauffeur {$trip->driver->name} a terminé la course #{$trip->id}", $trip);
 
         if (request()->expectsJson()) {
             return response()->json($trip);
@@ -265,6 +273,9 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'cancelled']);
+        
+        $actor = auth()->user()->role === 'admin' ? "L'administrateur" : (auth()->user()->role === 'driver' ? "Le chauffeur" : "Le client");
+        ActivityLog::log('trip_cancelled', "{$actor} a annulé la course #{$trip->id}", $trip);
 
         if (request()->expectsJson()) {
             return response()->json($trip);
