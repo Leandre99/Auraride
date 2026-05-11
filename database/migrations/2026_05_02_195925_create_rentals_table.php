@@ -18,8 +18,15 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->time('pickup_time');
+            $table->boolean('with_driver')->default(false);
+            $table->string('delivery_address')->nullable();
+            $table->decimal('daily_price', 10, 2)->default(0);
+            $table->decimal('driver_fee_per_day', 10, 2)->default(0);
+            $table->integer('total_days')->default(1);
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['pending', 'approved', 'active', 'completed', 'cancelled'])->default('pending');
+            $table->foreignId('assigned_vehicle_id')->nullable()->constrained('vehicles')->nullOnDelete();
+            $table->text('admin_notes')->nullable();
+            $table->enum('status', ['pending', 'confirmed', 'rejected', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

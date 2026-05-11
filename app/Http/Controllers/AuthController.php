@@ -32,6 +32,8 @@ class AuthController extends Controller
 
             // Redirect based on role
             $role = Auth::user()->role;
+            \App\Models\ActivityLog::log('user_login', "L'utilisateur {$credentials['email']} s'est connecté");
+            
             if ($role === 'driver') {
                 return redirect()->intended('/driver/dashboard');
             } elseif ($role === 'admin') {
@@ -81,6 +83,8 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        \App\Models\ActivityLog::log('user_registered', "Nouvel utilisateur inscrit : {$user->name} ({$user->role})", $user);
+
         if ($user->role === 'driver') {
             return redirect('/driver/dashboard');
         }
@@ -90,6 +94,9 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            \App\Models\ActivityLog::log('user_logout', "L'utilisateur " . Auth::user()->name . " s'est déconnecté");
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -138,6 +138,8 @@ class TripController extends Controller
             Log::error('Erreur événement WebSocket : ' . $e->getMessage());
         }
 
+        ActivityLog::log('trip_requested', "Le client {$client->name} a demandé une course de {$request->pickup_address} vers {$request->dropoff_address} (#{$trip->id})", $trip);
+
         return response()->json($trip->fresh(['client']));
         
     }
@@ -330,6 +332,8 @@ class TripController extends Controller
             \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
         }
 
+        ActivityLog::log('payment_confirmed', "Le chauffeur {$trip->driver->name} a confirmé le paiement de la course #{$trip->id} via {$request->payment_method}", $trip);
+
         if ($request->expectsJson()) {
             return response()->json(['success' => true]);
         }
@@ -344,6 +348,8 @@ class TripController extends Controller
         }
 
         $trip->update(['payment_status' => 'paid']);
+
+        ActivityLog::log('payment_confirmed', "Le paiement de la course #{$trip->id} a été confirmé par le chauffeur", $trip);
 
         if (request()->expectsJson()) {
             return response()->json(['success' => true]);

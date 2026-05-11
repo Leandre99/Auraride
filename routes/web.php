@@ -8,10 +8,15 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/about', function () { return view('about'); })->name('about');
-Route::get('/contact', function () { return view('contact'); })->name('contact');
-Route::get('/tarifs', function () { return view('prices'); })->name('prices');
-Route::get('/location', fn() => view('rentals.location'))->name('location');
+Route::get('/about', function () {
+    return view('about'); })->name('about');
+Route::get('/contact', function () {
+    return view('contact'); })->name('contact');
+Route::get('/tarifs', function () {
+    return view('prices'); })->name('prices');
+Route::get('/location', function () {
+    return view('rentals.location');
+})->name('location');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
@@ -83,7 +88,7 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
         $availableTrips = \App\Models\Trip::query()
             ->where('driver_id', $driverId)
             ->where('status', 'assigned')
-            ->when($activeTrip, fn ($q) => $q->where('id', '!=', $activeTrip->id))
+            ->when($activeTrip, fn($q) => $q->where('id', '!=', $activeTrip->id))
             ->orderByDesc('created_at')
             ->with('client')
             ->get();

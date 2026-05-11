@@ -83,51 +83,49 @@
         color: #FFF;
     }
 
-    .mobile-card-list { display: none; }
+    /* Mobile Dashboard Adjustments */
+    .mobile-card-list {
+        display: none;
+    }
 
-    /* Dashboard Mobile - Correction Forcee */
     @media (max-width: 991.98px) {
         .table-premium .table-responsive {
-            display: none !important;
+            display: none;
         }
         .mobile-card-list {
-            display: block !important;
-            padding: 10px !important;
+            display: block;
         }
         .mobile-data-card {
-            background: #ffffff !important;
-            border-radius: 15px !important;
-            padding: 20px !important;
-            margin-bottom: 20px !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-            border: 1px solid #e2e8f0 !important;
+            background: #fff;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
         }
         .data-row {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 12px 0 !important;
-            border-bottom: 1px solid #f1f5f9 !important;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
         }
         .data-label {
-            color: #64748b !important;
-            font-size: 0.85rem !important;
-            font-weight: 600 !important;
-            text-transform: uppercase !important;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
         .data-value {
-            color: #1e293b !important;
-            font-size: 0.95rem !important;
-            font-weight: 700 !important;
-            text-align: right !important;
-        }
-        .kpi-card {
-            padding: 15px !important;
-        }
-        .kpi-card .h3 {
-            font-size: 1.2rem !important;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
         }
     }
+
 </style>
 @endpush
 
@@ -147,7 +145,7 @@
     <div class="admin-container">
         <!-- Sidebar Navigation -->
         @include('admin.partials.sidebar')
- 
+
         <!-- Main Content Area -->
         <main>
             @if (session('success'))
@@ -162,40 +160,44 @@
                 </div>
             @endif
             <!-- KPI Row -->
-            <div class="row g-2 g-md-4 mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="kpi-card">
-                        <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
-                        <div>
-                            <div class="text-muted small fw-bold">UTILISATEURS</div>
-                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['users_count'] }}</div>
+            <div class="row g-3 g-md-4 mb-4">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="kpi-card shadow-sm border-0 text-center">
+                        <div class="kpi-icon bg-primary-subtle text-primary rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-people-fill fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Utilisateurs</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['users_count'] }}</div>
+                        <div class="pt-3 border-top small text-muted">
+                            <i class="bi bi-person-check text-success me-1"></i> Clients & Staff
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-card">
-                        <div class="kpi-icon bg-success-subtle text-success"><i class="bi bi-currency-euro"></i></div>
-                        <div>
-                            <div class="text-muted small fw-bold">REVENUS</div>
-                            <div class="h3 fw-bold mb-0 text-dark">{{ number_format($stats['total_revenue'], 2) }}€</div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="kpi-card shadow-sm border-0 text-center">
+                        <div class="kpi-icon bg-success-subtle text-success rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-currency-euro fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Revenus</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ number_format($stats['total_revenue'], 2) }}€</div>
+                        <div class="pt-3 border-top small text-muted">
+                            <i class="bi bi-graph-up-arrow text-success me-1"></i> Chiffre d'affaires
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-card">
-                        <div class="kpi-icon bg-warning-subtle text-warning"><i class="bi bi-geo-alt-fill"></i></div>
-                        <div>
-                            <div class="text-muted small fw-bold">ACTIVES</div>
-                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['active_trips'] }}</div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="kpi-card shadow-sm border-0 text-center">
+                        <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-geo-alt-fill fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Actives</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['active_trips'] }}</div>
+                        <div class="pt-3 border-top small text-muted">
+                            <i class="bi bi-clock-history text-warning me-1"></i> Courses en cours
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="kpi-card">
-                        <div class="kpi-icon bg-danger-subtle text-danger"><i class="bi bi-lightning-fill"></i></div>
-                        <div>
-                            <div class="text-muted small fw-bold">JOUR (24H)</div>
-                            <div class="h3 fw-bold mb-0 text-dark">{{ $stats['trips_today'] }}</div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="kpi-card shadow-sm border-0 text-center">
+                        <div class="kpi-icon bg-danger-subtle text-danger rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-lightning-fill fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Jour (24h)</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['trips_today'] }}</div>
+                        <div class="pt-3 border-top small text-muted">
+                            <i class="bi bi-lightning-charge text-danger me-1"></i> Demandes du jour
                         </div>
                     </div>
                 </div>
@@ -250,7 +252,7 @@
                                 <div class="text-truncate">🏁 {{ $trip->dropoff_address }}</div>
                             </div>
                             @include('admin.partials.trip-assign-button', [
-                                'trip' => $trip, 
+                                'trip' => $trip,
                                 'buttonLabel' => '<i class="bi bi-person-plus me-1"></i> Assigner maintenant',
                                 'buttonClass' => 'btn btn-warning btn-sm w-100 py-2 fw-bold'
                             ])

@@ -25,7 +25,7 @@ class VehicleType extends Model
         $prices = [
             'Berline Standard' => 100,
             'Van Luxe' => 300,
-            'Sprinter' => 350
+            'Sprinter Mercedes' => 350
         ];
 
         return $prices[$this->name] ?? $this->base_fare;
