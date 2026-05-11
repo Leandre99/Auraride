@@ -55,32 +55,46 @@
                 </div>
                 
                 <div class="col-lg-7 animate__animated animate__fadeInRight animate__delay-1s">
+                    @if(session('success'))
+                        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 animate__animated animate__fadeIn">
+                            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 animate__animated animate__fadeIn">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                        </div>
+                    @endif
+
                     <div class="glass-panel p-5 border-0 shadow-lg bg-white rounded-4">
-                        <form action="#" class="row g-4" onsubmit="event.preventDefault(); alert('Message envoyé avec succès ! Notre équipe vous répondra dans les plus brefs délais.');">
+                        <form action="{{ route('contact.send') }}" method="POST" class="row g-4">
+                            @csrf
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Prénom</label>
-                                <input type="text" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Jean" required>
+                                <input type="text" name="first_name" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Jean" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Nom</label>
-                                <input type="text" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Dupont" required>
+                                <input type="text" name="last_name" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Dupont" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Adresse Email</label>
-                                <input type="email" class="form-control border-0 bg-light p-3 rounded-3" placeholder="jean@example.com" required>
+                                <input type="email" name="email" class="form-control border-0 bg-light p-3 rounded-3" placeholder="jean@example.com" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Sujet</label>
-                                <select class="form-select border-0 bg-light p-3 rounded-3">
-                                    <option selected>Demande générale</option>
-                                    <option>Candidature chauffeur</option>
-                                    <option>Partenariat commercial</option>
-                                    <option>Support technique</option>
+                                <select name="subject" class="form-select border-0 bg-light p-3 rounded-3" required>
+                                    <option value="" selected disabled>Choisissez un sujet</option>
+                                    <option value="Demande générale">Demande générale</option>
+                                    <option value="Candidature chauffeur">Candidature chauffeur</option>
+                                    <option value="Partenariat commercial">Partenariat commercial</option>
+                                    <option value="Support technique">Support technique</option>
                                 </select>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Message</label>
-                                <textarea class="form-control border-0 bg-light p-3 rounded-3" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+                                <textarea name="message" class="form-control border-0 bg-light p-3 rounded-3" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-premium w-100 py-3 shadow">Envoyer le message</button>

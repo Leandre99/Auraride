@@ -167,3 +167,6 @@ Route::middleware(['auth', 'role:client'])
         Route::get('/trips/{trip}/track', [TripController::class, 'track'])
             ->name('client.trips.track');
     });
+
+// Contact Form Route
+Route::post('/contact/send', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
