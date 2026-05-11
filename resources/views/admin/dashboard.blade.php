@@ -83,49 +83,51 @@
         color: #FFF;
     }
 
-    /* Mobile Dashboard Adjustments */
-    .mobile-card-list {
-        display: none;
-    }
+    .mobile-card-list { display: none; }
 
+    /* Dashboard Mobile - Correction Forcee */
     @media (max-width: 991.98px) {
         .table-premium .table-responsive {
-            display: none;
+            display: none !important;
         }
         .mobile-card-list {
-            display: block;
+            display: block !important;
+            padding: 10px !important;
         }
         .mobile-data-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .card-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
+            background: #ffffff !important;
+            border-radius: 15px !important;
+            padding: 20px !important;
+            margin-bottom: 20px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+            border: 1px solid #e2e8f0 !important;
         }
         .data-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #e2e8f0;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 12px 0 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
         }
         .data-label {
-            color: #64748b;
-            font-size: 0.8rem;
-            font-weight: 500;
+            color: #64748b !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
         }
         .data-value {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #1e293b;
+            color: #1e293b !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            text-align: right !important;
+        }
+        .kpi-card {
+            padding: 15px !important;
+        }
+        .kpi-card .h3 {
+            font-size: 1.2rem !important;
         }
     }
-
 </style>
 @endpush
 
