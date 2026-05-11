@@ -62,25 +62,25 @@
         </div>
 
         <div class="row g-4 justify-content-center">
-            <div class="col-md-3 text-center">
-                <div class="p-4">
-                    <img src="https://i.pravatar.cc/150?img=13" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
-                    <h5 class="mb-1">David Chen</h5>
-                    <p class="text-primary small fw-bold">CTO</p>
+            <div class="col-6 col-md-3 text-center">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <img src="https://i.pravatar.cc/150?img=13" class="rounded-circle mb-3 shadow-sm mx-auto" style="width: 80px; height: 80px; object-fit: cover;" alt="">
+                    <h6 class="mb-1 fw-bold">David Chen</h6>
+                    <p class="text-primary x-small fw-bold mb-0">CTO</p>
                 </div>
             </div>
-            <div class="col-md-3 text-center">
-                <div class="p-4">
-                    <img src="https://i.pravatar.cc/150?img=14" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
-                    <h5 class="mb-1">Elena Rodriguez</h5>
-                    <p class="text-primary small fw-bold">Dir. Opérations</p>
+            <div class="col-6 col-md-3 text-center">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <img src="https://i.pravatar.cc/150?img=14" class="rounded-circle mb-3 shadow-sm mx-auto" style="width: 80px; height: 80px; object-fit: cover;" alt="">
+                    <h6 class="mb-1 fw-bold">Elena Rodriguez</h6>
+                    <p class="text-primary x-small fw-bold mb-0">Dir. Opérations</p>
                 </div>
             </div>
-            <div class="col-md-3 text-center">
-                <div class="p-4">
-                    <img src="https://i.pravatar.cc/150?img=15" class="rounded-circle mb-3 shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" alt="">
-                    <h5 class="mb-1">Marcus Thorne</h5>
-                    <p class="text-primary small fw-bold">Dir. Sécurité</p>
+            <div class="col-6 col-md-3 text-center">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <img src="https://i.pravatar.cc/150?img=15" class="rounded-circle mb-3 shadow-sm mx-auto" style="width: 80px; height: 80px; object-fit: cover;" alt="">
+                    <h6 class="mb-1 fw-bold">Marcus Thorne</h6>
+                    <p class="text-primary x-small fw-bold mb-0">Dir. Sécurité</p>
                 </div>
             </div>
         </div>

@@ -14,10 +14,6 @@
                 
                 <a href="{{ route('client.dashboard') }}" class="btn btn-primary btn-lg px-5 py-3 mt-3 mb-5 d-inline-block fw-bold">Réserver une course →</a>
 
-                <div class="d-flex gap-3">
-                    <a href="{{ route('register') }}" class="btn btn-premium px-5 py-3">Commencer</a>
-                    <a href="#features" class="btn btn-outline-premium px-5 py-3">Explorer les services</a>
-                </div>
 
                 <div class="mt-5 d-flex align-items-center gap-4">
                     <div class="d-flex">
@@ -31,7 +27,7 @@
                 </div>
             </div>
             <div class="col-lg-6 mt-5 mt-lg-0">
-                <div class="position-relative">
+                <div class="position-relative hero-image-container" style="margin-top: -60px;">
                     <div class="rounded-4 overflow-hidden shadow-lg" style="transform: rotate(2deg);">
                         <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" alt="ATLAS AND CO Premium">
                     </div>
