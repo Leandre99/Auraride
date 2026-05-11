@@ -190,6 +190,27 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile View for Pending Trips -->
+                <div class="mobile-card-list p-3">
+                    @foreach($pendingTrips as $trip)
+                        <div class="mobile-data-card border-warning border-start border-4">
+                            <div class="card-header-flex">
+                                <div class="fw-bold text-dark">{{ $trip->client->name }}</div>
+                                <div class="fw-bold text-primary">{{ number_format($trip->price, 2) }}€</div>
+                            </div>
+                            <div class="small text-muted mb-3">
+                                <div class="text-truncate">📍 {{ $trip->pickup_address }}</div>
+                                <div class="text-truncate">🏁 {{ $trip->dropoff_address }}</div>
+                            </div>
+                            @include('admin.partials.trip-assign-button', [
+                                'trip' => $trip, 
+                                'buttonLabel' => '<i class="bi bi-person-plus me-1"></i> Assigner maintenant',
+                                'buttonClass' => 'btn btn-warning btn-sm w-100 py-2 fw-bold'
+                            ])
+                        </div>
+                    @endforeach
+                </div>
             </div>
             @endif
 

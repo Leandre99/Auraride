@@ -58,12 +58,14 @@ class RentalController extends Controller
             'status' => 'pending'
         ]);
 
-        // 4. Email au client
-        Mail::to($user->email)->send(new RentalConfirmationClient($rental, $user, $vehicleType));
-
-        // 5. Email à l'admin
-        $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
-        Mail::to($adminEmail)->send(new RentalNotificationAdmin($rental, $user, $vehicleType));
+        // 4. Emails (Tentative d'envoi sans bloquer)
+        try {
+            Mail::to($user->email)->send(new RentalConfirmationClient($rental, $user, $vehicleType));
+            $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
+            Mail::to($adminEmail)->send(new RentalNotificationAdmin($rental, $user, $vehicleType));
+        } catch (\Exception $e) {
+            // L'erreur d'email ne doit pas bloquer la réservation
+        }
 
         // 6. Retour JSON
         return response()->json([

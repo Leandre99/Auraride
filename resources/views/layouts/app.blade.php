@@ -198,6 +198,37 @@
             }
         }
 
+        /* KPI Cards Mobile */
+        .kpi-card {
+            background: #FFF;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #eef2f7;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease;
+        }
+        @media (max-width: 991.98px) {
+            .kpi-card {
+                padding: 1rem !important;
+            }
+            .kpi-card .h3 {
+                font-size: 1.1rem !important;
+            }
+            .kpi-card .small {
+                font-size: 0.65rem !important;
+            }
+            .kpi-icon {
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 1rem !important;
+                margin-bottom: 8px !important;
+            }
+        }
+        
+        .form-select-sm {
+            padding-right: 2rem !important; /* Fix arrow overlap */
+        }
+
         /* Admin Sidebar Mobile */
         @media (max-width: 991.98px) {
             .admin-sidebar .glass-panel {
