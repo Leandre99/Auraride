@@ -140,6 +140,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/rentals', [\App\Http\Controllers\AdminController::class, 'rentals'])->name('admin.rentals');
     Route::get('/rentals/{rental}/edit', [\App\Http\Controllers\AdminController::class, 'editRental'])->name('admin.rentals.edit');
     Route::post('/rentals/{rental}/update-status', [\App\Http\Controllers\AdminController::class, 'updateRentalStatus'])->name('admin.rentals.update-status');
+    Route::post('/rentals/{rental}/confirm', [\App\Http\Controllers\AdminController::class, 'confirmRental'])->name('admin.rentals.confirm');
+    Route::post('/rentals/{rental}/reject', [\App\Http\Controllers\AdminController::class, 'rejectRental'])->name('admin.rentals.reject');
 });
 
 // Chatbot Route

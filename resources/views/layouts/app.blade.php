@@ -208,20 +208,33 @@
             transition: transform 0.3s ease;
         }
         @media (max-width: 991.98px) {
+            .admin-dashboard-kpis {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .admin-dashboard-kpis > div {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
             .kpi-card {
-                padding: 1rem !important;
+                padding: 12px !important;
+                height: 100%;
             }
             .kpi-card .h3 {
-                font-size: 1.1rem !important;
+                font-size: 1rem !important;
+                margin-bottom: 2px !important;
             }
             .kpi-card .small {
-                font-size: 0.65rem !important;
+                font-size: 0.6rem !important;
+                line-height: 1.1;
             }
             .kpi-icon {
-                width: 35px !important;
-                height: 35px !important;
-                font-size: 1rem !important;
-                margin-bottom: 8px !important;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 0.9rem !important;
+                margin-bottom: 5px !important;
             }
         }
         

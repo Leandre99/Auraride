@@ -124,7 +124,7 @@
                 </div>
             @endif
             <!-- KPI Row -->
-            <div class="row g-4 mb-5">
+            <div class="row admin-dashboard-kpis g-3 mb-4">
                 <div class="col-6 col-md-3">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>

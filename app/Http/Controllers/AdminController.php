@@ -136,11 +136,11 @@ class AdminController extends Controller
         $rental->admin_notes = $request->admin_notes;
         $rental->save();
 
-        // Envoyer un email au client pour l'informer du changement de statut
+        // Envoyer un email au client via file d'attente pour éviter le timeout
         try {
-            Mail::to($rental->user->email)->send(new RentalStatusUpdated($rental, $oldStatus));
+            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {
-            \Log::error('Erreur envoi email statut location : ' . $e->getMessage());
+            \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
         }
 
         $statusMessages = [
@@ -153,5 +153,29 @@ class AdminController extends Controller
         $message = $statusMessages[$request->status] ?? 'mise à jour';
 
         return redirect()->route('admin.rentals')->with('success', "La demande de location a été {$message}.");
+    }
+
+    public function confirmRental(Rental $rental)
+    {
+        $oldStatus = $rental->status;
+        $rental->update(['status' => 'confirmed']);
+        
+        try {
+            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
+        } catch (\Exception $e) {}
+
+        return back()->with('success', 'La location a été confirmée.');
+    }
+
+    public function rejectRental(Rental $rental)
+    {
+        $oldStatus = $rental->status;
+        $rental->update(['status' => 'rejected']);
+        
+        try {
+            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
+        } catch (\Exception $e) {}
+
+        return back()->with('success', 'La location a été refusée.');
     }
 }

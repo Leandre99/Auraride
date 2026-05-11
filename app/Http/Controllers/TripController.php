@@ -92,12 +92,12 @@ class TripController extends Controller
 
         // ========== ENVOI DES EMAILS ==========
 
-        // 1. Email au client (confirmation)
+        // 1. Email au client (confirmation) via file d'attente
         try {
-            Mail::to($client->email)->send(new TripConfirmationClient($trip, $client, $vehicleType));
-            Log::info('Email client envoyé pour le trajet #' . $trip->id);
+            Mail::to($client->email)->queue(new TripConfirmationClient($trip, $client, $vehicleType));
+            Log::info('Email client mis en file pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
-            Log::error('Erreur envoi email client : ' . $e->getMessage());
+            Log::error('Erreur file d\'attente email client : ' . $e->getMessage());
         }
 
         // 2. Email aux admins (notification)
@@ -107,12 +107,12 @@ class TripController extends Controller
             
             // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
             // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
             if ($adminEmail && !$admins->contains('email', $adminEmail)) {
-                Mail::to($adminEmail)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
             Log::info('Email admin envoyé pour le trajet #' . $trip->id);
