@@ -83,6 +83,49 @@
         color: #FFF;
     }
 
+    /* Mobile Dashboard Adjustments */
+    .mobile-card-list {
+        display: none;
+    }
+
+    @media (max-width: 991.98px) {
+        .table-premium .table-responsive {
+            display: none;
+        }
+        .mobile-card-list {
+            display: block;
+        }
+        .mobile-data-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .data-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .data-value {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+    }
+
 </style>
 @endpush
 
