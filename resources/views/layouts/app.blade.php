@@ -136,6 +136,18 @@
             transition: all 0.2s ease;
         }
 
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid currentColor;
+            background-color: rgba(0,0,0,0.03) !important;
+        }
+
         .sidebar-link i {
             font-size: 1.2rem;
         }
