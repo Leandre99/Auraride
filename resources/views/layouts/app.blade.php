@@ -169,7 +169,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
-            margin-top: -20px;
+            margin-top: 0;
             position: relative;
             z-index: 10;
             width: 100%;
@@ -185,7 +185,7 @@
             .admin-container {
                 grid-template-columns: 280px 1fr;
                 gap: 30px;
-                margin-top: -50px;
+                margin-top: -30px;
             }
         }
 
@@ -234,7 +234,7 @@
 
         /* Executive Header Responsive */
         .executive-header {
-            padding: 60px 0 100px;
+            padding: 80px 0 120px;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: #FFF;
         }

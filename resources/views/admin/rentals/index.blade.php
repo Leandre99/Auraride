@@ -7,11 +7,11 @@
     body { background: #F8FAFC; }
 
     .executive-header {
-        padding: 60px 0;
+        padding: 80px 0;
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         color: #FFF;
-        margin-bottom: -60px;
-        padding-bottom: 120px;
+        margin-bottom: -40px;
+        padding-bottom: 140px;
     }
 
     .table-premium {
