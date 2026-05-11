@@ -179,6 +179,67 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Card List -->
+                <div class="mobile-card-list p-3">
+                    @foreach($users as $user)
+                        <div class="mobile-data-card shadow-sm border-0">
+                            <div class="card-header-flex">
+                                <div>
+                                    <div class="fw-bold">{{ $user->name }}</div>
+                                    <div class="small text-muted">{{ $user->email }}</div>
+                                </div>
+                                <span class="badge {{ $user->role == 'driver' ? 'bg-primary-subtle text-primary' : 'bg-light text-dark' }} px-2 rounded-pill small">
+                                    {{ ucfirst($user->role) }}
+                                </span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Téléphone</span>
+                                <span class="data-value">{{ $user->phone ?? '-' }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Statut</span>
+                                <span class="data-value">
+                                    <span class="status-pill {{ $user->is_active ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} small">
+                                        {{ $user->is_active ? 'Actif' : 'Suspendu' }}
+                                    </span>
+                                </span>
+                            </div>
+                            @if($user->role === 'driver')
+                            <div class="data-row">
+                                <span class="data-label">Approbation</span>
+                                <span class="data-value">
+                                    {!! $user->is_approved ? '<span class="text-success small fw-bold">Approuvé</span>' : '<span class="text-warning small fw-bold">En attente</span>' !!}
+                                </span>
+                            </div>
+                            @endif
+                            <div class="mt-3 d-flex flex-column gap-2">
+                                @if($user->role === 'driver' && !$user->is_approved)
+                                    <form action="{{ route('admin.drivers.approve', $user) }}" method="POST" class="w-100">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm w-100 py-2">
+                                            <i class="bi bi-check-circle me-1"></i> Approuver le chauffeur
+                                        </button>
+                                    </form>
+                                @endif
+                                
+                                <form action="{{ route('admin.users.toggle', $user) }}" method="POST" class="w-100">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-{{ $user->is_active ? 'danger' : 'success' }} btn-sm w-100 py-2">
+                                        <i class="bi bi-{{ $user->is_active ? 'person-x' : 'person-check' }} me-1"></i>
+                                        {{ $user->is_active ? 'Suspendre le compte' : 'Réactiver le compte' }}
+                                    </button>
+                                </form>
+
+                                @if($user->role === 'driver' && $user->cv_path)
+                                    <a href="{{ asset('storage/' . $user->cv_path) }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 py-2 text-center">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Voir le CV
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
                 <div class="p-4 border-top">
                     {{ $users->links() }}
                 </div>

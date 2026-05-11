@@ -94,14 +94,6 @@
                 <h1 class="display-5 fw-bold mb-1">Centre de Gestion</h1>
                 <p class="opacity-75 mb-0">Contrôle global d'ATLAS AND CO.</p>
             </div>
-            <div class="col-md-6 text-md-end">
-                <div class="d-inline-flex align-items-center gap-3 bg-white bg-opacity-10 p-2 rounded-4">
-                    <div class="px-3">
-                        <div class="small opacity-50">Statut Réseau</div>
-                        <div class="small fw-bold text-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i> OPTIMAL</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -250,6 +242,47 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card List (Visible only on mobile) -->
+                <div class="mobile-card-list p-3">
+                    @forelse($recentTrips as $trip)
+                        <div class="mobile-data-card shadow-sm border-0">
+                            <div class="card-header-flex">
+                                <div>
+                                    <div class="fw-bold text-primary">#{{ $trip->id }}</div>
+                                    <div class="small text-muted">{{ $trip->created_at->format('d/m/Y H:i') }}</div>
+                                </div>
+                                @php
+                                    $badgeClass = match($trip->status) {
+                                        'completed' => 'bg-success-subtle text-success',
+                                        'cancelled' => 'bg-danger-subtle text-danger',
+                                        'assigned', 'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
+                                        default => 'bg-warning-subtle text-warning',
+                                    };
+                                @endphp
+                                <span class="status-pill {{ $badgeClass }} px-2 py-1 small">{{ ucfirst($trip->status) }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Client</span>
+                                <span class="data-value">{{ $trip->client->name }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Chauffeur</span>
+                                <span class="data-value">{{ $trip->driver->name ?? 'En attente' }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Montant</span>
+                                <span class="data-value fw-bold text-primary">{{ number_format($trip->price, 2) }}€</span>
+                            </div>
+                            <div class="mt-2 pt-2 border-top small">
+                                <div class="text-truncate text-muted">📍 <strong>De:</strong> {{ $trip->pickup_address }}</div>
+                                <div class="text-truncate text-muted">🏁 <strong>À:</strong> {{ $trip->dropoff_address }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-4 text-muted">Aucune course enregistrée.</div>
+                    @endforelse
                 </div>
             </div>
         </main>

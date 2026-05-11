@@ -173,6 +173,71 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Card List -->
+                <div class="mobile-card-list p-3">
+                    @foreach($rentals as $rental)
+                        <div class="mobile-data-card shadow-sm border-0">
+                            <div class="card-header-flex">
+                                <div>
+                                    <div class="fw-bold text-primary">#{{ $rental->id }}</div>
+                                    <div class="small text-muted">{{ $rental->created_at->format('d/m/Y H:i') }}</div>
+                                </div>
+                                @php
+                                    $badgeClass = match($rental->status) {
+                                        'confirmed' => 'bg-success-subtle text-success',
+                                        'rejected', 'cancelled' => 'bg-danger-subtle text-danger',
+                                        'pending' => 'bg-warning-subtle text-warning',
+                                        default => 'bg-secondary-subtle text-secondary',
+                                    };
+                                    $statusText = match($rental->status) {
+                                        'confirmed' => 'Confirmée',
+                                        'rejected' => 'Refusée',
+                                        'cancelled' => 'Annulée',
+                                        'pending' => 'En attente',
+                                        default => $rental->status,
+                                    };
+                                @endphp
+                                <span class="status-pill {{ $badgeClass }} px-2 py-1 small">{{ $statusText }}</span>
+                            </div>
+                            
+                            <div class="data-row">
+                                <span class="data-label">Client</span>
+                                <span class="data-value">{{ $rental->user->name }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Véhicule</span>
+                                <span class="data-value">{{ $rental->vehicleType->name }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Chauffeur</span>
+                                <span class="data-value">{{ $rental->with_driver ? 'Inclus' : 'Sans' }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Montant</span>
+                                <span class="data-value fw-bold text-primary">{{ number_format($rental->total_price, 2) }}€</span>
+                            </div>
+
+                            <div class="mt-2 pt-2 border-top">
+                                <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i> Du {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') }}</div>
+                                <div class="small text-muted"><i class="bi bi-clock me-1"></i> Prise en charge: {{ $rental->pickup_time }}</div>
+                            </div>
+
+                            @if($rental->status === 'pending')
+                            <div class="mt-3 d-flex gap-2">
+                                <form action="{{ route('admin.rentals.confirm', $rental->id) }}" method="POST" class="flex-grow-1">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm w-100 py-2">Confirmer</button>
+                                </form>
+                                <form action="{{ route('admin.rentals.reject', $rental->id) }}" method="POST" class="flex-grow-1">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 py-2">Rejeter</button>
+                                </form>
+                            </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
                 <div class="p-4 border-top">
                     {{ $rentals->links() }}
                 </div>

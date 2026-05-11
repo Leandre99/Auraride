@@ -192,6 +192,81 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Card List -->
+                <div class="mobile-card-list p-3">
+                    @foreach($trips as $trip)
+                        <div class="mobile-data-card shadow-sm border-0">
+                            <div class="card-header-flex">
+                                <div>
+                                    <div class="fw-bold text-primary">#{{ $trip->id }}</div>
+                                    <div class="small text-muted">{{ $trip->created_at->format('d/m/Y H:i') }}</div>
+                                </div>
+                                @php
+                                    $badgeClass = match($trip->status) {
+                                        'completed' => 'bg-success-subtle text-success',
+                                        'cancelled' => 'bg-danger-subtle text-danger',
+                                        'assigned', 'accepted', 'in_progress' => 'bg-primary-subtle text-primary',
+                                        default => 'bg-warning-subtle text-warning',
+                                    };
+                                @endphp
+                                <span class="status-pill {{ $badgeClass }} px-2 py-1 small">{{ ucfirst($trip->status) }}</span>
+                            </div>
+                            
+                            <div class="data-row">
+                                <span class="data-label">Client</span>
+                                <span class="data-value">{{ $trip->client->name }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Chauffeur</span>
+                                <span class="data-value">{{ $trip->driver->name ?? 'Non assigné' }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Montant</span>
+                                <span class="data-value fw-bold text-primary">{{ number_format($trip->price, 2) }}€</span>
+                            </div>
+
+                            <div class="mt-2 pt-2 border-top">
+                                <div class="small text-muted mb-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i> DE: {{ $trip->pickup_address }}</div>
+                                <div class="small text-muted"><i class="bi bi-flag-fill text-success me-1"></i> À: {{ $trip->dropoff_address }}</div>
+                            </div>
+
+                            <div class="mt-3 d-flex gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm flex-grow-1 show-trip-details"
+                                    data-id="{{ $trip->id }}"
+                                    data-pickup="{{ $trip->pickup_address }}"
+                                    data-dropoff="{{ $trip->dropoff_address }}"
+                                    data-date="{{ $trip->created_at->format('d/m/Y H:i') }}"
+                                    data-client="{{ $trip->client->name }}"
+                                    data-driver="{{ $trip->driver->name ?? 'Non assigné' }}"
+                                    data-price="{{ number_format($trip->price, 2) }}€"
+                                    data-payment-status="{{ $trip->payment_status == 'paid' ? 'Payé' : 'À régler' }}"
+                                    data-rating="{{ $trip->rating ?? 0 }}"
+                                    data-comment="{{ $trip->comment }}"
+                                    data-review-date="{{ $trip->updated_at->format('d/m/Y') }}">
+                                    <i class="bi bi-eye me-1"></i> Détails
+                                </button>
+                                
+                                @if($trip->status === 'pending')
+                                    @include('admin.partials.trip-assign-button', [
+                                        'trip' => $trip,
+                                        'buttonLabel' => '<i class="bi bi-person-plus me-1"></i> Assign',
+                                        'buttonClass' => 'btn btn-primary btn-sm flex-grow-1',
+                                    ])
+                                @endif
+
+                                @if(!in_array($trip->status, ['completed', 'cancelled']))
+                                    <form action="{{ route('admin.trips.cancel', $trip->id) }}" method="POST" class="flex-grow-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100" onclick="return confirm('Annuler cette course ?')">
+                                            <i class="bi bi-x-circle me-1"></i> Annuler
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
                 <div class="p-4 border-top bg-light bg-opacity-50">
                     {{ $trips->links() }}
                 </div>

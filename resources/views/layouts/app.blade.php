@@ -224,8 +224,58 @@
         
         /* Admin Table Mobile Fix */
         .table-premium {
-            max-width: 100vw;
-            overflow-x: auto;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Data Cards Layout */
+        .mobile-card-list {
+            display: none; /* Hidden on desktop */
+        }
+        
+        .mobile-data-card {
+            background: #FFF;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #eef2f7;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .mobile-data-card .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .mobile-data-card .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .mobile-data-card .data-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        .mobile-data-card .data-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        @media (max-width: 991.98px) {
+            .table-premium .table-responsive {
+                display: none !important;
+            }
+            .mobile-card-list {
+                display: block;
+            }
+            .table-premium {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
         }
 
         .main-wrapper {
