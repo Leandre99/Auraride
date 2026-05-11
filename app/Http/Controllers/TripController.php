@@ -102,10 +102,19 @@ class TripController extends Controller
 
         // 2. Email aux admins (notification)
         try {
+            $adminEmail = config('mail.admin_email');
             $admins = User::where('role', 'admin')->get();
+            
+            // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
                 Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
+            
+            // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
+            if ($adminEmail && !$admins->contains('email', $adminEmail)) {
+                Mail::to($adminEmail)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+            }
+            
             Log::info('Email admin envoyé pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
             Log::error('Erreur envoi email admin : ' . $e->getMessage());
