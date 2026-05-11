@@ -51,11 +51,9 @@
                     </div>
                 </div>
 
-                <!-- Van Luxe (RECOMMANDÉ) -->
                 <div class="col-lg-4 animate__animated animate__fadeInUp animate__delay-1s">
                     <div class="glass-panel p-0 h-100 border-0 shadow-lg bg-white text-center overflow-hidden position-relative"
                         style="border: 2px solid var(--primary) !important; transform: scale(1.05); z-index: 10;">
-                        <div class="position-absolute top-0 start-50 translate-middle-x bg-primary text-white px-3 py-1 rounded-bottom small fw-bold" style="z-index: 100;">RECOMMANDÉ</div>
                         <div class="p-0 overflow-hidden" style="height: 240px;">
                             <img src="{{ asset('images/van-luxe.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
                         </div>
@@ -87,7 +85,6 @@
                 <!-- Sprinter Mercedes -->
                 <div class="col-lg-4 animate__animated animate__fadeInUp animate__delay-2s">
                     <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-er overflow-hidden">
                         <div class="p-0 overflow-hidden" style="height: 240px;">
                             <img src="{{ asset('images/sprinter-mercedes.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
                         </div>
