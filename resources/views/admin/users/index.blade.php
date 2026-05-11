@@ -116,7 +116,7 @@
                                 <th class="px-4 py-3 text-muted small fw-bold">NOM / EMAIL</th>
                                 <th class="py-3 text-muted small fw-bold">RÔLE</th>
                                 <th class="py-3 text-muted small fw-bold">TÉLÉPHONE</th>
-                                <th class="py-3 text-muted small fw-bold">INSCRIPTION</th>
+                                <th class="py-3 text-muted small fw-bold">APPROBATION</th>
                                 <th class="py-3 text-muted small fw-bold">STATUT</th>
                                 <th class="py-3 text-end px-4 text-muted small fw-bold">ACTIONS</th>
                             </tr>
@@ -132,6 +132,9 @@
                                         <span class="badge {{ $user->role == 'driver' ? 'bg-primary-subtle text-primary' : 'bg-light text-dark' }} px-3 rounded-pill">
                                             {{ ucfirst($user->role) }}
                                         </span>
+                                    </td>
+                                    <td class="small fw-bold text-muted">
+                                        {{ $user->phone ?? '-' }}
                                     </td>
                                     <td>
                                         @if($user->role == 'driver')
@@ -152,7 +155,7 @@
                                     <td class="px-4 text-end">
                                         <div class="d-flex justify-content-end gap-2">
                                             @if($user->role === 'driver' && !$user->is_approved)
-                                                <form action="{{ route('admin.drivers.approve', $user) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('admin.users.approve', $user) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn-action" title="Approuver le chauffeur">
                                                         <i class="bi bi-check-circle text-success"></i>
