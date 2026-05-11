@@ -115,6 +115,42 @@
 
         /* Navbar Mobile Fix */
         /* Admin Layout Responsive */
+        /* Sidebar Styling */
+        .admin-sidebar .glass-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link i {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-link:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .sidebar-link.active {
+            background: var(--primary);
+            color: #FFF;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        
         .admin-container {
             display: grid;
             grid-template-columns: 1fr;

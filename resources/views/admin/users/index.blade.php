@@ -134,7 +134,7 @@
                                         </span>
                                     </td>
                                     <td class="small fw-bold text-muted">
-                                        {{ $user->phone ?? '-' }}
+                                        {{ $user->phone_number ?? '-' }}
                                     </td>
                                     <td>
                                         @if($user->role == 'driver')
@@ -198,7 +198,7 @@
                             </div>
                             <div class="data-row">
                                 <span class="data-label">Téléphone</span>
-                                <span class="data-value">{{ $user->phone ?? '-' }}</span>
+                                <span class="data-value">{{ $user->phone_number ?? '-' }}</span>
                             </div>
                             <div class="data-row">
                                 <span class="data-label">Statut</span>
