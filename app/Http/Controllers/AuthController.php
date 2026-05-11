@@ -43,7 +43,7 @@ class AuthController extends Controller
             return redirect()->intended('/dashboard');
         }
 
-        return back()->with('error', 'The provided credentials do not match our records.')->onlyInput('email');
+        return back()->with('error', 'Les identifiants fournis ne correspondent pas à nos enregistrements.')->onlyInput('email');
     }
 
     public function register(Request $request)
@@ -137,6 +137,6 @@ public function updateProfile(Request $request)
 
     $user->save();
 
-    return redirect()->route('profile.edit')->with('success', 'Profil mis à jour');
+    return redirect()->route('profile.edit')->with('success', 'Profil mis à jour avec succès.');
 }
 }

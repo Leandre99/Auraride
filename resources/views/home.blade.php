@@ -122,20 +122,19 @@
                     <div class="small opacity-75">Disponibilité</div>
                 </div>
                 <div class="col-md-3">
-                    <div class="h2 fw-bold mb-1">4.9/5</div>
-                    <div class="small opacity-75">Note moyenne</div>
+                    <div class="h2 fw-bold mb-1"><span class="counter" data-target="1500">0</span>+</div>
+                    <div class="small opacity-75">Clients Satisfaits</div>
                 </div>
                 <div class="col-md-3">
-                    <div class="h2 fw-bold mb-1">
-                        < 5 min</div>
-                            <div class="small opacity-75">Temps de réponse</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="h2 fw-bold mb-1">100%</div>
-                        <div class="small opacity-75">Chauffeurs certifiés</div>
-                    </div>
+                    <div class="h2 fw-bold mb-1"><span class="counter" data-target="5000">0</span>+</div>
+                    <div class="small opacity-75">Courses Effectuées</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="h2 fw-bold mb-1"><span class="counter" data-target="100">0</span>%</div>
+                    <div class="small opacity-75">Chauffeurs certifiés</div>
                 </div>
             </div>
+        </div>
     </section>
 
     <!-- Services Section -->
@@ -279,12 +278,43 @@
 
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Register ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+
             // Hero animations
             gsap.from("#hero .display-3", { y: 50, opacity: 0, duration: 1, delay: 0.2 });
             gsap.from("#hero .lead", { y: 30, opacity: 0, duration: 1, delay: 0.4 });
             gsap.from("#hero .btn-premium, #hero .btn-outline-premium", { y: 20, opacity: 0, duration: 1, delay: 0.6, stagger: 0.2 });
+
+            // Stats Counter Animation
+            const counters = document.querySelectorAll('.counter');
+            
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2; // seconds
+                
+                ScrollTrigger.create({
+                    trigger: counter,
+                    start: "top 90%",
+                    onEnter: () => {
+                        let start = 0;
+                        const increment = target / (duration * 60);
+                        const updateCounter = () => {
+                            start += increment;
+                            if(start < target) {
+                                counter.innerText = Math.ceil(start);
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.innerText = target;
+                            }
+                        };
+                        updateCounter();
+                    }
+                });
+            });
         });
     </script>
 @endpush

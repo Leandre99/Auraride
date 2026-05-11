@@ -161,7 +161,7 @@
             @endif
             <!-- KPI Row -->
             <div class="row g-3 g-md-4 mb-4">
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn">
                     <div class="kpi-card shadow-sm border-0 text-center">
                         <div class="kpi-icon bg-primary-subtle text-primary rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-people-fill fs-3"></i></div>
                         <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Utilisateurs</div>
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-1s">
                     <div class="kpi-card shadow-sm border-0 text-center">
                         <div class="kpi-icon bg-success-subtle text-success rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-currency-euro fs-3"></i></div>
                         <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Revenus</div>
@@ -181,7 +181,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-2s">
                     <div class="kpi-card shadow-sm border-0 text-center">
                         <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-geo-alt-fill fs-3"></i></div>
                         <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Actives</div>
@@ -191,7 +191,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-3s">
                     <div class="kpi-card shadow-sm border-0 text-center">
                         <div class="kpi-icon bg-danger-subtle text-danger rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-lightning-fill fs-3"></i></div>
                         <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Jour (24h)</div>

@@ -9,13 +9,12 @@
     }
 
     .dashboard-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 1rem;
+        width: 100%;
+        padding: 0;
     }
     @media (min-width: 992px) {
         .dashboard-container {
-            padding: 2rem 1.5rem;
+            padding: 0;
         }
     }
 
@@ -30,7 +29,7 @@
 
     @media (min-width: 992px) {
         .map-container {
-            height: 500px; /* Desktop height */
+            height: 600px; /* Desktop height */
         }
     }
 
@@ -190,93 +189,86 @@
 @endpush
 
 @section('content')
-<div class="dashboard-container">
-    <div class="row g-4">
-        <!-- Colonne Formulaire (Apparaît en premier sur mobile) -->
-        <div class="col-lg-5 order-1 order-lg-2">
-            <div class="booking-card">
-                <div class="booking-header">
-                    <h4 class="fw-bold mb-1">📍 Nouvelle course</h4>
-                    <p class="text-muted small mb-0">Chauffeur privé à la demande</p>
+<div class="dashboard-container-fluid">
+    <div class="row g-0">
+        <!-- Colonne Carte (Plus grande sur Desktop) -->
+        <div class="col-lg-8 order-2 order-lg-1 animate__animated animate__fadeIn">
+            <div class="map-container shadow-lg border-0" style="height: 600px;">
+                <div id="tripMap"></div>
+            </div>
+        </div>
+
+        <!-- Colonne Formulaire (Plus compacte et centrée sur Desktop) -->
+        <div class="col-lg-4 order-1 order-lg-2 animate__animated animate__slideInRight">
+            <div class="booking-card shadow-lg border-0 sticky-top" style="top: 20px;">
+                <div class="booking-header bg-primary text-white p-4 rounded-top-4">
+                    <h4 class="fw-bold mb-1">📍 Réserver une course</h4>
+                    <p class="opacity-75 small mb-0">Chauffeur privé à la demande</p>
                 </div>
 
-                <div class="booking-body">
+                <div class="booking-body p-4">
                     <!-- Indicateur d'étapes -->
-                    <div class="step-indicator">
-                        <div class="step" id="step1Indicator">📍 Trajet</div>
-                        <div class="step" id="step2Indicator">🚗 Véhicule</div>
+                    <div class="step-indicator mb-4">
+                        <div class="step active py-2" id="step1Indicator">1. Trajet</div>
+                        <div class="step py-2" id="step2Indicator">2. Véhicule</div>
                     </div>
 
                     <!-- Étape 1 : Trajet -->
                     <div id="stepTrajet">
-                        <div class="location-input">
-                            <div class="input-row relative">
+                        <div class="location-input bg-light border-0 p-2">
+                            <div class="input-row relative border-bottom-0 pb-0">
                                 <div class="input-dot pickup"></div>
-                                <input type="text" id="pickupInput" placeholder="Départ" autocomplete="off">
-                                <div id="pickupResults" class="autocomplete-results" style="display: none;"></div>
+                                <input type="text" id="pickupInput" class="py-3 px-2 w-100" placeholder="Lieu de départ..." autocomplete="off">
+                                <div id="pickupResults" class="autocomplete-results shadow" style="display: none;"></div>
                             </div>
-                            <div class="input-row relative">
+                            <div class="input-row relative pt-0">
                                 <div class="input-dot dropoff"></div>
-                                <input type="text" id="dropoffInput" placeholder="Destination" autocomplete="off">
-                                <div id="dropoffResults" class="autocomplete-results" style="display: none;"></div>
+                                <input type="text" id="dropoffInput" class="py-3 px-2 w-100" placeholder="Destination..." autocomplete="off">
+                                <div id="dropoffResults" class="autocomplete-results shadow" style="display: none;"></div>
                             </div>
                         </div>
 
-                        <button class="btn-reserve mt-4" id="continueBtn">Continuer →</button>
+                        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-4 shadow-sm" id="continueBtn">
+                            Estimer le trajet <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
                     </div>
 
-                    <!-- Étape 2 : Véhicules (cachée au début) -->
+                    <!-- Étape 2 : Véhicules -->
                     <div id="stepVehicules" style="display: none;">
                         <div id="vehiclesList" class="mb-4"></div>
 
                         <!-- Informations principales -->
-                        <div id="tripDetails" class="mb-4 p-3 bg-light rounded-4 d-none">
+                        <div id="tripDetails" class="mb-4 p-3 bg-light rounded-4 d-none border shadow-sm">
                             <div class="row g-2 text-center small">
                                 <div class="col-4 border-end">
-                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Distance</div>
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem;">Distance</div>
                                     <div class="fw-bold text-dark" id="detailDistance">-</div>
                                 </div>
                                 <div class="col-4 border-end">
-                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Durée</div>
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem;">Durée</div>
                                     <div class="fw-bold text-dark" id="detailDuration">-</div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">CO₂</div>
-                                    <div class="fw-bold text-dark" id="detailCO2">-</div>
+                                    <div class="text-muted text-uppercase mb-1" style="font-size: 0.65rem;">Émissions</div>
+                                    <div class="fw-bold text-success" id="detailCO2">-</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center mb-4">
-                            <span class="text-muted small">Tarif estimé</span>
-                            <div id="estimatedPriceContainer">
-                                <div class="text-muted small">HT : <span id="estimatedPriceHT">0.00</span>€</div>
-                                <div class="price-badge" style="color: #2563eb; font-weight: bold; font-size: 1.5rem;">TTC : <span id="estimatedPriceTTC">0.00</span>€</div>
-                            </div>
+                        <div class="text-center mb-4 p-3 bg-primary-subtle rounded-4">
+                            <span class="text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">Prix Total TTC</span>
+                            <div class="price-badge mt-1" style="color: #2563eb; font-weight: 800; font-size: 2rem;"><span id="estimatedPriceTTC">0.00</span>€</div>
                         </div>
 
-                        <button class="btn-reserve mb-3" id="confirmBtn">✅ Confirmer la course</button>
+                        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mb-3 shadow" id="confirmBtn">
+                            Commander mon chauffeur
+                        </button>
 
-                        <!-- Lien de réassurance Mappy -->
-                        <div id="mappySection" class="mt-2 mb-3 pt-3 border-top text-center d-none">
-                            <p class="text-muted mb-2" style="font-size: 0.75rem; line-height: 1.4;">
-                                Notre estimation est basée sur des données fiables. Vous pouvez vérifier votre itinéraire de manière indépendante :
-                            </p>
-                            <a href="#" id="mappyLink" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none hover-primary transition-all" style="font-size: 0.8rem;">
-                                Vérifier l'itinéraire et estimer le coût sur Mappy <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.7rem;"></i>
-                            </a>
-                        </div>
-
-                        <button class="btn btn-link w-100 text-muted small" id="backBtn">← Retour</button>
+                        <button class="btn btn-link w-100 text-muted small text-decoration-none" id="backBtn">
+                            <i class="bi bi-chevron-left me-1"></i> Modifier le trajet
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Colonne Carte -->
-        <div class="col-lg-7 order-2 order-lg-1">
-            <div class="map-container">
-                <div id="tripMap"></div>
             </div>
         </div>
     </div>
@@ -524,8 +516,10 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Choisissez un véhicule');
             return;
         }
+        
+        // Bloquer le bouton immédiatement pour éviter les doubles clics
         confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi...';
+        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
 
         try {
             const res = await fetch('/client/trips', {
@@ -549,17 +543,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (res.ok) {
                 const data = await res.json();
-                window.location.href = '/client/trips/' + data.id + '/track';
+                confirmBtn.classList.remove('btn-primary');
+                confirmBtn.classList.add('btn-success');
+                confirmBtn.innerHTML = '✅ Course confirmée !';
+                
+                // Petite pause pour laisser l'utilisateur voir le succès
+                setTimeout(() => {
+                    window.location.href = '/client/trips/' + data.id + '/track';
+                }, 1000);
             } else {
                 const err = await res.json();
                 alert(err.message || 'Erreur lors de la réservation');
                 confirmBtn.disabled = false;
-                confirmBtn.innerHTML = '✅ Confirmer la course';
+                confirmBtn.innerHTML = 'Commander mon chauffeur';
             }
         } catch {
             alert('Erreur réseau');
             confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '✅ Confirmer la course';
+            confirmBtn.innerHTML = 'Commander mon chauffeur';
         }
     };
 

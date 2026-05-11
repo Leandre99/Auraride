@@ -3,29 +3,29 @@
 @section('title', 'Nos Tarifs - ATLAS AND CO')
 
 @section('content')
-    <!-- Header Tarifs -->
-    <section class="py-5 position-relative text-white text-center overflow-hidden"
-        style="min-height: 400px; display: flex; align-items: center; background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920') center/cover no-repeat;">
-        <div class="position-absolute top-0 start-0 w-100 h-100"
-            style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.4));"></div>
-        <div class="container position-relative z-index-10 py-5">
-            <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">TRANSPARENCE</span>
-            <h1 class="display-3 fw-bold">Nos Tarifs</h1>
-            <p class="lead opacity-75 mx-auto" style="max-width: 600px;">Une tarification transparente et compétitive, sans
-                frais cachés, pour une mobilité d'exception.</p>
+    <!-- Executive Header -->
+    <header class="executive-header">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-primary px-3 py-2 rounded-pill mb-3 animate__animated animate__fadeInDown" style="letter-spacing: 1px;">TRANSPARENCE</span>
+                    <h1 class="display-3 fw-bold mb-2 animate__animated animate__fadeInLeft">Nos <span class="text-primary-gradient">Tarifs</span></h1>
+                    <p class="lead opacity-75 pe-lg-5 animate__animated animate__fadeIn animate__delay-1s">Une tarification transparente et compétitive, sans frais cachés, pour une mobilité d'exception à travers toute la région.</p>
+                </div>
+            </div>
         </div>
-    </section>
+    </header>
 
     <!-- Tableau des Tarifs -->
-    <section class="py-5 bg-light">
+    <section class="py-5 bg-light" style="margin-top: -60px; position: relative; z-index: 20;">
         <div class="container py-5">
             <div class="row g-4">
                 <!-- Berline Standard -->
-                <div class="col-lg-4">
+                <div class="col-lg-4 animate__animated animate__fadeInUp">
                     <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
                         <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="{{ asset('images/berline-standard.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
-                    </div>
+                            <img src="{{ asset('images/berline-standard.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Berline Standard">
+                        </div>
                         <div class="p-4">
                             <i class="bi bi-car-front fs-1 text-primary"></i>
                             <h3 class="fw-bold mt-2 mb-0">Berline Standard</h3>
@@ -38,7 +38,7 @@
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Prise en charge</span>
-                                <span class="fw-bold text-success">0.00 €</span>
+                                <span class="fw-bold text-primary">0.00 €</span>
                             </div>
                             <div class="d-flex justify-content-between mb-0">
                                 <span class="text-muted">Attente / min</span>
@@ -51,13 +51,14 @@
                     </div>
                 </div>
 
-                <!-- Van Luxe -->
-                <div class="col-lg-4">
-                    <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden border-primary"
-                        style="border-top: 5px solid var(--primary) !important;">
+                <!-- Van Luxe (RECOMMANDÉ) -->
+                <div class="col-lg-4 animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="glass-panel p-0 h-100 border-0 shadow-lg bg-white text-center overflow-hidden position-relative"
+                        style="border: 2px solid var(--primary) !important; transform: scale(1.05); z-index: 10;">
+                        <div class="position-absolute top-0 start-50 translate-middle-x bg-primary text-white px-3 py-1 rounded-bottom small fw-bold" style="z-index: 100;">RECOMMANDÉ</div>
                         <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="{{ asset('images/van-luxe.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
-                    </div>
+                            <img src="{{ asset('images/van-luxe.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Van Luxe">
+                        </div>
                         <div class="p-4">
                             <i class="bi bi-people fs-1 text-primary"></i>
                             <h3 class="fw-bold mt-2 mb-0">Van Luxe</h3>
@@ -70,25 +71,26 @@
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Prise en charge</span>
-                                <span class="fw-bold text-success">0.00 €</span>
+                                <span class="fw-bold text-primary">0.00 €</span>
                             </div>
                             <div class="d-flex justify-content-between mb-0">
                                 <span class="text-muted">Attente / min</span>
                                 <span class="fw-bold">0.20 €</span>
                             </div>
                         </div>
-                        <div class="p-4 bg-light">
-                            <a href="{{ route('register') }}" class="btn btn-premium w-100">Réserver</a>
+                        <div class="p-4 bg-primary-subtle">
+                            <a href="{{ route('register') }}" class="btn btn-premium w-100 shadow">Réserver</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Sprinter Mercedes -->
-                <div class="col-lg-4">
+                <div class="col-lg-4 animate__animated animate__fadeInUp animate__delay-2s">
                     <div class="glass-panel p-0 h-100 border-0 shadow-sm bg-white text-center overflow-hidden">
-                    <div class="p-0 overflow-hidden" style="height: 240px;">
-                        <img src="{{ asset('images/sprinter-mercedes.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
-                    </div>
+er overflow-hidden">
+                        <div class="p-0 overflow-hidden" style="height: 240px;">
+                            <img src="{{ asset('images/sprinter-mercedes.jpg') }}" class="w-100 h-100" style="object-fit: cover;" alt="Sprinter Mercedes">
+                        </div>
                         <div class="p-4">
                             <i class="bi bi-bus-front fs-1 text-primary"></i>
                             <h3 class="fw-bold mt-2 mb-0">Sprinter Mercedes</h3>
@@ -101,7 +103,7 @@
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted">Prise en charge</span>
-                                <span class="fw-bold text-success">0.00 €</span>
+                                <span class="fw-bold text-primary">0.00 €</span>
                             </div>
                             <div class="d-flex justify-content-between mb-0">
                                 <span class="text-muted">Attente / min</span>
@@ -123,27 +125,24 @@
             <div class="row g-5">
                 <div class="col-md-4 text-center">
                     <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
-                    <i class="bi bi-airplane-engines fs-1 text-primary"></i>
-                </div>
+                        <i class="bi bi-airplane-engines fs-1 text-primary"></i>
+                    </div>
                     <h4 class="fw-bold">Forfaits Aéroport</h4>
-                    <p class="text-muted">Aéroport → Centre-ville à partir de <span class="fw-bold text-dark">35 €</span>
-                        tout compris.</p>
+                    <p class="text-muted">Aéroport → Centre-ville à partir de <span class="fw-bold text-dark">35 €</span> tout compris.</p>
                 </div>
                 <div class="col-md-4 text-center">
                     <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
-                    <i class="bi bi-shield-check fs-1 text-primary"></i>
-                </div>
+                        <i class="bi bi-shield-check fs-1 text-primary"></i>
+                    </div>
                     <h4 class="fw-bold">Siège Enfant</h4>
-                    <p class="text-muted">Disponible sur demande <span class="fw-bold text-success">gratuitement</span> pour
-                        la sécurité de vos petits.</p>
+                    <p class="text-muted">Disponible sur demande <span class="fw-bold text-primary">gratuitement</span> pour la sécurité de vos petits.</p>
                 </div>
                 <div class="col-md-4 text-center">
                     <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
-                    <i class="bi bi-luggage-fill fs-1 text-primary"></i>
-                </div>
+                        <i class="bi bi-luggage-fill fs-1 text-primary"></i>
+                    </div>
                     <h4 class="fw-bold">Bagages Volumineux</h4>
-                    <p class="text-muted">Nos Vans sont parfaitement adaptés pour les groupes et les bagages encombrants.
-                    </p>
+                    <p class="text-muted">Nos Vans sont parfaitement adaptés pour les groupes et les bagages encombrants.</p>
                 </div>
             </div>
         </div>

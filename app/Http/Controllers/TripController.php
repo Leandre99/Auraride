@@ -101,22 +101,22 @@ class TripController extends Controller
             Log::error('Erreur file d\'attente email client : ' . $e->getMessage());
         }
 
-        // 2. Email aux admins (notification)
+        // 2. Email aux admins (notification) - Envoi immédiat pour éviter les oublis
         try {
             $adminEmail = config('mail.admin_email');
             $admins = User::where('role', 'admin')->get();
             
             // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
-                Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
             // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
             if ($adminEmail && !$admins->contains('email', $adminEmail)) {
-                Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($adminEmail)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
-            Log::info('Email admin envoyé pour le trajet #' . $trip->id);
+            Log::info('Email admin envoyé (sync) pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
             Log::error('Erreur envoi email admin : ' . $e->getMessage());
         }
