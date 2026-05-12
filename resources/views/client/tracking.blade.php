@@ -124,19 +124,31 @@
                             @if($trip->vehicle)
                             <p class="text-muted small mb-0">{{ $trip->vehicle->model ?? '' }} - {{ $trip->vehicle->plate_number ?? '' }}</p>
                             @endif
-                            @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']) && $trip->driver?->phone_number)
+                            @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']))
                             <div class="row g-2 mt-3">
                                 <div class="col-6">
-                                    <a href="tel:{{ preg_replace('/\s+/', '', $trip->driver->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
-                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                    </a>
+                                    @if($trip->driver?->phone_number)
+                                        <a href="tel:{{ preg_replace('/\s+/', '', $trip->driver->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
+                                            <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                        </a>
+                                    @else
+                                        <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled title="Numéro non renseigné">
+                                            <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="col-6">
-                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trip->pickup_address) }}" 
-                                       target="_blank" 
-                                       class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
-                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                    </a>
+                                    @if($trip->driver?->phone_number)
+                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trip->pickup_address) }}" 
+                                           target="_blank" 
+                                           class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
+                                            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                        </a>
+                                    @else
+                                        <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
+                                            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                             @endif

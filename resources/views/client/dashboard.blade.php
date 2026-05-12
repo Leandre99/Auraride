@@ -262,17 +262,29 @@
                             </div>
                         </div>
 
-                        @if(in_array($trackingTrip->status, ['assigned', 'accepted', 'in_progress']) && $trackingTrip->driver->phone_number)
+                        @if(in_array($trackingTrip->status, ['assigned', 'accepted', 'in_progress']))
                         <div class="row g-2 mt-3">
                             <div class="col-6">
-                                <a href="tel:{{ $trackingTrip->driver->phone_number }}" class="btn btn-primary w-100 py-2 rounded-pill small">
-                                    <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                </a>
+                                @if($trackingTrip->driver?->phone_number)
+                                    <a href="tel:{{ $trackingTrip->driver->phone_number }}" class="btn btn-primary w-100 py-2 rounded-pill small">
+                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                    </a>
+                                @else
+                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small" disabled title="Numéro non renseigné">
+                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                    </button>
+                                @endif
                             </div>
                             <div class="col-6">
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
-                                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                </a>
+                                @if($trackingTrip->driver?->phone_number)
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
+                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                    </a>
+                                @else
+                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small" disabled>
+                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                    </button>
+                                @endif
                             </div>
                         </div>
                         @endif
@@ -387,6 +399,34 @@ document.addEventListener('DOMContentLoaded', function() {
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
     }).addTo(map);
+
+    // Géolocalisation automatique
+    if (!window.activeTrip) {
+        map.locate({setView: true, maxZoom: 15});
+        map.on('locationfound', function(e) {
+            if (pickupMarker) map.removeLayer(pickupMarker);
+            pickupMarker = L.marker(e.latlng, {
+                icon: L.icon({
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map).bindPopup("Vous êtes ici").openPopup();
+            
+            pickupLat = e.latlng.lat;
+            pickupLng = e.latlng.lng;
+            
+            // Inversion de géocodage pour l'adresse de départ
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pickupLat}&lon=${pickupLng}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.display_name) {
+                        document.getElementById('pickupInput').value = data.display_name;
+                        pickupAddress = data.display_name;
+                    }
+                });
+        });
+    }
 
     let pickupMarker = null, dropoffMarker = null;
     let pickupLat = null, pickupLng = null, dropoffLat = null, dropoffLng = null;
