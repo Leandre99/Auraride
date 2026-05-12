@@ -40,13 +40,19 @@ class TripController extends Controller
             ->whereIn('name', $allowed)
             ->get()
             ->map(function ($type) use ($distance) {
-                $price = $type->base_fare + ($type->per_km_rate * $distance);
-                $price = max($price, 8.00); // Prix minimum 8€
+                $priceHT = $type->base_fare + ($type->per_km_rate * $distance);
+                $priceHT = max($priceHT, 8.00); // Prix minimum HT 8€
+                
+                $tva = $priceHT * 0.10; // TVA 10% pour le transport
+                $priceTTC = $priceHT + $tva;
 
                 return [
                     'id' => $type->id,
                     'name' => $type->name,
-                    'price' => round($price, 2),
+                    'price_ht' => round($priceHT, 2),
+                    'tva' => round($tva, 2),
+                    'price_ttc' => round($priceTTC, 2),
+                    'price' => round($priceTTC, 2), // Alias pour compatibilité
                     'distance' => round($distance, 2),
                     'duration' => round($distance * 2, 0), // ~2 min/km
                 ];
@@ -101,24 +107,24 @@ class TripController extends Controller
             Log::error('Erreur file d\'attente email client : ' . $e->getMessage());
         }
 
-        // 2. Email aux admins (notification) - Envoi immédiat pour éviter les oublis
+        // 2. Email aux admins (notification) - Mis en file d'attente pour éviter les ralentissements
         try {
             $adminEmail = config('mail.admin_email');
             $admins = User::where('role', 'admin')->get();
             
             // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
             // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
             if ($adminEmail && !$admins->contains('email', $adminEmail)) {
-                Mail::to($adminEmail)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
-            Log::info('Email admin envoyé (sync) pour le trajet #' . $trip->id);
+            Log::info('Email admin mis en file pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
-            Log::error('Erreur envoi email admin : ' . $e->getMessage());
+            Log::error('Erreur mise en file email admin : ' . $e->getMessage());
         }
 
         // ========== NOTIFICATIONS EXISTANTES ==========

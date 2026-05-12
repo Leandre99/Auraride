@@ -207,6 +207,84 @@
         <!-- Colonne Formulaire (Plus compacte et centrée sur Desktop) -->
         <div class="col-lg-5 order-1 order-lg-2 animate__animated animate__slideInRight px-lg-4">
             <div class="booking-card shadow-lg border-0 sticky-top" style="top: 20px;">
+                @if(isset($trackingTrip))
+                <!-- Affichage de la course active -->
+                <div class="booking-header bg-dark text-white p-4 rounded-top-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold mb-1">🚖 Course en cours</h4>
+                            <p class="opacity-75 small mb-0">Suivi en temps réel</p>
+                        </div>
+                        <span class="badge bg-primary px-3 py-2 rounded-pill">
+                            @switch($trackingTrip->status)
+                                @case('pending') Recherche... @break
+                                @case('assigned') Chauffeur désigné @break
+                                @case('accepted') Chauffeur en route @break
+                                @case('in_progress') Course en cours @break
+                                @case('completed') Terminée @break
+                                @default {{ $trackingTrip->status }}
+                            @endswitch
+                        </span>
+                    </div>
+                </div>
+
+                <div class="booking-body p-4">
+                    <div class="card border-0 bg-light rounded-4 p-3 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">Itinéraire</label>
+                            <div class="d-flex align-items-start gap-2 mt-2">
+                                <div class="input-dot pickup mt-1"></div>
+                                <div class="small fw-bold">{{ $trackingTrip->pickup_address }}</div>
+                            </div>
+                            <div class="d-flex align-items-start gap-2 mt-2">
+                                <div class="input-dot dropoff mt-1"></div>
+                                <div class="small fw-bold">{{ $trackingTrip->dropoff_address }}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <span class="text-muted">Prix Total TTC</span>
+                            <span class="h4 mb-0 fw-bold text-primary">{{ number_format($trackingTrip->price, 2) }} €</span>
+                        </div>
+                    </div>
+
+                    @if($trackingTrip->driver)
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2"></i>Votre Chauffeur</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-fill text-primary fs-4"></i>
+                            </div>
+                            <div>
+                                <p class="fw-bold mb-0">{{ $trackingTrip->driver->name }}</p>
+                                @if($trackingTrip->vehicle)
+                                <p class="text-muted small mb-0">{{ $trackingTrip->vehicle->model ?? '' }} • {{ $trackingTrip->vehicle->plate_number ?? '' }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        @if(in_array($trackingTrip->status, ['assigned', 'accepted', 'in_progress']) && $trackingTrip->driver->phone_number)
+                        <div class="row g-2 mt-3">
+                            <div class="col-6">
+                                <a href="tel:{{ $trackingTrip->driver->phone_number }}" class="btn btn-primary w-100 py-2 rounded-pill small">
+                                    <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
+                                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    <a href="{{ route('client.trips.track', $trackingTrip->id) }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-bold">
+                        Ouvrir la page de suivi complète <i class="bi bi-arrow-up-right-circle ms-2"></i>
+                    </a>
+                </div>
+                @else
+                <!-- Formulaire de réservation classique -->
                 <div class="booking-header bg-primary text-white p-4 rounded-top-4">
                     <h4 class="fw-bold mb-1">📍 Réserver une course</h4>
                     <p class="opacity-75 small mb-0">Chauffeur privé à la demande</p>
@@ -275,10 +353,19 @@
                             Commander mon chauffeur
                         </button>
 
+                        <!-- Lien Mappy -->
+                        <div id="mappyLinkContainer" class="text-center mb-3" style="display: none;">
+                            <p class="text-muted small mb-1">Besoin d'une contre-expertise ?</p>
+                            <a id="mappyLink" href="#" target="_blank" rel="noopener noreferrer" class="text-muted small text-decoration-none opacity-75 hover-opacity-100 transition">
+                                <i class="bi bi-map me-1"></i> Vérifier l'itinéraire et estimer le coût sur Mappy →
+                            </a>
+                        </div>
+
                         <button class="btn btn-link w-100 text-muted small text-decoration-none" id="backBtn">
                             <i class="bi bi-chevron-left me-1"></i> Modifier le trajet
                         </button>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -288,6 +375,11 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@if(isset($trackingTrip))
+<script>
+    window.activeTrip = @json($trackingTrip);
+</script>
+@endif
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // ---------- CARTE ----------
@@ -299,6 +391,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let pickupMarker = null, dropoffMarker = null;
     let pickupLat = null, pickupLng = null, dropoffLat = null, dropoffLng = null;
     let pickupAddress = '', dropoffAddress = '';
+
+    // Si une course est active, on initialise les variables avec ses données
+    if (window.activeTrip) {
+        pickupLat = parseFloat(window.activeTrip.pickup_lat);
+        pickupLng = parseFloat(window.activeTrip.pickup_lng);
+        dropoffLat = parseFloat(window.activeTrip.dropoff_lat);
+        dropoffLng = parseFloat(window.activeTrip.dropoff_lng);
+        pickupAddress = window.activeTrip.pickup_address;
+        dropoffAddress = window.activeTrip.dropoff_address;
+    }
 
     // Variables globales
     let currentStep = 1;
@@ -376,6 +478,21 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAutocomplete('pickupInput', 'pickupResults', 'pickup');
     setupAutocomplete('dropoffInput', 'dropoffResults', 'dropoff');
 
+    // Si une course est active, on dessine l'itinéraire sur la carte
+    if (window.activeTrip && pickupLat && dropoffLat) {
+        pickupMarker = L.marker([pickupLat, pickupLng], { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Départ');
+        dropoffMarker = L.marker([dropoffLat, dropoffLng], { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Arrivée');
+        
+        const routeLine = L.polyline([[pickupLat, pickupLng], [dropoffLat, dropoffLng]], {
+            color: '#2563eb',
+            weight: 5,
+            opacity: 0.7,
+            dashArray: '10, 10'
+        }).addTo(map);
+        
+        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+    }
+
     // ---------- ESTIMATION ----------
     async function getEstimation() {
         if (!pickupLat || !dropoffLat) return null;
@@ -403,11 +520,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ---------- HELPERS TARIFICATION ----------
     function computePricing(v) {
-        let rate = 1.50; // Berline Standard
-        if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
-        if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
-        v.price_ht  = (v.distance * rate).toFixed(2);
-        v.price_ttc = (parseFloat(v.price_ht) * 1.10).toFixed(2);
+        // Le backend renvoie déjà les prix HT, TTC et TVA
+        // On s'assure juste que les propriétés sont bien présentes
+        v.price_ht  = v.price_ht || 0;
+        v.price_ttc = v.price_ttc || v.price || 0;
         v.price     = v.price_ttc;
     }
 
@@ -452,8 +568,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tripDetails').classList.remove('d-none');
     }
 
+    function updateMappyLink() {
+        const linkContainer = document.getElementById('mappyLinkContainer');
+        const mappyLink = document.getElementById('mappyLink');
+        if (pickupAddress && dropoffAddress) {
+            const url = `https://fr.mappy.com/itineraire#from=${encodeURIComponent(pickupAddress)}&to=${encodeURIComponent(dropoffAddress)}`;
+            mappyLink.href = url;
+            linkContainer.style.display = 'block';
+        } else {
+            linkContainer.style.display = 'none';
+        }
+    }
+
     // ---------- AFFICHAGE VÉHICULES ----------
     async function displayVehicles() {
+        // Update Mappy Link
+        updateMappyLink();
+
         // 1. Fetch backend estimate (OSRM with Haversine fallback — always fast)
         const vehicles = await getEstimation();
         if (!vehicles || !vehicles.length) {
@@ -520,6 +651,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         updatePriceSummary(updated);
                     }
                 }
+                
+                // Update Mappy Link again in case addresses changed (unlikely here but safe)
+                updateMappyLink();
 
                 // Hide fallback notice — we have real road data
                 if (fallbackNotice) fallbackNotice.style.display = 'none';
