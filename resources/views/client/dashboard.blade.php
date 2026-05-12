@@ -270,7 +270,7 @@
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
                                     <i class="bi bi-whatsapp me-1"></i> WhatsApp
                                 </a>
                             </div>

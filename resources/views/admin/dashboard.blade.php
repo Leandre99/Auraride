@@ -193,15 +193,73 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-3s">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-danger-subtle text-danger rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-lightning-fill fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Jour (24h)</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['trips_today'] }}</div>
+                        <div class="kpi-icon bg-info-subtle text-info rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-car-front-fill fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Locations</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['pending_rentals_count'] }}</div>
                         <div class="pt-3 border-top small text-muted">
-                            <i class="bi bi-lightning-charge text-danger me-1"></i> Demandes du jour
+                            <i class="bi bi-clock text-info me-1"></i> Demandes en attente
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Pending Rentals -->
+            @if($pendingRentals->count() > 0)
+            <div class="table-premium mb-5 border-info border-2">
+                <div class="p-4 border-bottom bg-info bg-opacity-10 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-dark fw-bold"><i class="bi bi-key me-2"></i>Nouvelles demandes de location</h5>
+                    <a href="{{ route('admin.rentals') }}" class="btn btn-info btn-sm text-dark fw-bold">Gérer les locations</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3">Client</th>
+                                <th class="py-3">Véhicule</th>
+                                <th class="py-3">Période</th>
+                                <th class="py-3">Prix</th>
+                                <th class="py-3 text-end px-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($pendingRentals as $rental)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold">{{ $rental->user->name }}</div>
+                                        <div class="small text-muted">{{ $rental->user->email }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ $rental->vehicleType->name }}</div>
+                                        @if($rental->with_driver)
+                                            <span class="badge bg-success-subtle text-success small">Avec chauffeur</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">Du {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m') }} au {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m') }}</div>
+                                        <div class="small text-muted">{{ $rental->total_days }} jour(s)</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-primary">{{ number_format($rental->total_price, 2) }}€</div>
+                                    </td>
+                                    <td class="px-4 text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <form action="{{ route('admin.rentals.confirm', $rental) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm px-3 rounded-pill">Valider</button>
+                                            </form>
+                                            <form action="{{ route('admin.rentals.reject', $rental) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 rounded-pill">Refuser</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
 
             <!-- Pending Assignments -->
             @if($pendingTrips->count() > 0)
