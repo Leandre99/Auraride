@@ -1,77 +1,99 @@
-# AuraRide - Next-Gen Transit Platform
+# 🚗 AuraRide - Plateforme Premium de VTC & Location
 
-AuraRide is a premium, modern ride-sharing web application built with **Laravel 12**. The platform stands out with an immersive, highly interactive "Outrun / Cyberpunk" aesthetic, leveraging **Bootstrap 5**, **GSAP** (GreenSock Animation Platform) for fluid transitions, and **Leaflet** for deep, custom-styled map integrations.
-
-## 🌟 Core Concept & Design
-Unlike standard ride-sharing overlays, AuraRide implements a rich glassmorphism UI with neon-pink and electric-cyan accents. The user experience aims to feel more like a high-end application rather than a basic utility, with instantaneous micro-interactions across navigation, vehicle selection, and location tracking.
+AuraRide est une application web de VTC et de location de véhicules haut de gamme construite avec **Laravel 12**. Elle se distingue par une interface moderne, immersive et interactive utilisant **Bootstrap 5**, **GSAP** pour les animations et **Leaflet** pour la cartographie.
 
 ---
 
-## 🚀 Implemented Features
+## 🛠️ Guide d'Installation (Pas à pas)
 
-### 1. Aesthetic UI & Frontend Foundation
-- **Dynamic Layout:** A responsive SPA-like dashboard interface serving as the main hub.
-- **GSAP Animations:** Staggered sliding panels, glowing route drawings, and smooth element reveals.
-- **Custom Leaflet Maps:** A dark, high-contrast map configured to match the application's neon color scheme.
-- **Glassmorphism Panels:** Interactive modal overlays for booking trips, viewing driver arrival times, and payment selection.
+Suivez ces étapes scrupuleusement pour installer le projet sur votre machine locale.
 
-### 2. Laravel Backend Core
-- **Routing & Views:** Clean segregation of frontend components utilizing Laravel Blade layouts and components (`app.blade.php`, `navbar.blade.php`, `dashboard.blade.php`).
-- **Database Architecture:** `MySQL` database connection active, featuring an augmented `users` table supporting Role-Based Access Control (RBAC).
-- **Roles Implemented:** 
-  - `client`: Booking, managing trips.
-  - `driver`: Receiving trip requests, managing vehicles.
-  - `admin`: Platform overview, user/trip control.
+### 1. Prérequis
+Assurez-vous d'avoir installé :
+*   **PHP 8.2+**
+*   **Composer**
+*   **Node.js & npm**
+*   **MySQL** (ou un serveur type XAMPP/WAMP)
 
----
-
-## 🛠️ To-Do / Remaining Implementations
-
-While the core presentation layer and database foundation are established, the following critical features remain to be implemented to achieve MVP (Minimum Viable Product):
-
-### Authentication & Authorization
-- [ ] Implement robust login/registration flows (using Laravel Breeze or Jetstream).
-- [ ] Establish middleware to correctly route Users based on their `role` (Client, Driver, Admin).
-
-### Real-time Architecture (WebSockets)
-- [ ] Integrate Laravel Reverb or Pusher.
-- [ ] **Live Location Tracking:** Broadcast driver GPS coordinates to the client dashboard in real-time.
-- [ ] **Trip Dispatching:** Push notifications and matchmaking between clients requesting rides and nearby online drivers.
-
-### Dynamic Pricing & Routing Algorithm
-- [ ] Integrate a backend routing API (e.g., OSRM, Google Maps API, or Mapbox) to calculate exact distance and duration.
-- [ ] Built an internal pricing model modifying base fares based on distance, time, and dynamic surge multipliers.
-
-### Payment Integration
-- [ ] Integrate a payment gateway (e.g., Stripe API).
-- [ ] Implement the capability to securely hold, charge, and refund cards (handling Apple Pay and standard card inputs).
-
-### Role-specific Dashboards
-- [ ] **Driver Dashboard:** A dedicated interface for drivers to toggle availability ("Go Online"), view heatmaps of busy areas, and accept/reject rides.
-- [ ] **Admin Panel:** A comprehensive CRUD (Create, Read, Update, Delete) interface to review transactions, resolve disputes, and monitor active rides across the city.
-- [ ] **Client History:** A "My Trips" page to download receipts and review past driver ratings.
-
----
-
-## 💾 Stack Requirements
-- PHP 8.2+
-- Composer
-- Node.js & npm (for Vite, Tailwind/Bootstrap processing)
-- MySQL / SQLite
-
-## 🔧 Local Development
+### 2. Clonage du projet
 ```bash
-# Install PHP Dependencies
+git clone https://github.com/Leandre99/Auraride.git
+cd Auraride
+```
+
+### 3. Installation des dépendances
+```bash
+# Dépendances PHP
 composer install
 
-# Environment setup
+# Dépendances JavaScript & CSS
+npm install
+```
+
+### 4. Configuration de l'environnement
+Copiez le fichier d'exemple et générez la clé de l'application :
+```bash
 cp .env.example .env
 php artisan key:generate
+```
 
-# Set up Database
-php artisan migrate
+### 5. Configuration de la base de données
+1. Créez une base de données nommée `auraride` dans votre gestionnaire MySQL.
+2. Ouvrez le fichier `.env` et vérifiez les informations de connexion :
+   ```env
+   DB_DATABASE=auraride
+   DB_USERNAME=votre_utilisateur
+   DB_PASSWORD=votre_mot_de_passe
+   ```
 
-# Serve the application
+### 6. Configuration des Emails (Gmail)
+Pour que l'envoi d'emails fonctionne, vous devez configurer vos identifiants dans le `.env` :
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=votre-email@gmail.com
+MAIL_PASSWORD=votre-mot-de-passe-d-application
+MAIL_FROM_ADDRESS=votre-email@gmail.com
+MAIL_ADMIN_EMAIL=votre-email@gmail.com
+```
+*Note : Le mot de passe doit être un **"Mot de passe d'application"** généré dans votre compte Google.*
+
+### 7. Initialisation de la base de données
+Cette commande crée les tables et ajoute les utilisateurs de test (Admin, Chauffeurs, Clients) :
+```bash
+php artisan migrate --seed
+```
+
+### 8. Compilation des assets & Lancement
+```bash
+# Compilation des fichiers CSS/JS
 npm run build
+
+# Lancement du serveur de développement
 php artisan serve
 ```
+
+---
+
+## ⚡ Fonctionnalités Clés
+*   **Système de VTC** : Demande de course en temps réel avec suivi sur carte.
+*   **Location de véhicules** : Réservation de véhicules avec ou sans chauffeur.
+*   **Interface Chauffeur** : Dashboard dédié pour accepter les courses, contacter le client (Appel/WhatsApp) et valider les paiements.
+*   **Interface Admin** : Gestion complète des utilisateurs, des revenus et des demandes en attente.
+*   **Notifications Temps Réel** : Utilisation de Laravel Reverb pour une réactivité instantanée.
+*   **Emails Automatiques** : Confirmations et reçus envoyés instantanément (mode `sync`).
+
+---
+
+## 🔑 Comptes de Test
+Une fois le `seed` effectué, vous pouvez vous connecter avec :
+*   **Admin** : `admin@atlasandco.com` / `password`
+*   **Chauffeur** : `driver@atlasandco.com` / `password`
+*   **Client** : `client@atlasandco.com` / `password`
+
+---
+
+## 📦 Commandes Utiles
+*   `php artisan config:clear` : Vider le cache de configuration.
+*   `php artisan reverb:start` : Lancer le serveur de WebSockets (pour le temps réel en local).
