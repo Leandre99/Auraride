@@ -25,7 +25,7 @@ class TripController extends Controller
             'dropoff_lng' => 'required|numeric|between:-180,180',
         ]);
 
-        $distance = $this->calculateDistance(
+        $distance = $this->getRouteDistance(
             $request->pickup_lat,
             $request->pickup_lng,
             $request->dropoff_lat,
@@ -359,8 +359,64 @@ class TripController extends Controller
     }
 
     /**
-     * Calcul de la distance réelle entre deux points GPS (formule Haversine)
-     * Retourne la distance en kilomètres
+     * Calcul de la distance via OSRM (distance réelle de route).
+     * En cas d'échec ou de timeout (5 secondes), repli sur la formule Haversine.
+     * Retourne la distance en kilomètres.
+     */
+    private function getRouteDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        try {
+            $url = sprintf(
+                'https://router.project-osrm.org/route/v1/driving/%s,%s;%s,%s',
+                $lon1, $lat1, $lon2, $lat2
+            );
+
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,          // 5-second hard timeout
+                CURLOPT_CONNECTTIMEOUT => 3,          // 3-second connect timeout
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_USERAGENT      => 'Auraride/1.0',
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError || $httpCode !== 200 || !$response) {
+                Log::warning('OSRM unavailable, falling back to Haversine.', [
+                    'curl_error' => $curlError,
+                    'http_code'  => $httpCode,
+                ]);
+                return $this->calculateDistance($lat1, $lon1, $lat2, $lon2);
+            }
+
+            $data = json_decode($response, true);
+
+            if (
+                isset($data['routes'][0]['distance']) &&
+                is_numeric($data['routes'][0]['distance'])
+            ) {
+                // OSRM returns distance in metres — convert to km
+                return round($data['routes'][0]['distance'] / 1000, 2);
+            }
+
+            Log::warning('OSRM response missing distance, falling back to Haversine.', [
+                'response' => substr($response, 0, 200),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('OSRM exception, falling back to Haversine: ' . $e->getMessage());
+        }
+
+        return $this->calculateDistance($lat1, $lon1, $lat2, $lon2);
+    }
+
+    /**
+     * Calcul de la distance à vol d'oiseau entre deux points GPS (formule Haversine).
+     * Utilisé comme repli lorsque OSRM n'est pas disponible.
+     * Retourne la distance en kilomètres.
      */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
