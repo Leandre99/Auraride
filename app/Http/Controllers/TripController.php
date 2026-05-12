@@ -25,7 +25,7 @@ class TripController extends Controller
             'dropoff_lng' => 'required|numeric|between:-180,180',
         ]);
 
-        $distance = $this->calculateDistance(
+        $distance = $this->getRouteDistance(
             $request->pickup_lat,
             $request->pickup_lng,
             $request->dropoff_lat,
@@ -40,13 +40,19 @@ class TripController extends Controller
             ->whereIn('name', $allowed)
             ->get()
             ->map(function ($type) use ($distance) {
-                $price = $type->base_fare + ($type->per_km_rate * $distance);
-                $price = max($price, 8.00); // Prix minimum 8€
+                $priceHT = $type->base_fare + ($type->per_km_rate * $distance);
+                $priceHT = max($priceHT, 8.00); // Prix minimum HT 8€
+                
+                $tva = $priceHT * 0.10; // TVA 10% pour le transport
+                $priceTTC = $priceHT + $tva;
 
                 return [
                     'id' => $type->id,
                     'name' => $type->name,
-                    'price' => round($price, 2),
+                    'price_ht' => round($priceHT, 2),
+                    'tva' => round($tva, 2),
+                    'price_ttc' => round($priceTTC, 2),
+                    'price' => round($priceTTC, 2), // Alias pour compatibilité
                     'distance' => round($distance, 2),
                     'duration' => round($distance * 2, 0), // ~2 min/km
                 ];
@@ -101,24 +107,24 @@ class TripController extends Controller
             Log::error('Erreur file d\'attente email client : ' . $e->getMessage());
         }
 
-        // 2. Email aux admins (notification) - Envoi immédiat pour éviter les oublis
+        // 2. Email aux admins (notification) - Mis en file d'attente pour éviter les ralentissements
         try {
             $adminEmail = config('mail.admin_email');
             $admins = User::where('role', 'admin')->get();
             
             // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
-                Mail::to($admin->email)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
             // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
             if ($adminEmail && !$admins->contains('email', $adminEmail)) {
-                Mail::to($adminEmail)->send(new TripNotificationAdmin($trip, $client, $vehicleType));
+                Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
             
-            Log::info('Email admin envoyé (sync) pour le trajet #' . $trip->id);
+            Log::info('Email admin mis en file pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
-            Log::error('Erreur envoi email admin : ' . $e->getMessage());
+            Log::error('Erreur mise en file email admin : ' . $e->getMessage());
         }
 
         // ========== NOTIFICATIONS EXISTANTES ==========
@@ -359,8 +365,64 @@ class TripController extends Controller
     }
 
     /**
-     * Calcul de la distance réelle entre deux points GPS (formule Haversine)
-     * Retourne la distance en kilomètres
+     * Calcul de la distance via OSRM (distance réelle de route).
+     * En cas d'échec ou de timeout (5 secondes), repli sur la formule Haversine.
+     * Retourne la distance en kilomètres.
+     */
+    private function getRouteDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        try {
+            $url = sprintf(
+                'https://router.project-osrm.org/route/v1/driving/%s,%s;%s,%s',
+                $lon1, $lat1, $lon2, $lat2
+            );
+
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,          // 5-second hard timeout
+                CURLOPT_CONNECTTIMEOUT => 3,          // 3-second connect timeout
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_USERAGENT      => 'Auraride/1.0',
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError || $httpCode !== 200 || !$response) {
+                Log::warning('OSRM unavailable, falling back to Haversine.', [
+                    'curl_error' => $curlError,
+                    'http_code'  => $httpCode,
+                ]);
+                return $this->calculateDistance($lat1, $lon1, $lat2, $lon2);
+            }
+
+            $data = json_decode($response, true);
+
+            if (
+                isset($data['routes'][0]['distance']) &&
+                is_numeric($data['routes'][0]['distance'])
+            ) {
+                // OSRM returns distance in metres — convert to km
+                return round($data['routes'][0]['distance'] / 1000, 2);
+            }
+
+            Log::warning('OSRM response missing distance, falling back to Haversine.', [
+                'response' => substr($response, 0, 200),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('OSRM exception, falling back to Haversine: ' . $e->getMessage());
+        }
+
+        return $this->calculateDistance($lat1, $lon1, $lat2, $lon2);
+    }
+
+    /**
+     * Calcul de la distance à vol d'oiseau entre deux points GPS (formule Haversine).
+     * Utilisé comme repli lorsque OSRM n'est pas disponible.
+     * Retourne la distance en kilomètres.
      */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {

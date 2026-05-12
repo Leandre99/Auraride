@@ -17,10 +17,19 @@
         <tr>
             <td style="padding: 8px; border: 1px solid #ddd;"><strong>Dates</strong></td>
             <td style="padding: 8px; border: 1px solid #ddd;">
-                {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }} →
+                Du {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }} au
                 {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') }}
             </td>
         </tr>
+        @if($rental->status == 'confirmed' && $rental->driver)
+        <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Chauffeur assigné</strong></td>
+            <td style="padding: 8px; border: 1px solid #ddd;">
+                {{ $rental->driver->name }} <br>
+                📞 {{ $rental->driver->phone_number ?? 'Non renseigné' }}
+            </td>
+        </tr>
+        @endif
         <tr>
             <td style="padding: 8px; border: 1px solid #ddd;"><strong>Nouveau statut</strong></td>
             <td style="padding: 8px; border: 1px solid #ddd;">

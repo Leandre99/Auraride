@@ -19,14 +19,15 @@ class AdminController extends Controller
             'active_trips' => Trip::whereIn('status', ['accepted', 'in_progress'])->count(),
             'total_revenue' => Trip::where('status', 'completed')->sum('price'),
             'trips_today' => Trip::whereDate('created_at', now()->today())->count(),
+            'pending_rentals_count' => Rental::where('status', 'pending')->count(),
         ];
 
-        $recentTrips = Trip::with(['client', 'driver'])->latest()->take(10)->get();
+        $recentTrips = Trip::with(['client', 'driver'])->latest()->take(5)->get();
+        $pendingRentals = Rental::with(['user', 'vehicleType'])->where('status', 'pending')->latest()->take(5)->get();
 
         // Pending trips that need assignment
         $pendingTrips = Trip::with('client')->where('status', 'pending')->latest()->get();
-
-        /* Chauffeurs éligibles : approuvé + actif ; certains environnements n'ont pas encore de véhicule lié. */
+        
         $drivers = User::where('role', 'driver')
             ->where('is_approved', true)
             ->where('is_active', true)
@@ -34,7 +35,7 @@ class AdminController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentTrips', 'pendingTrips', 'drivers'));
+        return view('admin.dashboard', compact('stats', 'recentTrips', 'pendingTrips', 'drivers', 'pendingRentals'));
     }
 
     public function users(Request $request)
@@ -123,8 +124,9 @@ class AdminController extends Controller
     public function editRental($id)
     {
         $rental = Rental::with(['user', 'vehicleType'])->findOrFail($id);
+        $drivers = User::where('role', 'driver')->where('is_approved', true)->get();
 
-        return view('admin.rentals.edit', compact('rental'));
+        return view('admin.rentals.edit', compact('rental', 'drivers'));
     }
 
     /**
@@ -135,13 +137,15 @@ class AdminController extends Controller
         $rental = Rental::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:pending,approved,cancelled,completed',
-            'admin_notes' => 'nullable|string'
+            'status' => 'required|in:pending,confirmed,rejected,completed,cancelled',
+            'admin_notes' => 'nullable|string',
+            'driver_id' => 'nullable|exists:users,id'
         ]);
 
         $oldStatus = $rental->status;
         $rental->status = $request->status;
         $rental->admin_notes = $request->admin_notes;
+        $rental->driver_id = $request->driver_id;
         $rental->save();
 
         ActivityLog::log('rental_status_updated', "L'admin a mis à jour le statut de la location #{$rental->id} de {$oldStatus} vers {$request->status}", $rental);
@@ -154,8 +158,9 @@ class AdminController extends Controller
         }
 
         $statusMessages = [
-            'approved' => 'approuvée',
-            'cancelled' => 'annulée / refusée',
+            'confirmed' => 'confirmée',
+            'rejected' => 'refusée',
+            'cancelled' => 'annulée',
             'completed' => 'terminée',
             'pending' => 'remise en attente'
         ];
@@ -168,21 +173,21 @@ class AdminController extends Controller
     public function confirmRental(Rental $rental)
     {
         $oldStatus = $rental->status;
-        $rental->update(['status' => 'approved']);
+        $rental->update(['status' => 'confirmed']);
         
-        ActivityLog::log('rental_approved', "L'admin a approuvé la demande de location #{$rental->id}", $rental);
+        ActivityLog::log('rental_approved', "L'admin a confirmé la demande de location #{$rental->id}", $rental);
         
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'La location a été approuvée.');
+        return back()->with('success', 'La location a été confirmée.');
     }
 
     public function rejectRental(Rental $rental)
     {
         $oldStatus = $rental->status;
-        $rental->update(['status' => 'cancelled']);
+        $rental->update(['status' => 'rejected']);
         
         ActivityLog::log('rental_rejected', "L'admin a rejeté la demande de location #{$rental->id}", $rental);
         
@@ -190,7 +195,7 @@ class AdminController extends Controller
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'La location a été refusée (annulée).');
+        return back()->with('success', 'La location a été rejetée.');
     }
 
     public function logs()

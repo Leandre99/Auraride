@@ -12,6 +12,7 @@ class Rental extends Model
 
     protected $fillable = [
         'user_id',
+        'driver_id',
         'vehicle_type_id',
         'start_date',
         'end_date',
@@ -36,10 +37,16 @@ class Rental extends Model
         'driver_fee_per_day' => 'decimal:2'
     ];
 
-    // Relation avec l'utilisateur
+    // Relation avec l'utilisateur (client)
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relation avec le chauffeur
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     // Relation avec le type de véhicule

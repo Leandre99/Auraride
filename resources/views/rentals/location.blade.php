@@ -294,6 +294,7 @@
                 @endif
 
                 const submitBtn = document.getElementById('rentalSubmitBtn');
+                const rentalFormContainer = document.getElementById('rentalForm'); // On peut cibler le parent ou le form
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
 
@@ -312,28 +313,32 @@
                         },
                         body: fd,
                     });
+                    
                     const data = await res.json().catch(() => ({}));
+                    
                     if (res.ok && data.success) {
-                        alert('Votre demande de location a bien été envoyée ! Un agent ATLAS AND CO vous contactera pour confirmer la période et l’option chauffeur éventuelle.');
-                        rentalForm.reset();
-                        // Réinitialiser les valeurs par défaut
-                        startDateInput.min = today;
-                        endDateInput.min = today;
-                        currentVehicleType = '1';
-                        vehicleSelect.value = '1';
-                        vehicleBtns.forEach(b => {
-                            if(b.getAttribute('data-type') === '1') b.classList.add('active');
-                            else b.classList.remove('active');
-                        });
-                        withDriverCheckbox.checked = false;
-                        updatePrice();
+                        // Remplacement du formulaire par un message de succès premium
+                        rentalForm.innerHTML = `
+                            <div class="text-center py-5 animate__animated animate__fadeIn">
+                                <div class="mb-4">
+                                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3">Location transmise !</h3>
+                                <p class="text-muted mb-4">Votre demande de location a été envoyée avec succès. Un agent <strong>ATLAS AND CO</strong> va l'étudier et vous recevrez une réponse par mail très prochainement.</p>
+                                <a href="{{ route('dashboard') }}" class="btn btn-premium px-5 py-3 rounded-pill">
+                                    Retour au tableau de bord
+                                </a>
+                            </div>
+                        `;
                     } else {
                         const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur ' + res.status);
                         alert('Une erreur est survenue : ' + msg);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Réserver la Location';
                     }
                 } catch (error) {
-                    alert('Une erreur est survenue. Réessayez plus tard.');
-                } finally {
+                    console.error(error);
+                    alert('Une erreur réseau est survenue. Veuillez vérifier votre connexion et réessayer.');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Réserver la Location';
                 }

@@ -119,17 +119,34 @@
                                     <div>
                                         <span class="d-block text-muted small">Client</span>
                                         <strong>{{ $activeTrip->client?->name ?? '—' }}</strong>
-                                        @if(in_array($activeTrip->status, ['assigned', 'accepted', 'in_progress']) && $activeTrip->client?->phone_number)
-                                            <div class="small mt-1">
-                                                📞 {{ $activeTrip->client->phone_number }}
-                                                <a href="tel:{{ preg_replace('/\s+/', '', $activeTrip->client->phone_number) }}" class="btn btn-outline-primary btn-sm ms-2" style="padding: 2px 8px; font-size: 0.7rem;">Appeler le client</a>
-                                            </div>
-                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $activeTrip->client->phone_number) }}?text=Bonjour%20je%20suis%20votre%20chauffeur%20Atlas%20And%20Co%2C%20je%20suis%20en%20route."
-                                               target="_blank"
-                                               class="btn btn-success w-100 mt-2">
-                                              <i class="bi bi-whatsapp me-2"></i> Contacter le client sur WhatsApp
-                                            </a>
-                                        @endif
+                                        @if(in_array($activeTrip->status, ['assigned', 'accepted', 'in_progress']))
+                                             <div class="row g-2 mt-3">
+                                                 <div class="col-6">
+                                                     @if($activeTrip->client?->phone_number)
+                                                         <a href="tel:{{ preg_replace('/\s+/', '', $activeTrip->client->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
+                                                             <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                                         </a>
+                                                     @else
+                                                         <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled title="Numéro non renseigné">
+                                                             <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                                         </button>
+                                                     @endif
+                                                 </div>
+                                                 <div class="col-6">
+                                                     @if($activeTrip->client?->phone_number)
+                                                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $activeTrip->client->phone_number) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre trajet.') }}" 
+                                                            target="_blank" 
+                                                            class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
+                                                             <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                                         </a>
+                                                     @else
+                                                         <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
+                                                             <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                                         </button>
+                                                     @endif
+                                                 </div>
+                                             </div>
+                                         @endif
                                     </div>
                                     <div class="text-end">
                                         <span class="d-block text-muted small">Tarif</span>
