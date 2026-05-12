@@ -244,7 +244,9 @@
                     @endforeach
                 </div>
                 <div class="p-4 border-top">
-                    {{ $users->links() }}
+                    <div class="d-flex justify-content-center">
+                        {{ $users->links() }}
+                    </div>
                 </div>
             </div>
         </main>

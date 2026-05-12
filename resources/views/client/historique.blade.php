@@ -45,13 +45,28 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($item->status === 'completed')
-                                        <span class="badge bg-success-subtle text-success border border-success">Terminé</span>
-                                    @elseif($item->status === 'cancelled')
-                                        <span class="badge bg-danger-subtle text-danger border border-danger">Annulé</span>
-                                    @else
-                                        <span class="badge bg-info-subtle text-info border border-info">En cours / Attente</span>
-                                    @endif
+                                    @php
+                                        $statusClass = match($item->status) {
+                                            'completed' => 'bg-success-subtle text-success border-success',
+                                            'confirmed', 'accepted' => 'bg-info-subtle text-info border-info',
+                                            'assigned', 'in_progress' => 'bg-primary-subtle text-primary border-primary',
+                                            'cancelled', 'rejected' => 'bg-danger-subtle text-danger border-danger',
+                                            'pending' => 'bg-warning-subtle text-warning border-warning',
+                                            default => 'bg-secondary-subtle text-secondary border-secondary',
+                                        };
+                                        $statusText = match($item->status) {
+                                            'completed' => 'Terminé',
+                                            'confirmed' => 'Confirmé',
+                                            'accepted' => 'Accepté',
+                                            'assigned' => 'Chauffeur assigné',
+                                            'in_progress' => 'En cours',
+                                            'cancelled' => 'Annulé',
+                                            'rejected' => 'Refusé',
+                                            'pending' => 'En attente',
+                                            default => ucfirst($item->status),
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusClass }} border">{{ $statusText }}</span>
                                 </td>
                                 <td>
                                     @if($item->item_type === 'trip')

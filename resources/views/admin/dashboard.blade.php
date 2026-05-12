@@ -177,7 +177,7 @@
                         <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Revenus</div>
                         <div class="h3 fw-bold mb-3 text-dark">{{ number_format($stats['total_revenue'], 2) }}€</div>
                         <div class="pt-3 border-top small text-muted">
-                            <i class="bi bi-graph-up-arrow text-success me-1"></i> Chiffre d'affaires
+                            <i class="bi bi-graph-up-arrow text-success me-1"></i> Courses & Locations
                         </div>
                     </div>
                 </div>

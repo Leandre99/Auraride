@@ -17,8 +17,8 @@ class AdminController extends Controller
         $stats = [
             'users_count' => User::count(),
             'active_trips' => Trip::whereIn('status', ['accepted', 'in_progress'])->count(),
-            'total_revenue' => Trip::where('status', 'completed')->sum('price'),
-            'trips_today' => Trip::whereDate('created_at', now()->today())->count(),
+            'total_revenue' => Trip::where('status', 'completed')->sum('price') + Rental::where('status', 'completed')->sum('total_price'),
+            'activities_today' => Trip::whereDate('created_at', now()->today())->count() + Rental::whereDate('created_at', now()->today())->count(),
             'pending_rentals_count' => Rental::where('status', 'pending')->count(),
         ];
 
@@ -47,7 +47,7 @@ class AdminController extends Controller
             $query->where('role', $role);
         }
 
-        $users = $query->latest()->paginate(20);
+        $users = $query->latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -80,7 +80,7 @@ class AdminController extends Controller
 
     public function trips()
     {
-        $trips = Trip::with(['client', 'driver', 'vehicle.vehicleType'])->latest()->paginate(20);
+        $trips = Trip::with(['client', 'driver', 'vehicle.vehicleType'])->latest()->paginate(10);
         $drivers = User::where('role', 'driver')
             ->where('is_approved', true)
             ->where('is_active', true)
@@ -112,8 +112,8 @@ class AdminController extends Controller
     public function rentals()
     {
         $rentals = Rental::with(['user', 'vehicleType'])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(20);
+                    ->latest()
+                    ->paginate(10);
 
         return view('admin.rentals.index', compact('rentals'));
     }
@@ -200,7 +200,7 @@ class AdminController extends Controller
 
     public function logs()
     {
-        $logs = ActivityLog::with('user')->latest()->paginate(50);
+        $logs = ActivityLog::with('user')->latest()->paginate(10);
         return view('admin.logs.index', compact('logs'));
     }
 }

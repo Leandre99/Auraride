@@ -112,7 +112,7 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-4">
+                    <div class="mt-4 d-flex justify-content-center">
                         {{ $logs->links() }}
                     </div>
                 @endif

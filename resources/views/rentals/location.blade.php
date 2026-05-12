@@ -325,8 +325,8 @@
                                 </div>
                                 <h3 class="fw-bold mb-3">Location transmise !</h3>
                                 <p class="text-muted mb-4">Votre demande de location a été envoyée avec succès. Un agent <strong>ATLAS AND CO</strong> va l'étudier et vous recevrez une réponse par mail très prochainement.</p>
-                                <a href="{{ route('dashboard') }}" class="btn btn-premium px-5 py-3 rounded-pill">
-                                    Retour au tableau de bord
+                                <a href="{{ route('my.rentals') }}" class="btn btn-premium px-5 py-3 rounded-pill">
+                                    Voir mon historique
                                 </a>
                             </div>
                         `;

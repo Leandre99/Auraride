@@ -87,7 +87,7 @@
                                 <th class="py-3 text-muted small fw-bold">VÉHICULE</th>
                                 <th class="py-3 text-muted small fw-bold">PÉRIODE</th>
                                 <th class="py-3 text-muted small fw-bold">CHAUFFEUR</th>
-                                <th class="py-3 text-muted small fw-bold">PRIX TOTAL</th>
+                                <th class="py-3 text-muted small fw-bold">TOTAL</th>
                                 <th class="py-3 text-muted small fw-bold">STATUT</th>
                                 <th class="py-3 text-end px-4 text-muted small fw-bold">ACTIONS</th>
                             </tr>
@@ -104,30 +104,27 @@
                                         <div class="small text-muted">{{ $rental->user->email }}</div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold">{{ $rental->vehicleType->name }}</div>
-                                        <div class="small text-muted">
+                                        <div class="fw-bold small">{{ $rental->vehicleType->name }}</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">
                                             @if($rental->daily_price)
-                                                {{ number_format($rental->daily_price, 2) }}€/jour
+                                                {{ number_format($rental->daily_price, 0) }}€/j
                                             @endif
                                         </div>
                                     </td>
                                     <td>
                                         <div class="small">
-                                            <div><i class="bi bi-calendar-check"></i> {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }}</div>
-                                            <div><i class="bi bi-calendar-x"></i> {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') }}</div>
-                                            <div class="text-muted"><i class="bi bi-clock"></i> {{ $rental->pickup_time }}</div>
-                                            <div class="text-muted"><strong>{{ $rental->total_days }} jour(s)</strong></div>
+                                            <div class="mb-1"><i class="bi bi-calendar-range me-1"></i>{{ \Carbon\Carbon::parse($rental->start_date)->format('d/m') }} - {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m/y') }}</div>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-clock me-1"></i>{{ $rental->pickup_time }}
+                                                <span class="badge bg-light text-dark ms-1">{{ $rental->total_days }}j</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
                                         @if($rental->with_driver)
-                                            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
-                                                <i class="bi bi-person-badge"></i> Inclus
-                                            </span>
+                                            <span class="text-success small fw-bold"><i class="bi bi-person-check-fill me-1"></i>Inclus</span>
                                         @else
-                                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">
-                                                <i class="bi bi-person"></i> Sans chauffeur
-                                            </span>
+                                            <span class="text-muted small"><i class="bi bi-person-x me-1"></i>Seul</span>
                                         @endif
                                     </td>
                                     <td>
@@ -200,7 +197,7 @@
                                 @endphp
                                 <span class="status-pill {{ $badgeClass }} px-2 py-1 small">{{ $statusText }}</span>
                             </div>
-                            
+
                             <div class="data-row">
                                 <span class="data-label">Client</span>
                                 <span class="data-value">{{ $rental->user->name }}</span>
@@ -238,8 +235,10 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="p-4 border-top">
-                    {{ $rentals->links() }}
+                <div class="p-4 border-top bg-light bg-opacity-50">
+                    <div class="d-flex justify-content-center">
+                        {{ $rentals->links() }}
+                    </div>
                 </div>
             </div>
         </main>

@@ -47,7 +47,10 @@
             </div>
             
             <div class="mb-4">
-                <label class="small fw-bold text-muted mb-1">Mot de passe</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="small fw-bold text-muted mb-0">Mot de passe</label>
+                    <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none">Mot de passe oublié ?</a>
+                </div>
                 <input type="password" name="password" class="form-control input-premium w-100" placeholder="••••••••" required>
             </div>
             

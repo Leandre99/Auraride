@@ -268,7 +268,9 @@
                     @endforeach
                 </div>
                 <div class="p-4 border-top bg-light bg-opacity-50">
-                    {{ $trips->links() }}
+                    <div class="d-flex justify-content-center">
+                        {{ $trips->links() }}
+                    </div>
                 </div>
             </div>
         </main>

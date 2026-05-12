@@ -631,23 +631,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-<<<<<<< HEAD
-        // --- Appel OSRM pour la distance réelle de route et le tracé ---
-        try {
-            // On demande le trajet complet avec la géométrie (geojson)
-            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
-            const osrmRes = await fetch(osrmUrl);
-            const osrmData = await osrmRes.json();
-
-            if (osrmData.routes && osrmData.routes.length > 0) {
-                const route = osrmData.routes[0];
-                const realDistanceKm = (route.distance / 1000).toFixed(2);
-                const realDurationMin = Math.round(route.duration / 60);
-=======
         // 2. Compute pricing from backend distance and render vehicles immediately
         vehicles.forEach(v => computePricing(v));
         vehiclesData = vehicles;
->>>>>>> c2262313534fab885f97752330afe7ab88e18430
 
         const container = document.getElementById('vehiclesList');
         container.innerHTML = '';
@@ -705,55 +691,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Update Mappy Link again in case addresses changed (unlikely here but safe)
+                // Update Mappy Link again
                 updateMappyLink();
 
-<<<<<<< HEAD
-        vehicles.forEach((v, idx) => {
-            const div = document.createElement('div');
-            div.className = `vehicle-option mb-2 ${idx === 0 ? 'selected' : ''}`;
-            div.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-bold">${v.name}</div>
-                        <div class="small text-muted">Chauffeur inclus</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="small text-muted">HT : ${v.price_ht}€</div>
-                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">TTC : ${v.price_ttc}€</div>
-                    </div>
-                </div>
-            `;
-            div.onclick = () => {
-                document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedVehicle = v;
-                updatePriceSummary(v);
-            };
-            container.appendChild(div);
-        });
-
-        const v = vehicles[0];
-        selectedVehicle = v;
-        updatePriceSummary(v);
-
-        // Mise à jour des détails (Distance, Durée, CO2) avec les valeurs réelles
-        document.getElementById('detailDistance').innerText = v.distance + ' km';
-        document.getElementById('detailDuration').innerText = v.duration + ' min';
-        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg';
-        document.getElementById('tripDetails').classList.remove('d-none');
-
-        // Configuration du lien Mappy
-        const mappyUrl = `https://fr.mappy.com/itineraire#from=${encodeURIComponent(pickupAddress)}&to=${encodeURIComponent(dropoffAddress)}`;
-        document.getElementById('mappyLink').href = mappyUrl;
-        document.getElementById('mappySection').classList.remove('d-none');
-=======
                 // Hide fallback notice — we have real road data
                 if (fallbackNotice) fallbackNotice.style.display = 'none';
             })
             .catch(err => {
-                // OSRM timed out or failed — vehicles are already shown with backend distance.
-                // Draw a dashed straight line as a minimal visual aid.
                 console.warn('OSRM not available for map polyline:', err.message);
                 if (pickupMarker && dropoffMarker && !routeLine) {
                     routeLine = L.polyline(
@@ -763,7 +707,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
                 }
             });
->>>>>>> c2262313534fab885f97752330afe7ab88e18430
     }
 
     function updatePriceSummary(v) {
