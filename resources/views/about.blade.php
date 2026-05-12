@@ -39,7 +39,7 @@
                 </div>
                 <div class="col-md-4 animate__animated animate__fadeInUp animate__delay-1s">
                     <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-light">
-                        <div class="kpi-icon bg-success text-white mb-3 shadow-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px;"><i class="bi bi-leaf-fill fs-4"></i></div>
+                        <div class="kpi-icon bg-success text-white mb-3 shadow-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px;"><i class="bi bi-tree-fill fs-4"></i></div>
                         <h4 class="fw-bold mb-3">Durabilité</h4>
                         <p class="text-muted mb-0">Notre engagement envers l'environnement signifie privilégier les véhicules à faible émission dans notre flotte premium.</p>
                     </div>
