@@ -19,13 +19,12 @@
         }
     }
 
-    /* Carte */
     .map-container {
         border-radius: 24px;
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         border: 1px solid #e5e7eb;
-        height: 300px; /* Mobile height */
+        height: 300px;
     }
 
     @media (min-width: 992px) {
@@ -117,7 +116,7 @@
         outline: none;
         padding: 12px 0;
     }
-    
+
     .booking-body {
         padding: 2rem !important;
     }
@@ -410,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
             const osrmRes = await fetch(osrmUrl);
             const osrmData = await osrmRes.json();
-            
+
             if (osrmData.routes && osrmData.routes.length > 0) {
                 const route = osrmData.routes[0];
                 const realDistanceKm = (route.distance / 1000).toFixed(2);
@@ -476,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mise à jour des détails (Distance, Durée, CO2) avec les valeurs réelles
         document.getElementById('detailDistance').innerText = v.distance + ' km';
         document.getElementById('detailDuration').innerText = v.duration + ' min';
-        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg'; 
+        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg';
         document.getElementById('tripDetails').classList.remove('d-none');
 
         // Configuration du lien Mappy
@@ -522,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Choisissez un véhicule');
             return;
         }
-        
+
         // Bloquer le bouton immédiatement pour éviter les doubles clics
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Envoi en cours...';
@@ -552,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmBtn.classList.remove('btn-primary');
                 confirmBtn.classList.add('btn-success');
                 confirmBtn.innerHTML = '✅ Course confirmée !';
-                
+
                 // Petite pause pour laisser l'utilisateur voir le succès
                 setTimeout(() => {
                     window.location.href = '/client/trips/' + data.id + '/track';
