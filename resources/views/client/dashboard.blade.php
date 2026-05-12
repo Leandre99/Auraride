@@ -404,46 +404,91 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // --- Appel OSRM pour la distance réelle de route et le tracé ---
-        try {
-            // On demande le trajet complet avec la géométrie (geojson)
+        // --- Appel OSRM avec timeout de 5 s — non-bloquant pour l'affichage ---
+        // On lance la requête OSRM en parallèle mais on n'attend pas qu'elle
+        // se termine avant de rendre les véhicules : le backend a déjà calculé
+        // distance et prix, on les utilise immédiatement comme valeur de base.
+
+        let osrmFallback = false;
+
+        const osrmTimeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('OSRM timeout')), 5000)
+        );
+
+        const osrmFetch = (async () => {
             const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
             const osrmRes = await fetch(osrmUrl);
-            const osrmData = await osrmRes.json();
-            
-            if (osrmData.routes && osrmData.routes.length > 0) {
-                const route = osrmData.routes[0];
-                const realDistanceKm = (route.distance / 1000).toFixed(2);
-                const realDurationMin = Math.round(route.duration / 60);
+            return osrmRes.json();
+        })();
 
-                // Tracé de l'itinéraire sur la carte
-                if (routeLine) map.removeLayer(routeLine);
-                routeLine = L.geoJSON(route.geometry, {
-                    style: { color: '#2563eb', weight: 5, opacity: 0.8 }
-                }).addTo(map);
-                map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-
-                vehicles.forEach(v => {
-                    v.distance = parseFloat(realDistanceKm);
-                    v.duration = realDurationMin;
-
-                    // Tarification demandée : 1.50 / 2.50 / 4.00
-                    let rate = 1.50; // Par défaut (Berline Standard)
-                    if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
-                    if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
-
-                    v.price_ht = (v.distance * rate).toFixed(2);
-                    v.price_ttc = (v.price_ht * 1.10).toFixed(2);
-                    v.price = v.price_ttc; // Pour la soumission au backend
-                });
-            }
+        // On tente OSRM mais on ne bloque pas l'UI si ça échoue ou dépasse 5 s
+        let osrmData = null;
+        try {
+            osrmData = await Promise.race([osrmFetch, osrmTimeout]);
         } catch (error) {
-            console.error("Erreur OSRM:", error);
+            console.warn('OSRM indisponible ou trop lent, utilisation des données backend :', error.message);
+            osrmFallback = true;
+        }
+
+        if (osrmData && osrmData.routes && osrmData.routes.length > 0) {
+            // OSRM a répondu à temps — on enrichit les véhicules avec la vraie distance
+            const route = osrmData.routes[0];
+            const realDistanceKm = (route.distance / 1000).toFixed(2);
+            const realDurationMin = Math.round(route.duration / 60);
+
+            // Tracé de l'itinéraire sur la carte
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.geoJSON(route.geometry, {
+                style: { color: '#2563eb', weight: 5, opacity: 0.8 }
+            }).addTo(map);
+            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+
+            vehicles.forEach(v => {
+                v.distance = parseFloat(realDistanceKm);
+                v.duration = realDurationMin;
+
+                // Tarification demandée : 1.50 / 2.50 / 4.00
+                let rate = 1.50; // Par défaut (Berline Standard)
+                if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
+                if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
+
+                v.price_ht = (v.distance * rate).toFixed(2);
+                v.price_ttc = (v.price_ht * 1.10).toFixed(2);
+                v.price = v.price_ttc; // Pour la soumission au backend
+            });
+        } else if (!osrmFallback) {
+            // OSRM a répondu mais sans itinéraire valide — on reste sur les données backend
+            osrmFallback = true;
+        }
+
+        // Si OSRM a échoué, on lance quand même le tracé en arrière-plan
+        // (il s'affichera si OSRM répond après le délai initial)
+        if (osrmFallback) {
+            osrmFetch
+                .then(data => {
+                    if (data && data.routes && data.routes.length > 0) {
+                        if (routeLine) map.removeLayer(routeLine);
+                        routeLine = L.geoJSON(data.routes[0].geometry, {
+                            style: { color: '#2563eb', weight: 5, opacity: 0.8 }
+                        }).addTo(map);
+                        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                    }
+                })
+                .catch(() => { /* OSRM définitivement indisponible, pas grave */ });
         }
 
         vehiclesData = vehicles;
         const container = document.getElementById('vehiclesList');
         container.innerHTML = '';
+
+        // Bandeau discret si on utilise les données backend en fallback
+        if (osrmFallback) {
+            const notice = document.createElement('div');
+            notice.className = 'alert alert-info alert-sm py-1 px-2 mb-2 small';
+            notice.style.fontSize = '0.78rem';
+            notice.innerHTML = '<i class="bi bi-info-circle me-1"></i>Tarifs calculés par notre système. Le tracé sur la carte sera affiché dès que possible.';
+            container.appendChild(notice);
+        }
 
         vehicles.forEach((v, idx) => {
             const div = document.createElement('div');
@@ -498,14 +543,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         continueBtn.disabled = true;
         continueBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Chargement...';
-        await displayVehicles();
-        currentStep = 2;
-        stepTrajet.style.display = 'none';
-        stepVehicules.style.display = 'block';
-        step1Indicator.classList.remove('active');
-        step2Indicator.classList.add('active');
-        continueBtn.disabled = false;
-        continueBtn.innerHTML = 'Continuer →';
+        try {
+            await displayVehicles();
+            currentStep = 2;
+            stepTrajet.style.display = 'none';
+            stepVehicules.style.display = 'block';
+            step1Indicator.classList.remove('active');
+            step2Indicator.classList.add('active');
+        } catch (err) {
+            console.error('Erreur lors du chargement des véhicules :', err);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        } finally {
+            continueBtn.disabled = false;
+            continueBtn.innerHTML = 'Estimer le trajet';
+        }
     };
 
     backBtn.onclick = () => {
