@@ -261,6 +261,11 @@
                             </div>
                         </div>
 
+                        <!-- Notice subtile affichée si OSRM n'a pas encore répondu -->
+                        <div id="distanceFallbackNotice" class="text-center mb-2 small text-muted" style="display: none;">
+                            <i class="bi bi-info-circle me-1"></i> Distance estimée — l'itinéraire précis s'affiche dans quelques instants.
+                        </div>
+
                         <div class="text-center mb-4 p-3 bg-primary-subtle rounded-4">
                             <span class="text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">Prix Total TTC</span>
                             <div class="price-badge mt-1" style="color: #2563eb; font-weight: 800; font-size: 2rem;"><span id="estimatedPriceTTC">0.00</span>€</div>
@@ -396,142 +401,144 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let routeLine = null;
 
+    // ---------- HELPERS TARIFICATION ----------
+    function computePricing(v) {
+        let rate = 1.50; // Berline Standard
+        if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
+        if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
+        v.price_ht  = (v.distance * rate).toFixed(2);
+        v.price_ttc = (parseFloat(v.price_ht) * 1.10).toFixed(2);
+        v.price     = v.price_ttc;
+    }
+
+    function renderVehicleCard(v, idx) {
+        const div = document.createElement('div');
+        div.className = `vehicle-option mb-2 ${idx === 0 ? 'selected' : ''}`;
+        div.dataset.vehicleId = v.id;
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold">${v.name}</div>
+                    <div class="small text-muted">Chauffeur inclus</div>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">HT : <span class="price-ht">${v.price_ht}</span>€</div>
+                    <div class="fw-bold text-primary" style="font-size: 1.1rem;">TTC : <span class="price-ttc">${v.price_ttc}</span>€</div>
+                </div>
+            </div>
+        `;
+        div.onclick = () => {
+            document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedVehicle = v;
+            updatePriceSummary(v);
+        };
+        return div;
+    }
+
+    function refreshVehicleCards(vehicles) {
+        vehicles.forEach(v => {
+            const card = document.querySelector(`.vehicle-option[data-vehicle-id="${v.id}"]`);
+            if (!card) return;
+            card.querySelector('.price-ht').textContent  = v.price_ht;
+            card.querySelector('.price-ttc').textContent = v.price_ttc;
+        });
+    }
+
+    function updateTripDetails(v) {
+        document.getElementById('detailDistance').innerText = v.distance + ' km';
+        document.getElementById('detailDuration').innerText = v.duration + ' min';
+        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg';
+        document.getElementById('tripDetails').classList.remove('d-none');
+    }
+
     // ---------- AFFICHAGE VÉHICULES ----------
     async function displayVehicles() {
+        // 1. Fetch backend estimate (OSRM with Haversine fallback — always fast)
         const vehicles = await getEstimation();
         if (!vehicles || !vehicles.length) {
             alert('Aucun véhicule disponible');
             return;
         }
 
-        // --- Appel OSRM avec timeout de 5 s — non-bloquant pour l'affichage ---
-        // On lance la requête OSRM en parallèle mais on n'attend pas qu'elle
-        // se termine avant de rendre les véhicules : le backend a déjà calculé
-        // distance et prix, on les utilise immédiatement comme valeur de base.
+        // 2. Compute pricing from backend distance and render vehicles immediately
+        vehicles.forEach(v => computePricing(v));
+        vehiclesData = vehicles;
 
-        let osrmFallback = false;
+        const container = document.getElementById('vehiclesList');
+        container.innerHTML = '';
+        vehicles.forEach((v, idx) => container.appendChild(renderVehicleCard(v, idx)));
+
+        const firstVehicle = vehicles[0];
+        selectedVehicle = firstVehicle;
+        updatePriceSummary(firstVehicle);
+        updateTripDetails(firstVehicle);
+
+        // Show a subtle fallback notice that will be hidden if OSRM succeeds
+        const fallbackNotice = document.getElementById('distanceFallbackNotice');
+        if (fallbackNotice) fallbackNotice.style.display = 'block';
+
+        // 3. Fire OSRM in background with a 5-second timeout for map polyline.
+        //    We do NOT await this — vehicles are already displayed above.
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
 
         const osrmTimeout = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('OSRM timeout')), 5000)
         );
 
-        const osrmFetch = (async () => {
-            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${dropoffLng},${dropoffLat}?overview=full&geometries=geojson`;
-            const osrmRes = await fetch(osrmUrl);
-            return osrmRes.json();
-        })();
+        Promise.race([fetch(osrmUrl), osrmTimeout])
+            .then(res => res.json())
+            .then(osrmData => {
+                if (!osrmData.routes || !osrmData.routes.length) return;
 
-        // On tente OSRM mais on ne bloque pas l'UI si ça échoue ou dépasse 5 s
-        let osrmData = null;
-        try {
-            osrmData = await Promise.race([osrmFetch, osrmTimeout]);
-        } catch (error) {
-            console.warn('OSRM indisponible ou trop lent, utilisation des données backend :', error.message);
-            osrmFallback = true;
-        }
+                const route = osrmData.routes[0];
 
-        if (osrmData && osrmData.routes && osrmData.routes.length > 0) {
-            // OSRM a répondu à temps — on enrichit les véhicules avec la vraie distance
-            const route = osrmData.routes[0];
-            const realDistanceKm = (route.distance / 1000).toFixed(2);
-            const realDurationMin = Math.round(route.duration / 60);
+                // Draw polyline on map
+                if (routeLine) map.removeLayer(routeLine);
+                routeLine = L.geoJSON(route.geometry, {
+                    style: { color: '#2563eb', weight: 5, opacity: 0.8 }
+                }).addTo(map);
+                map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
 
-            // Tracé de l'itinéraire sur la carte
-            if (routeLine) map.removeLayer(routeLine);
-            routeLine = L.geoJSON(route.geometry, {
-                style: { color: '#2563eb', weight: 5, opacity: 0.8 }
-            }).addTo(map);
-            map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                // Update vehicles with OSRM distance so map and prices stay in sync
+                const osrmDistanceKm = parseFloat((route.distance / 1000).toFixed(2));
+                const osrmDurationMin = Math.round(route.duration / 60);
 
-            vehicles.forEach(v => {
-                v.distance = parseFloat(realDistanceKm);
-                v.duration = realDurationMin;
+                vehicles.forEach(v => {
+                    v.distance = osrmDistanceKm;
+                    v.duration = osrmDurationMin;
+                    computePricing(v);
+                });
 
-                // Tarification demandée : 1.50 / 2.50 / 4.00
-                let rate = 1.50; // Par défaut (Berline Standard)
-                if (v.name.toLowerCase().includes('van') || v.name.toLowerCase().includes('affaires')) rate = 2.50;
-                if (v.name.toLowerCase().includes('sprinter') || v.name.toLowerCase().includes('premium')) rate = 4.00;
-
-                v.price_ht = (v.distance * rate).toFixed(2);
-                v.price_ttc = (v.price_ht * 1.10).toFixed(2);
-                v.price = v.price_ttc; // Pour la soumission au backend
-            });
-        } else if (!osrmFallback) {
-            // OSRM a répondu mais sans itinéraire valide — on reste sur les données backend
-            osrmFallback = true;
-        }
-
-        // Si OSRM a échoué, on lance quand même le tracé en arrière-plan
-        // (il s'affichera si OSRM répond après le délai initial)
-        if (osrmFallback) {
-            osrmFetch
-                .then(data => {
-                    if (data && data.routes && data.routes.length > 0) {
-                        if (routeLine) map.removeLayer(routeLine);
-                        routeLine = L.geoJSON(data.routes[0].geometry, {
-                            style: { color: '#2563eb', weight: 5, opacity: 0.8 }
-                        }).addTo(map);
-                        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                // Refresh cards and summary with OSRM values
+                refreshVehicleCards(vehicles);
+                updateTripDetails(vehicles[0]);
+                if (selectedVehicle) {
+                    const updated = vehicles.find(v => v.id === selectedVehicle.id);
+                    if (updated) {
+                        selectedVehicle = updated;
+                        updatePriceSummary(updated);
                     }
-                })
-                .catch(() => { /* OSRM définitivement indisponible, pas grave */ });
-        }
+                }
 
-        vehiclesData = vehicles;
-        const container = document.getElementById('vehiclesList');
-        container.innerHTML = '';
-
-        // Bandeau discret si on utilise les données backend en fallback
-        if (osrmFallback) {
-            const notice = document.createElement('div');
-            notice.className = 'alert alert-info alert-sm py-1 px-2 mb-2 small';
-            notice.style.fontSize = '0.78rem';
-            notice.innerHTML = '<i class="bi bi-info-circle me-1"></i>Tarifs calculés par notre système. Le tracé sur la carte sera affiché dès que possible.';
-            container.appendChild(notice);
-        }
-
-        vehicles.forEach((v, idx) => {
-            const div = document.createElement('div');
-            div.className = `vehicle-option mb-2 ${idx === 0 ? 'selected' : ''}`;
-            div.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-bold">${v.name}</div>
-                        <div class="small text-muted">Chauffeur inclus</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="small text-muted">HT : ${v.price_ht}€</div>
-                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">TTC : ${v.price_ttc}€</div>
-                    </div>
-                </div>
-            `;
-            div.onclick = () => {
-                document.querySelectorAll('.vehicle-option').forEach(opt => opt.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedVehicle = v;
-                updatePriceSummary(v);
-            };
-            container.appendChild(div);
-        });
-
-        const v = vehicles[0];
-        selectedVehicle = v;
-        updatePriceSummary(v);
-
-        // Mise à jour des détails (Distance, Durée, CO2) avec les valeurs réelles
-        document.getElementById('detailDistance').innerText = v.distance + ' km';
-        document.getElementById('detailDuration').innerText = v.duration + ' min';
-        document.getElementById('detailCO2').innerText = (v.distance * 0.104).toFixed(2) + ' kg'; 
-        document.getElementById('tripDetails').classList.remove('d-none');
-
-        // Configuration du lien Mappy
-        const mappyUrl = `https://fr.mappy.com/itineraire#from=${encodeURIComponent(pickupAddress)}&to=${encodeURIComponent(dropoffAddress)}`;
-        document.getElementById('mappyLink').href = mappyUrl;
-        document.getElementById('mappySection').classList.remove('d-none');
+                // Hide fallback notice — we have real road data
+                if (fallbackNotice) fallbackNotice.style.display = 'none';
+            })
+            .catch(err => {
+                // OSRM timed out or failed — vehicles are already shown with backend distance.
+                // Draw a dashed straight line as a minimal visual aid.
+                console.warn('OSRM not available for map polyline:', err.message);
+                if (pickupMarker && dropoffMarker && !routeLine) {
+                    routeLine = L.polyline(
+                        [[pickupLat, pickupLng], [dropoffLat, dropoffLng]],
+                        { color: '#2563eb', weight: 3, opacity: 0.5, dashArray: '8, 8' }
+                    ).addTo(map);
+                    map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                }
+            });
     }
 
     function updatePriceSummary(v) {
-        document.getElementById('estimatedPriceHT').innerText = v.price_ht;
         document.getElementById('estimatedPriceTTC').innerText = v.price_ttc;
     }
 
@@ -551,11 +558,11 @@ document.addEventListener('DOMContentLoaded', function() {
             step1Indicator.classList.remove('active');
             step2Indicator.classList.add('active');
         } catch (err) {
-            console.error('Erreur lors du chargement des véhicules :', err);
+            console.error('Erreur lors du chargement des véhicules:', err);
             alert('Une erreur est survenue. Veuillez réessayer.');
         } finally {
             continueBtn.disabled = false;
-            continueBtn.innerHTML = 'Estimer le trajet';
+            continueBtn.innerHTML = 'Estimer le trajet <i class="bi bi-arrow-right ms-2"></i>';
         }
     };
 
@@ -566,6 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         step1Indicator.classList.add('active');
         step2Indicator.classList.remove('active');
     };
+
 
     // ---------- CONFIRMATION ----------
     confirmBtn.onclick = async () => {
