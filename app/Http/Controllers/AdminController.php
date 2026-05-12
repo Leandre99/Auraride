@@ -16,8 +16,8 @@ class AdminController extends Controller
     {
         $stats = [
             'users_count' => User::count(),
-            'active_trips' => Trip::whereIn('status', ['accepted', 'in_progress'])->count(),
-            'total_revenue' => Trip::where('status', 'completed')->sum('price') + Rental::where('status', 'completed')->sum('total_price'),
+            'pending_trips_count' => Trip::where('status', 'pending')->count(),
+            'total_revenue' => Trip::where('status', 'completed')->sum('price') + Rental::whereIn('status', ['confirmed', 'completed'])->sum('total_price'),
             'activities_today' => Trip::whereDate('created_at', now()->today())->count() + Rental::whereDate('created_at', now()->today())->count(),
             'pending_rentals_count' => Rental::where('status', 'pending')->count(),
         ];
@@ -27,7 +27,7 @@ class AdminController extends Controller
 
         // Pending trips that need assignment
         $pendingTrips = Trip::with('client')->where('status', 'pending')->latest()->get();
-        
+
         $drivers = User::where('role', 'driver')
             ->where('is_approved', true)
             ->where('is_active', true)
@@ -98,7 +98,7 @@ class AdminController extends Controller
         }
 
         $trip->update(['status' => 'cancelled']);
-        
+
         ActivityLog::log('trip_cancelled_admin', "L'admin a annulé la course #{$trip->id}", $trip);
 
         return back()->with('success', 'La course a été annulée par l\'administrateur.');
@@ -112,8 +112,8 @@ class AdminController extends Controller
     public function rentals()
     {
         $rentals = Rental::with(['user', 'vehicleType'])
-                    ->latest()
-                    ->paginate(10);
+            ->latest()
+            ->paginate(10);
 
         return view('admin.rentals.index', compact('rentals'));
     }
@@ -174,12 +174,13 @@ class AdminController extends Controller
     {
         $oldStatus = $rental->status;
         $rental->update(['status' => 'confirmed']);
-        
+
         ActivityLog::log('rental_approved', "L'admin a confirmé la demande de location #{$rental->id}", $rental);
-        
+
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return back()->with('success', 'La location a été confirmée.');
     }
@@ -188,12 +189,13 @@ class AdminController extends Controller
     {
         $oldStatus = $rental->status;
         $rental->update(['status' => 'rejected']);
-        
+
         ActivityLog::log('rental_rejected', "L'admin a rejeté la demande de location #{$rental->id}", $rental);
-        
+
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return back()->with('success', 'La location a été rejetée.');
     }

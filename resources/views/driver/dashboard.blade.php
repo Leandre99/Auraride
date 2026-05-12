@@ -128,41 +128,47 @@
                                 </div>
                             </div>
 
-                            <div class="alert alert-light border-0 rounded-3 mb-4 text-dark">
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                    <div>
-                                        <span class="d-block text-muted small">Client</span>
-                                        <strong>{{ $client?->name ?? '—' }}</strong>
-                                        <div class="row g-2 mt-3">
-                                            <div class="col-6">
-                                                @if($clientPhone)
-                                                    <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
-                                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                                    </a>
-                                                @else
-                                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
-                                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="col-6">
-                                                @if($clientPhone)
-                                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre mission.') }}" 
-                                                       target="_blank" 
-                                                       class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
-                                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                                    </a>
-                                                @else
-                                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
-                                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                                    </button>
-                                                @endif
-                                            </div>
+                            <div class="card bg-white bg-opacity-10 border-0 rounded-4 mb-4 overflow-hidden">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div>
+                                            <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 1px;">Passager</span>
+                                            <h5 class="fw-bold mb-0"><i class="bi bi-person-circle me-2"></i>{{ $client?->name ?? '—' }}</h5>
+                                            @if($clientPhone)
+                                                <div class="small text-muted-lite mt-1"><i class="bi bi-phone me-1"></i> {{ $clientPhone }}</div>
+                                            @endif
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 1px;">Revenu total</span>
+                                            <h4 class="text-success fw-bold mb-0">{{ number_format($price ?? 0, 2) }} €</h4>
                                         </div>
                                     </div>
-                                    <div class="text-end">
-                                        <span class="d-block text-muted small">Revenu total</span>
-                                        <strong class="text-success fs-5">{{ number_format($price ?? 0, 2) }} €</strong>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            @if($clientPhone)
+                                                <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold">
+                                                    <i class="bi bi-telephone-fill me-2"></i> Appeler le client
+                                                </a>
+                                            @else
+                                                <button class="btn btn-secondary w-100 py-3 rounded-3 fw-bold" disabled>
+                                                    <i class="bi bi-telephone-x me-2"></i> Aucun numéro
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            @if($clientPhone)
+                                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre mission.') }}" 
+                                                   target="_blank" 
+                                                   class="btn btn-success w-100 py-3 rounded-3 fw-bold">
+                                                    <i class="bi bi-whatsapp me-2"></i> Message WhatsApp
+                                                </a>
+                                            @else
+                                                <button class="btn btn-secondary w-100 py-3 rounded-3 fw-bold" disabled>
+                                                    <i class="bi bi-whatsapp me-2"></i> WhatsApp indisponible
+                                                </button>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -184,6 +190,36 @@
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold">Terminer la course</button>
                                         </form>
+                                    @elseif ($activeTrip->status === 'completed' && ($activeTrip->payment_status ?? 'pending') !== 'paid')
+                                        <div class="bg-white rounded-3 p-4 text-dark shadow-sm border border-success border-opacity-25" id="payment-options-block">
+                                            <div class="text-center mb-3">
+                                                <i class="bi bi-cash-stack text-success fs-1 mb-2"></i>
+                                                <h5 class="fw-bold">Confirmer le paiement</h5>
+                                                <p class="text-muted small">Veuillez sélectionner le mode de paiement reçu du client.</p>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-6">
+                                                    <button type="button" 
+                                                            class="btn btn-outline-success w-100 py-3 fw-bold payment-btn" 
+                                                            data-method="cash"
+                                                            data-url="{{ route('trips.mark-paid', $activeTrip) }}">
+                                                        <i class="bi bi-wallet2 d-block fs-4 mb-1"></i> Espèces
+                                                    </button>
+                                                </div>
+                                                <div class="col-6">
+                                                    <button type="button" 
+                                                            class="btn btn-outline-primary w-100 py-3 fw-bold payment-btn" 
+                                                            data-method="card"
+                                                            data-url="{{ route('trips.mark-paid', $activeTrip) }}">
+                                                        <i class="bi bi-credit-card d-block fs-4 mb-1"></i> TPE / Carte
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="payment-success-badge" class="alert alert-success d-none rounded-4 text-center py-4">
+                                            <i class="bi bi-check-circle-fill fs-1 d-block mb-2"></i>
+                                            <h5 class="fw-bold mb-0" id="payment-success-text">Paiement validé !</h5>
+                                        </div>
                                     @endif
                                 @else
                                     <div class="alert alert-info border-0 rounded-3 mb-0">

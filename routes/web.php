@@ -75,10 +75,16 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
     Route::get('/dashboard', function () {
         $driverId = auth()->id();
 
-        // 1. Recherche d'une course VTC active
+        // 1. Recherche d'une course VTC active (incluant celles terminées mais non payées)
         $activeTrip = \App\Models\Trip::query()
             ->where('driver_id', $driverId)
-            ->whereIn('status', ['assigned', 'accepted', 'in_progress'])
+            ->where(function($q) {
+                $q->whereIn('status', ['assigned', 'accepted', 'in_progress'])
+                  ->orWhere(function($q2) {
+                      $q2->where('status', 'completed')
+                         ->where('payment_status', '!=', 'paid');
+                  });
+            })
             ->orderByDesc('updated_at')
             ->with(['client', 'vehicle.vehicleType'])
             ->first();

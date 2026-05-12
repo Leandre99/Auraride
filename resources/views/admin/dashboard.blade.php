@@ -183,11 +183,11 @@
                 </div>
                 <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-2s">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-geo-alt-fill fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Actives</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['active_trips'] }}</div>
+                        <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-clock-history fs-3"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">À Assigner</div>
+                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['pending_trips_count'] }}</div>
                         <div class="pt-3 border-top small text-muted">
-                            <i class="bi bi-clock-history text-warning me-1"></i> Courses en cours
+                            <i class="bi bi-hourglass-split text-warning me-1"></i> Courses en attente
                         </div>
                     </div>
                 </div>

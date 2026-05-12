@@ -52,11 +52,11 @@
                                 @csrf
                                 <div class="star-rating mb-3 text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" class="fs-3">★</label>
-                                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" class="fs-3">★</label>
-                                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" class="fs-3">★</label>
-                                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" class="fs-3">★</label>
-                                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" class="fs-3">★</label>
+                                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5">★</label>
+                                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4">★</label>
+                                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3">★</label>
+                                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2">★</label>
+                                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1">★</label>
                                     </div>
                                 </div>
                                 <div class="mb-3 text-center">
@@ -100,12 +100,16 @@
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
-                    <h5 class="fw-bold mb-3">Détails du trajet</h5>
-                    <p class="text-muted small mb-1 text-uppercase">DÉPART</p>
-                    <p class="fw-bold mb-3">{{ $trip->pickup_address }}</p>
-                    <p class="text-muted small mb-1 text-uppercase">ARRIVÉE</p>
-                    <p class="fw-bold mb-3">{{ $trip->dropoff_address }}</p>
-                    <hr>
+                    <h5 class="fw-bold mb-4">Détails du trajet</h5>
+                    <div class="mb-4">
+                        <p class="text-muted small mb-1 text-uppercase fw-bold" style="letter-spacing: 1px;">DÉPART</p>
+                        <p class="fw-bold mb-0 text-primary"><i class="bi bi-geo-alt-fill me-2"></i>{{ $trip->pickup_address }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-muted small mb-1 text-uppercase fw-bold" style="letter-spacing: 1px;">ARRIVÉE</p>
+                        <p class="fw-bold mb-0 text-danger"><i class="bi bi-flag-fill me-2"></i>{{ $trip->dropoff_address }}</p>
+                    </div>
+                    <hr class="my-4 opacity-10">
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted">Tarif</span>
                         <span class="fw-bold text-success fs-5">{{ number_format($trip->price, 2) }} €</span>
@@ -113,27 +117,33 @@
                 </div>
 
                 @if($trip->driver)
-                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
-                    <h5 class="fw-bold mb-3">Chauffeur & Véhicule</h5>
-                    <div class="d-flex align-items-center mt-2">
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
-                            <i class="bi bi-person-fill text-primary fs-3"></i>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mt-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 60px; height: 60px;">
+                                <i class="bi bi-person-fill text-primary fs-3"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <span class="d-block text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">Votre Chauffeur</span>
+                                <h5 class="fw-bold mb-0">{{ $trip->driver->name }}</h5>
+                                @if($trip->vehicle)
+                                    <div class="small text-primary mt-1 fw-medium">
+                                        <i class="bi bi-car-front-fill me-1"></i>{{ $trip->vehicle->model ?? '' }} • <span class="badge bg-light text-dark border">{{ $trip->vehicle->plate_number ?? '' }}</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                        <div>
-                            <p class="fw-bold mb-0">{{ $trip->driver->name }}</p>
-                            @if($trip->vehicle)
-                            <p class="text-muted small mb-0">{{ $trip->vehicle->model ?? '' }} - {{ $trip->vehicle->plate_number ?? '' }}</p>
-                            @endif
-                            @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']))
-                            <div class="row g-2 mt-3">
+
+                        @if(in_array($trip->status, ['assigned', 'accepted', 'in_progress']))
+                            <div class="row g-2">
                                 <div class="col-6">
                                     @if($trip->driver?->phone_number)
-                                        <a href="tel:{{ preg_replace('/\s+/', '', $trip->driver->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
-                                            <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                        <a href="tel:{{ preg_replace('/\s+/', '', $trip->driver->phone_number) }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold">
+                                            <i class="bi bi-telephone-fill me-2"></i>Appeler
                                         </a>
                                     @else
-                                        <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled title="Numéro non renseigné">
-                                            <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                        <button class="btn btn-light w-100 py-3 rounded-3 text-muted" disabled>
+                                            <i class="bi bi-telephone-x me-2"></i>Indisponible
                                         </button>
                                     @endif
                                 </div>
@@ -141,20 +151,18 @@
                                     @if($trip->driver?->phone_number)
                                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trip->pickup_address) }}" 
                                            target="_blank" 
-                                           class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
-                                            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                           class="btn btn-success w-100 py-3 rounded-3 fw-bold">
+                                            <i class="bi bi-whatsapp me-2"></i>WhatsApp
                                         </a>
                                     @else
-                                        <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
-                                            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                        <button class="btn btn-light w-100 py-3 rounded-3 text-muted" disabled>
+                                            <i class="bi bi-whatsapp me-2"></i>Indisponible
                                         </button>
                                     @endif
                                 </div>
                             </div>
-                            @endif
-                        </div>
+                        @endif
                     </div>
-
                 </div>
                 @endif
             </div>
@@ -172,6 +180,9 @@
     .tracking-status {
         background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
     }
+    .star-rating .d-flex {
+        flex-direction: row-reverse;
+    }
     .star-rating input {
         display: none;
     }
@@ -179,6 +190,8 @@
         cursor: pointer;
         color: #cbd5e1;
         transition: color 0.2s;
+        font-size: 2rem;
+        padding: 0 2px;
     }
     .star-rating label:hover,
     .star-rating label:hover ~ label,

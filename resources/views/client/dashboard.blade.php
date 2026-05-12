@@ -247,46 +247,52 @@
                     </div>
 
                     @if($trackingTrip->driver)
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                        <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2"></i>Votre Chauffeur</h6>
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill text-primary fs-4"></i>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-person-fill text-primary fs-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="d-block text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">Votre Chauffeur</span>
+                                    <h5 class="fw-bold mb-0">{{ $trackingTrip->driver->name }}</h5>
+                                    @if($trackingTrip->vehicle)
+                                        <div class="small text-primary mt-1 fw-medium">
+                                            <i class="bi bi-car-front-fill me-1"></i>{{ $trackingTrip->vehicle->model ?? '' }} • <span class="badge bg-light text-dark border">{{ $trackingTrip->vehicle->plate_number ?? '' }}</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                            <div>
-                                <p class="fw-bold mb-0">{{ $trackingTrip->driver->name }}</p>
-                                @if($trackingTrip->vehicle)
-                                <p class="text-muted small mb-0">{{ $trackingTrip->vehicle->model ?? '' }} • {{ $trackingTrip->vehicle->plate_number ?? '' }}</p>
-                                @endif
-                            </div>
-                        </div>
 
-                        @if(in_array($trackingTrip->status, ['assigned', 'accepted', 'in_progress']))
-                        <div class="row g-2 mt-3">
-                            <div class="col-6">
-                                @if($trackingTrip->driver?->phone_number)
-                                    <a href="tel:{{ $trackingTrip->driver->phone_number }}" class="btn btn-primary w-100 py-2 rounded-pill small">
-                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                    </a>
-                                @else
-                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small" disabled title="Numéro non renseigné">
-                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                    </button>
-                                @endif
-                            </div>
-                            <div class="col-6">
-                                @if($trackingTrip->driver?->phone_number)
-                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" target="_blank" class="btn btn-success w-100 py-2 rounded-pill small">
-                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                    </a>
-                                @else
-                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small" disabled>
-                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                    </button>
-                                @endif
-                            </div>
+                            @if(in_array($trackingTrip->status, ['assigned', 'accepted', 'in_progress']))
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        @if($trackingTrip->driver?->phone_number)
+                                            <a href="tel:{{ preg_replace('/\s+/', '', $trackingTrip->driver->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-3 fw-bold">
+                                                <i class="bi bi-telephone-fill me-2"></i>Appeler
+                                            </a>
+                                        @else
+                                            <button class="btn btn-light w-100 py-2 rounded-3 text-muted" disabled>
+                                                <i class="bi bi-telephone-x me-2"></i>Indisponible
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div class="col-6">
+                                        @if($trackingTrip->driver?->phone_number)
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" 
+                                               target="_blank" 
+                                               class="btn btn-success w-100 py-2 rounded-3 fw-bold">
+                                                <i class="bi bi-whatsapp me-2"></i>WhatsApp
+                                            </a>
+                                        @else
+                                            <button class="btn btn-light w-100 py-2 rounded-3 text-muted" disabled>
+                                                <i class="bi bi-whatsapp me-2"></i>Indisponible
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                        @endif
                     </div>
                     @endif
 

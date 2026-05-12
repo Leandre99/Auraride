@@ -30,26 +30,58 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Create Driver
-        $driver = User::updateOrCreate(
+        User::updateOrCreate(
+            ['email' => 'sophie@atlasandco.com'],
+            [
+                'name' => 'Sophie Client',
+                'password' => Hash::make('password'),
+                'role' => 'client',
+            ]
+        );
+
+        // Create Driver 1
+        $driver1 = User::updateOrCreate(
             ['email' => 'driver@atlasandco.com'],
             [
                 'name' => 'Michael Driver',
                 'password' => Hash::make('password'),
                 'role' => 'driver',
+                'phone_number' => '+229 90 00 00 01',
                 'is_approved' => true,
                 'is_active' => true,
             ]
         );
 
-        // Create Vehicle for the Driver
         Vehicle::updateOrCreate(
-            ['user_id' => $driver->id],
+            ['user_id' => $driver1->id],
             [
-                'vehicle_type_id' => 1, // Atlas Volt
+                'vehicle_type_id' => 1,
                 'model' => 'Tesla Model S',
                 'plate_number' => 'ATLAS 1',
-                'color' => 'Neon Cyan',
+                'color' => 'Noir Profond',
+            ]
+        );
+
+        // Create Driver 2
+        $driver2 = User::updateOrCreate(
+            ['email' => 'pierre@atlasandco.com'],
+            [
+                'name' => 'Pierre Chauffeur',
+                'password' => Hash::make('password'),
+                'role' => 'driver',
+                'phone_number' => '+229 90 00 00 02',
+                'is_approved' => true,
+                'is_active' => true,
+            ]
+        );
+
+        Vehicle::updateOrCreate(
+            ['user_id' => $driver2->id],
+            [
+                'vehicle_type_id' => 2, // Van
+                'model' => 'Mercedes Classe V',
+                'plate_number' => 'ATLAS 2',
+                'color' => 'Gris Sidéral',
             ]
         );
 
