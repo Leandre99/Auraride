@@ -75,20 +75,20 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
     Route::get('/dashboard', function () {
         $driverId = auth()->id();
 
+        // 1. Recherche d'une course VTC active
         $activeTrip = \App\Models\Trip::query()
             ->where('driver_id', $driverId)
-            ->where(function ($q) {
-                $q->whereIn('status', ['assigned', 'accepted', 'in_progress'])
-                    ->orWhere(function ($q2) {
-                        $q2->where('status', 'completed')
-                            ->where(function ($q3) {
-                                $q3->whereNull('payment_status')
-                                    ->orWhere('payment_status', '!=', 'paid');
-                            });
-                    });
-            })
+            ->whereIn('status', ['assigned', 'accepted', 'in_progress'])
             ->orderByDesc('updated_at')
             ->with(['client', 'vehicle.vehicleType'])
+            ->first();
+
+        // 2. Recherche d'une location active assignée à ce chauffeur
+        $activeRental = \App\Models\Rental::query()
+            ->where('driver_id', $driverId)
+            ->whereIn('status', ['confirmed']) // confirmed = active pour une location
+            ->orderByDesc('updated_at')
+            ->with(['user', 'vehicleType'])
             ->first();
 
         $availableTrips = \App\Models\Trip::query()
@@ -117,6 +117,7 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver')->group(function () 
 
         return view('driver.dashboard', compact(
             'activeTrip',
+            'activeRental',
             'availableTrips',
             'completedRidesCount',
             'totalGains',

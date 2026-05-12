@@ -20,62 +20,86 @@ class RentalController extends Controller
     public function store(Request $request)
     {
         // 1. Validation
-        $validated = $request->validate([
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'pickup_time' => 'required',
-            'vehicle_type_id' => 'required|exists:vehicle_types,id',
-            'with_driver' => 'sometimes|boolean',
-            'delivery_address' => 'nullable|string|max:500',
-        ]);
+        try {
+            $validated = $request->validate([
+                'start_date' => 'required|date|after_or_equal:today',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'pickup_time' => 'required',
+                'vehicle_type_id' => 'required|exists:vehicle_types,id',
+                'with_driver' => 'sometimes',
+                'delivery_address' => 'nullable|string|max:500',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Données invalides : ' . implode(' ', \Illuminate\Support\Arr::flatten($e->errors())),
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = Auth::user();
         $vehicleType = VehicleType::find($request->vehicle_type_id);
 
-        // 2. Calcul
-        $start = new \DateTime($request->start_date);
-        $end = new \DateTime($request->end_date);
-        $days = $start->diff($end)->days + 1;
-
-        // Prix journalier selon le type de véhicule
-        $dailyPrice = $vehicleType->daily_price; // Utilise la méthode du modèle
-
-        $driverFee = $request->has('with_driver') ? 150 : 0;
-        $totalPrice = ($dailyPrice + $driverFee) * $days;
-
-        // 3. Création dans la table rentals
-        $rental = Rental::create([
-            'user_id' => $user->id,
-            'vehicle_type_id' => $request->vehicle_type_id,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'pickup_time' => $request->pickup_time,
-            'with_driver' => $request->has('with_driver'),
-            'delivery_address' => $request->delivery_address,
-            'daily_price' => $dailyPrice,
-            'driver_fee_per_day' => $driverFee,
-            'total_days' => $days,
-            'total_price' => $totalPrice,
-            'status' => 'pending'
-        ]);
-        
-        ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
-
-        // 4. Emails (Tentative d'envoi via file d'attente pour éviter timeout)
-        try {
-            Mail::to($user->email)->queue(new RentalConfirmationClient($rental, $user, $vehicleType));
-            $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
-            Mail::to($adminEmail)->queue(new RentalNotificationAdmin($rental, $user, $vehicleType));
-        } catch (\Exception $e) {
-            // L'erreur d'email ne doit pas bloquer la réservation
+        if (!$vehicleType) {
+            return response()->json(['success' => false, 'message' => 'Type de véhicule introuvable.'], 404);
         }
 
-        // 6. Retour JSON
-        return response()->json([
-            'success' => true,
-            'message' => 'Votre demande de location a bien été transmise. Vous allez recevoir un email récapitulatif. Nos équipes vous contacteront dans les plus brefs délais.',
-            'rental_id' => $rental->id
-        ]);
+        // 2. Calcul des jours et prix
+        try {
+            $start = new \DateTime($request->start_date);
+            $end = new \DateTime($request->end_date);
+            $interval = $start->diff($end);
+            $days = $interval->days + 1;
+
+            // Prix journalier
+            $dailyPrice = (float) ($vehicleType->daily_price ?? 100);
+            $withDriver = $request->has('with_driver') && $request->with_driver == '1';
+            $driverFee = $withDriver ? 150.0 : 0.0;
+            $totalPrice = ($dailyPrice + $driverFee) * $days;
+
+            // 3. Création de la location
+            $rental = Rental::create([
+                'user_id' => $user->id,
+                'vehicle_type_id' => $request->vehicle_type_id,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'pickup_time' => $request->pickup_time,
+                'with_driver' => $withDriver,
+                'delivery_address' => $request->delivery_address,
+                'daily_price' => $dailyPrice,
+                'driver_fee_per_day' => $driverFee,
+                'total_days' => $days,
+                'total_price' => $totalPrice,
+                'status' => 'pending'
+            ]);
+
+            // 4. Log et Emails (en mode sécurisé)
+            try {
+                ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
+                
+                // On utilise try-catch pour chaque mail pour que l'un n'empêche pas l'autre
+                // et que rien ne bloque la réponse au client
+                Mail::to($user->email)->queue(new RentalConfirmationClient($rental, $user, $vehicleType));
+                
+                $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
+                Mail::to($adminEmail)->queue(new RentalNotificationAdmin($rental, $user, $vehicleType));
+            } catch (\Exception $mailEx) {
+                \Illuminate\Support\Facades\Log::warning("Erreur email/log lors d'une location : " . $mailEx->getMessage());
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Votre demande de location a été transmise avec succès.',
+                'rental_id' => $rental->id
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Erreur critique lors de la création d'une location : " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur technique est survenue. Veuillez réessayer ou contacter le support.'
+            ], 500);
+        }
     }
 
     // Voir l'historique des réservations (VTC + Locations)
