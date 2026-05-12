@@ -82,35 +82,49 @@
                 <h5 class="fw-bold">Compte en attente de validation</h5>
                 <p class="text-muted mb-0">Un administrateur doit approuver votre profil avant que vous puissiez recevoir et accepter des courses.</p>
             </div>
-        @elseif ($activeTrip)
+        @elseif ($activeTrip || $activeRental)
             @php
-                $clientPhone = $activeTrip->client?->phone_number;
-                $clientTel = $clientPhone ? 'tel:' . preg_replace('/\s+/', '', $clientPhone) : null;
-                $statusLabel = match ($activeTrip->status) {
+                $mission = $activeTrip ?? $activeRental;
+                $isRental = isset($activeRental) && !$activeTrip; // Priorité au Trip si les deux existent (peu probable)
+                
+                $client = $isRental ? $activeRental->user : $activeTrip->client;
+                $clientPhone = $client?->phone_number;
+                
+                $statusLabel = $isRental ? 'Location Confirmée' : match ($activeTrip->status) {
                     'assigned' => 'À accepter',
                     'accepted' => 'Acceptée',
                     'in_progress' => 'En cours',
                     'completed' => 'Terminée',
                     default => ucfirst($activeTrip->status),
                 };
+                
+                $pickup = $isRental ? ($activeRental->delivery_address ?? 'Retrait en agence') : $activeTrip->pickup_address;
+                $dropoff = $isRental ? 'Location (' . $activeRental->total_days . ' jours)' : $activeTrip->dropoff_address;
+                $price = $isRental ? $activeRental->total_price : $activeTrip->price;
             @endphp
             <div class="row mb-4 g-4">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-lg rounded-4 overflow-hidden active-trip-card animate-up">
                         <div class="card-body p-4 p-lg-5">
                             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                                <h4 class="fw-bold mb-0">Course en cours</h4>
+                                <h4 class="fw-bold mb-0">{{ $isRental ? 'Location de véhicule' : 'Course VTC' }}</h4>
                                 <span class="badge bg-primary fs-6 rounded-pill px-3">{{ $statusLabel }}</span>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-md-6">
-                                    <p class="text-muted-lite small mb-1 text-uppercase">Départ</p>
-                                    <p class="fw-bold fs-6 mb-0">{{ $activeTrip->pickup_address }}</p>
+                                    <p class="text-muted-lite small mb-1 text-uppercase">{{ $isRental ? 'Lieu de livraison/prise' : 'Départ' }}</p>
+                                    <p class="fw-bold fs-6 mb-0">{{ $pickup }}</p>
                                 </div>
                                 <div class="col-md-6 mt-3 mt-md-0">
-                                    <p class="text-muted-lite small mb-1 text-uppercase">Destination</p>
-                                    <p class="fw-bold fs-6 mb-0">{{ $activeTrip->dropoff_address }}</p>
+                                    <p class="text-muted-lite small mb-1 text-uppercase">{{ $isRental ? 'Période' : 'Destination' }}</p>
+                                    <p class="fw-bold fs-6 mb-0">
+                                        @if($isRental)
+                                            Du {{ $activeRental->start_date->format('d/m') }} au {{ $activeRental->end_date->format('d/m/Y') }}
+                                        @else
+                                            {{ $dropoff }}
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
 
@@ -118,75 +132,62 @@
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                     <div>
                                         <span class="d-block text-muted small">Client</span>
-                                        <strong>{{ $activeTrip->client?->name ?? '—' }}</strong>
-                                        @if(in_array($activeTrip->status, ['assigned', 'accepted', 'in_progress']))
-                                             <div class="row g-2 mt-3">
-                                                 <div class="col-6">
-                                                     @if($activeTrip->client?->phone_number)
-                                                         <a href="tel:{{ preg_replace('/\s+/', '', $activeTrip->client->phone_number) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
-                                                             <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                                         </a>
-                                                     @else
-                                                         <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled title="Numéro non renseigné">
-                                                             <i class="bi bi-telephone-fill me-1"></i> Appeler
-                                                         </button>
-                                                     @endif
-                                                 </div>
-                                                 <div class="col-6">
-                                                     @if($activeTrip->client?->phone_number)
-                                                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $activeTrip->client->phone_number) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre trajet.') }}" 
-                                                            target="_blank" 
-                                                            class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
-                                                             <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                                         </a>
-                                                     @else
-                                                         <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
-                                                             <i class="bi bi-whatsapp me-1"></i> WhatsApp
-                                                         </button>
-                                                     @endif
-                                                 </div>
-                                             </div>
-                                         @endif
+                                        <strong>{{ $client?->name ?? '—' }}</strong>
+                                        <div class="row g-2 mt-3">
+                                            <div class="col-6">
+                                                @if($clientPhone)
+                                                    <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary w-100 py-2 rounded-pill small fw-bold text-white">
+                                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
+                                                        <i class="bi bi-telephone-fill me-1"></i> Appeler
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <div class="col-6">
+                                                @if($clientPhone)
+                                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre mission.') }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-success w-100 py-2 rounded-pill small fw-bold text-white">
+                                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-secondary w-100 py-2 rounded-pill small fw-bold text-white" disabled>
+                                                        <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="text-end">
-                                        <span class="d-block text-muted small">Tarif</span>
-                                        <strong class="text-success fs-5">{{ number_format($activeTrip->price ?? 0, 2) }} €</strong>
+                                        <span class="d-block text-muted small">Revenu total</span>
+                                        <strong class="text-success fs-5">{{ number_format($price ?? 0, 2) }} €</strong>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="d-flex flex-column gap-3">
-                                @if ($activeTrip->status === 'assigned')
-                                    <form action="{{ route('trips.accept', $activeTrip) }}" method="POST" class="flex-grow-1">
-                                        @csrf
-                                        <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Accepter la course</button>
-                                    </form>
-                                @elseif ($activeTrip->status === 'accepted')
-                                    <form action="{{ route('trips.start', $activeTrip) }}" method="POST" class="flex-grow-1">
-                                        @csrf
-                                        <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Commencer la course</button>
-                                    </form>
-                                @elseif ($activeTrip->status === 'in_progress')
-                                    <form action="{{ route('trips.complete', $activeTrip) }}" method="POST" class="flex-grow-1">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold">Terminer la course</button>
-                                    </form>
-                                @elseif ($activeTrip->status === 'completed' && ($activeTrip->payment_status ?? 'pending') !== 'paid')
-                                    <div id="payment-block">
-                                        <div class="alert alert-light border border-primary rounded-3 text-center mb-0" id="payment-options-block">
-                                            <p class="fw-bold mb-3 text-dark">Valider le paiement de {{ number_format($activeTrip->price ?? 0, 2) }} €</p>
-                                            <div class="d-flex gap-2 flex-wrap flex-md-nowrap">
-                                                <button type="button" class="btn btn-outline-success w-100 fw-bold py-2 payment-btn" data-method="cash" data-url="{{ route('trips.mark-paid', $activeTrip) }}">
-                                                    💵 Payé en main propre
-                                                </button>
-                                                <button type="button" class="btn btn-outline-primary w-100 fw-bold py-2 payment-btn" data-method="card" data-url="{{ route('trips.mark-paid', $activeTrip) }}">
-                                                    💳 Payé par terminal
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="alert alert-success border-0 rounded-3 text-center mb-0 d-none" id="payment-success-badge">
-                                            <strong id="payment-success-text">✓ Payé</strong>
-                                        </div>
+                                @if (!$isRental)
+                                    @if ($activeTrip->status === 'assigned')
+                                        <form action="{{ route('trips.accept', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                            @csrf
+                                            <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Accepter la course</button>
+                                        </form>
+                                    @elseif ($activeTrip->status === 'accepted')
+                                        <form action="{{ route('trips.start', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                            @csrf
+                                            <button type="submit" class="btn btn-premium btn-lg w-100 py-3 rounded-3 fw-bold">Commencer la course</button>
+                                        </form>
+                                    @elseif ($activeTrip->status === 'in_progress')
+                                        <form action="{{ route('trips.complete', $activeTrip) }}" method="POST" class="flex-grow-1">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-3 fw-bold">Terminer la course</button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <div class="alert alert-info border-0 rounded-3 mb-0">
+                                        <i class="bi bi-info-circle me-2"></i> Cette mission de location est confirmée par l'administration.
                                     </div>
                                 @endif
                             </div>
@@ -195,7 +196,15 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="card border-0 shadow-sm rounded-4 h-100 map-panel">
-                        <div id="driver-tracking-map" class="w-100"></div>
+                        @if(!$isRental)
+                            <div id="driver-tracking-map" class="w-100"></div>
+                        @else
+                            <div class="p-4 text-center d-flex flex-column justify-content-center h-100">
+                                <i class="bi bi-calendar-check text-primary display-1 mb-3"></i>
+                                <h5 class="fw-bold">Location programmée</h5>
+                                <p class="text-muted small">Utilisez les boutons de contact pour coordonner la remise des clés.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
