@@ -16,27 +16,43 @@
 
     .kpi-card {
         background: #FFF;
-        border-radius: 24px;
-        padding: 30px;
+        border-radius: 20px;
+        padding: 20px;
         border: 0;
-        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         height: 100%;
     }
-    .kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
-    }
-
+    
     .kpi-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 20px;
-        font-size: 1.2rem;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .executive-header {
+            padding: 40px 0;
+            padding-bottom: 100px;
+        }
+        .display-5 { font-size: 1.8rem; }
+        .kpi-card {
+            padding: 15px;
+            border-radius: 16px;
+        }
+        .kpi-icon {
+            width: 35px;
+            height: 35px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .kpi-card .h3 { font-size: 1.25rem; margin-bottom: 5px !important; }
+        .kpi-card .small { font-size: 0.7rem; }
     }
 
     /* overflow: visible évite les bugs de clic / backdrop avec boutons qui ouvrent des modales liées au tableau */
@@ -45,47 +61,7 @@
         border-radius: 24px;
         overflow: visible;
         box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-        border: 1px solid var(--border-light);
-    }
-    .table-premium .table-responsive {
-        overflow-x: auto;
-        overflow-y: visible;
-        border-radius: inherit;
-    }
-    .table-premium thead {
-        background: #F8FAFC;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-    }
-
-    .status-pill {
-        padding: 6px 16px;
-        border-radius: 30px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .sidebar-link {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        color: var(--text-main);
-        text-decoration: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-    .sidebar-link i { margin-right: 15px; font-size: 1.1rem; }
-    .sidebar-link:hover, .sidebar-link.active {
-        background: var(--primary);
-        color: #FFF;
-    }
-
-    /* Mobile Dashboard Adjustments */
-    .mobile-card-list {
-        display: none;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
     @media (max-width: 991.98px) {
@@ -98,30 +74,34 @@
         .mobile-data-card {
             background: #fff;
             border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .card-header-flex {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
         }
         .data-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #e2e8f0;
+            padding: 6px 0;
+            border-bottom: 1px dashed #f1f5f9;
         }
+        .data-row:last-child { border-bottom: none; }
         .data-label {
-            color: #64748b;
-            font-size: 0.8rem;
+            color: #94a3b8;
+            font-size: 0.75rem;
             font-weight: 500;
         }
         .data-value {
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.85rem;
             color: #1e293b;
         }
     }
@@ -160,44 +140,44 @@
                 </div>
             @endif
             <!-- KPI Row -->
-            <div class="row g-3 g-md-4 mb-4">
-                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn">
+            <div class="row g-2 g-md-4 mb-4">
+                <div class="col-6 col-md-6 col-lg-3 animate__animated animate__zoomIn">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-primary-subtle text-primary rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-people-fill fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Utilisateurs</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['users_count'] }}</div>
-                        <div class="pt-3 border-top small text-muted">
+                        <div class="kpi-icon bg-primary-subtle text-primary rounded-4 p-3 mx-auto mb-2 mb-md-3"><i class="bi bi-people-fill"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Utilisateurs</div>
+                        <div class="h3 fw-bold mb-1 mb-md-3 text-dark">{{ $stats['users_count'] }}</div>
+                        <div class="pt-2 pt-md-3 border-top d-none d-md-block small text-muted">
                             <i class="bi bi-person-check text-success me-1"></i> Clients & Staff
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-1s">
+                <div class="col-6 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-1s">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-success-subtle text-success rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-currency-euro fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Revenus</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ number_format($stats['total_revenue'], 2) }}€</div>
-                        <div class="pt-3 border-top small text-muted">
+                        <div class="kpi-icon bg-success-subtle text-success rounded-4 p-3 mx-auto mb-2 mb-md-3"><i class="bi bi-currency-euro"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Revenus</div>
+                        <div class="h3 fw-bold mb-1 mb-md-3 text-dark">{{ number_format($stats['total_revenue'], 0) }}€</div>
+                        <div class="pt-2 pt-md-3 border-top d-none d-md-block small text-muted">
                             <i class="bi bi-graph-up-arrow text-success me-1"></i> Courses & Locations
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-2s">
+                <div class="col-6 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-2s">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-clock-history fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">À Assigner</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['pending_trips_count'] }}</div>
-                        <div class="pt-3 border-top small text-muted">
-                            <i class="bi bi-hourglass-split text-warning me-1"></i> Courses en attente
+                        <div class="kpi-icon bg-warning-subtle text-warning rounded-4 p-3 mx-auto mb-2 mb-md-3"><i class="bi bi-clock-history"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Attente</div>
+                        <div class="h3 fw-bold mb-1 mb-md-3 text-dark">{{ $stats['pending_trips_count'] }}</div>
+                        <div class="pt-2 pt-md-3 border-top d-none d-md-block small text-muted">
+                            <i class="bi bi-hourglass-split text-warning me-1"></i> Courses
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-3s">
+                <div class="col-6 col-md-6 col-lg-3 animate__animated animate__zoomIn animate__delay-3s">
                     <div class="kpi-card shadow-sm border-0 text-center">
-                        <div class="kpi-icon bg-info-subtle text-info rounded-4 p-3 mx-auto mb-3" style="width: 60px; height: 60px;"><i class="bi bi-car-front-fill fs-3"></i></div>
-                        <div class="text-muted fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.8px; text-transform: uppercase;">Locations</div>
-                        <div class="h3 fw-bold mb-3 text-dark">{{ $stats['pending_rentals_count'] }}</div>
-                        <div class="pt-3 border-top small text-muted">
-                            <i class="bi bi-clock text-info me-1"></i> Demandes en attente
+                        <div class="kpi-icon bg-info-subtle text-info rounded-4 p-3 mx-auto mb-2 mb-md-3"><i class="bi bi-car-front-fill"></i></div>
+                        <div class="text-muted fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">Locations</div>
+                        <div class="h3 fw-bold mb-1 mb-md-3 text-dark">{{ $stats['pending_rentals_count'] }}</div>
+                        <div class="pt-2 pt-md-3 border-top d-none d-md-block small text-muted">
+                            <i class="bi bi-clock text-info me-1"></i> Demandes
                         </div>
                     </div>
                 </div>
@@ -257,6 +237,39 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile View for Pending Rentals -->
+                <div class="mobile-card-list p-3">
+                    @foreach($pendingRentals as $rental)
+                        <div class="mobile-data-card border-info border-start border-4">
+                            <div class="card-header-flex">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ $rental->user->name }}</div>
+                                    <div class="small text-muted">{{ $rental->user->email }}</div>
+                                </div>
+                                <div class="fw-bold text-primary">{{ number_format($rental->total_price, 2) }}€</div>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Véhicule</span>
+                                <span class="data-value">{{ $rental->vehicleType->name }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Période</span>
+                                <span class="data-value">{{ \Carbon\Carbon::parse($rental->start_date)->format('d/m') }} - {{ \Carbon\Carbon::parse($rental->end_date)->format('d/m') }}</span>
+                            </div>
+                            <div class="mt-3 d-flex gap-2">
+                                <form action="{{ route('admin.rentals.confirm', $rental) }}" method="POST" class="flex-grow-1">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm w-100 py-2 fw-bold">Valider</button>
+                                </form>
+                                <form action="{{ route('admin.rentals.reject', $rental) }}" method="POST" class="flex-grow-1">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 py-2 fw-bold">Refuser</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
             @endif
