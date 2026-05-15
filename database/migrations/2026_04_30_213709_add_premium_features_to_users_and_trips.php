@@ -6,13 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_approved')->default(true); // Default true for now, can be false for new drivers
+            $table->boolean('is_approved')->default(true);
             $table->boolean('is_active')->default(true);
         });
 
@@ -24,9 +22,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {

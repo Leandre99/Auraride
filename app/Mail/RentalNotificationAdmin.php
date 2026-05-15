@@ -1,6 +1,4 @@
 <?php
-// app/Mail/RentalNotificationAdmin.php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;

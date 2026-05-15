@@ -19,7 +19,6 @@ class RentalController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validation
         try {
             $validated = $request->validate([
                 'start_date' => 'required|date|after_or_equal:today',
@@ -76,11 +75,11 @@ class RentalController extends Controller
             // 4. Log et Emails (en mode sécurisé)
             try {
                 ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
-                
+
                 // On utilise try-catch pour chaque mail pour que l'un n'empêche pas l'autre
                 // et que rien ne bloque la réponse au client
                 Mail::to($user->email)->queue(new RentalConfirmationClient($rental, $user, $vehicleType));
-                
+
                 $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
                 Mail::to($adminEmail)->queue(new RentalNotificationAdmin($rental, $user, $vehicleType));
             } catch (\Exception $mailEx) {

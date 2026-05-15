@@ -12,7 +12,7 @@ class RentalStatusUpdated extends Mailable
 
     public $rental;
     public $oldStatus;
-    public $newStatus; // Ajout de la propriété pour le nouveau statut
+    public $newStatus;
 
     public function __construct($rental, $oldStatus, $newStatus = null)
     {

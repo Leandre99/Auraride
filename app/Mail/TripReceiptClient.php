@@ -19,18 +19,12 @@ class TripReceiptClient extends Mailable
     public $trip;
     public $client;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct(Trip $trip, User $client)
     {
         $this->trip = $trip;
         $this->client = $client;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -38,9 +32,6 @@ class TripReceiptClient extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(

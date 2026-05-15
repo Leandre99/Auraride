@@ -18,7 +18,6 @@ class Vehicle extends Model
         return $this->belongsTo(VehicleType::class);
     }
 
-    /** Alias de compatibilité: certains écrans utilisent `vehicle.type`. */
     public function type()
     {
         return $this->belongsTo(VehicleType::class, 'vehicle_type_id');

@@ -33,10 +33,9 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Redirect based on role
             $role = Auth::user()->role;
             \App\Models\ActivityLog::log('user_login', "L'utilisateur {$credentials['email']} s'est connecté");
-            
+
             if ($role === 'driver') {
                 return redirect()->intended('/driver/dashboard');
             } elseif ($role === 'admin') {
@@ -106,8 +105,6 @@ class AuthController extends Controller
 
         return redirect('/');
     }
-
-    // À la fin du fichier, avant la dernière accolade
 
 public function editProfile()
 {

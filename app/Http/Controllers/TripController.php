@@ -42,7 +42,7 @@ class TripController extends Controller
             ->map(function ($type) use ($distance) {
                 $priceHT = $type->base_fare + ($type->per_km_rate * $distance);
                 $priceHT = max($priceHT, 8.00); // Prix minimum HT 8€
-                
+
                 $tva = $priceHT * 0.10; // TVA 10% pour le transport
                 $priceTTC = $priceHT + $tva;
 
@@ -111,17 +111,17 @@ class TripController extends Controller
         try {
             $adminEmail = config('mail.admin_email');
             $admins = User::where('role', 'admin')->get();
-            
+
             // Envoyer aux admins de la DB
             foreach ($admins as $admin) {
                 Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
-            
+
             // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
             if ($adminEmail && !$admins->contains('email', $adminEmail)) {
                 Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
             }
-            
+
             Log::info('Email admin mis en file pour le trajet #' . $trip->id);
         } catch (\Exception $e) {
             Log::error('Erreur mise en file email admin : ' . $e->getMessage());
@@ -147,7 +147,7 @@ class TripController extends Controller
         ActivityLog::log('trip_requested', "Le client {$client->name} a demandé une course de {$request->pickup_address} vers {$request->dropoff_address} (#{$trip->id})", $trip);
 
         return response()->json($trip->fresh(['client']));
-        
+
     }
 
     public function assign(Request $request, Trip $trip)
@@ -191,7 +191,7 @@ class TripController extends Controller
         }
 
         $trip->load(['client', 'driver', 'vehicle']);
-        
+
         ActivityLog::log('trip_assigned', "La course #{$trip->id} a été assignée au chauffeur {$driver->name}", $trip);
 
         if ($request->wantsJson()) {
@@ -240,7 +240,7 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'in_progress']);
-        
+
         ActivityLog::log('trip_started', "Le chauffeur {$trip->driver->name} a démarré la course #{$trip->id}", $trip);
 
         if (request()->expectsJson()) {
@@ -264,7 +264,7 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'completed']);
-        
+
         ActivityLog::log('trip_completed', "Le chauffeur {$trip->driver->name} a terminé la course #{$trip->id}", $trip);
 
         if (request()->expectsJson()) {
@@ -281,7 +281,7 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'cancelled']);
-        
+
         $actor = auth()->user()->role === 'admin' ? "L'administrateur" : (auth()->user()->role === 'driver' ? "Le chauffeur" : "Le client");
         ActivityLog::log('trip_cancelled', "{$actor} a annulé la course #{$trip->id}", $trip);
 
@@ -380,8 +380,8 @@ class TripController extends Controller
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT        => 5,          // 5-second hard timeout
-                CURLOPT_CONNECTTIMEOUT => 3,          // 3-second connect timeout
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_CONNECTTIMEOUT => 3,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_USERAGENT      => 'Auraride/1.0',
             ]);
@@ -405,7 +405,6 @@ class TripController extends Controller
                 isset($data['routes'][0]['distance']) &&
                 is_numeric($data['routes'][0]['distance'])
             ) {
-                // OSRM returns distance in metres — convert to km
                 return round($data['routes'][0]['distance'] / 1000, 2);
             }
 
@@ -419,14 +418,9 @@ class TripController extends Controller
         return $this->calculateDistance($lat1, $lon1, $lat2, $lon2);
     }
 
-    /**
-     * Calcul de la distance à vol d'oiseau entre deux points GPS (formule Haversine).
-     * Utilisé comme repli lorsque OSRM n'est pas disponible.
-     * Retourne la distance en kilomètres.
-     */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
-        $earthRadius = 6371; // Rayon de la Terre en km
+        $earthRadius = 6371;
 
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
@@ -437,7 +431,7 @@ class TripController extends Controller
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return round($earthRadius * $c, 2); // Arrondi à 2 décimales
+        return round($earthRadius * $c, 2);
     }
 
     public function track(Trip $trip)

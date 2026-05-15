@@ -21,7 +21,6 @@ class ContactController extends Controller
         try {
             // Envoyer l'email à l'admin
             Mail::to(config('mail.from.address', 'admin@atlasandco.com'))->send(new ContactMessage($data));
-
             return back()->with('success', 'Votre message a bien été envoyé. Notre équipe vous répondra dans les plus brefs délais.');
         } catch (\Exception $e) {
             return back()->with('error', 'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer plus tard.')->withInput();

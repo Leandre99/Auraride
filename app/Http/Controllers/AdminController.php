@@ -24,8 +24,6 @@ class AdminController extends Controller
 
         $recentTrips = Trip::with(['client', 'driver'])->latest()->take(5)->get();
         $pendingRentals = Rental::with(['user', 'vehicleType'])->where('status', 'pending')->latest()->take(5)->get();
-
-        // Pending trips that need assignment
         $pendingTrips = Trip::with('client')->where('status', 'pending')->latest()->get();
 
         $drivers = User::where('role', 'driver')
@@ -103,12 +101,6 @@ class AdminController extends Controller
 
         return back()->with('success', 'La course a été annulée par l\'administrateur.');
     }
-
-    // ========== GESTION DES LOCATIONS ==========
-
-    /**
-     * Afficher toutes les demandes de location
-     */
     public function rentals()
     {
         $rentals = Rental::with(['user', 'vehicleType'])
@@ -117,10 +109,6 @@ class AdminController extends Controller
 
         return view('admin.rentals.index', compact('rentals'));
     }
-
-    /**
-     * Afficher le formulaire d'édition d'une demande de location
-     */
     public function editRental($id)
     {
         $rental = Rental::with(['user', 'vehicleType'])->findOrFail($id);
@@ -128,10 +116,6 @@ class AdminController extends Controller
 
         return view('admin.rentals.edit', compact('rental', 'drivers'));
     }
-
-    /**
-     * Mettre à jour le statut d'une demande de location
-     */
     public function updateRentalStatus(Request $request, $id)
     {
         $rental = Rental::findOrFail($id);
@@ -150,7 +134,6 @@ class AdminController extends Controller
 
         ActivityLog::log('rental_status_updated', "L'admin a mis à jour le statut de la location #{$rental->id} de {$oldStatus} vers {$request->status}", $rental);
 
-        // Envoyer un email au client via file d'attente pour éviter le timeout
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
         } catch (\Exception $e) {
