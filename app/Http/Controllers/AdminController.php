@@ -152,7 +152,7 @@ class AdminController extends Controller
 
         // Envoyer un email au client via file d'attente pour éviter le timeout
         try {
-            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
+            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
         } catch (\Exception $e) {
             \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
         }
