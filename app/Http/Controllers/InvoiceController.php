@@ -13,12 +13,13 @@ class InvoiceController extends Controller
 {
     public function downloadTripInvoice(Trip $trip)
     {
+        $trip->load('vehicleType');
         $taxRate = 0.10;
         $totalAmount = $trip->price ?? 0;
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
 
-        $description = 'Course: ' . ($trip->pickup_address ?? 'N/A') . ' - ' . ($trip->dropoff_address ?? 'N/A');
+        $description = 'Course: ' . ($trip->vehicleType->name ?? 'Véhicule');
 
         $data = [
             'client' => $trip->client,
@@ -42,7 +43,7 @@ class InvoiceController extends Controller
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
 
-        $description = 'Location: ' . ($rental->vehicleType->name ?? 'Véhicule') . ' (du ' . ($rental->start_date ? $rental->start_date->format('d/m/Y') : 'N/A') . ' au ' . ($rental->end_date ? $rental->end_date->format('d/m/Y') : 'N/A') . ')';
+        $description = 'Location: ' . ($rental->vehicleType->name ?? 'Véhicule') . ' (du ' . ($rental->start_date ? \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') : 'N/A') . ' au ' . ($rental->end_date ? \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') : 'N/A') . ')';
 
         $data = [
             'client' => $rental->user,

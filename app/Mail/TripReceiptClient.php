@@ -48,11 +48,12 @@ class TripReceiptClient extends Mailable
      */
     public function attachments(): array
     {
+        $this->trip->load('vehicleType');
         $taxRate = 0.10;
         $totalAmount = $this->trip->price ?? 0;
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
-        $description = 'Course: ' . ($this->trip->pickup_address ?? 'N/A') . ' - ' . ($this->trip->dropoff_address ?? 'N/A');
+        $description = 'Course: ' . ($this->trip->vehicleType->name ?? 'Véhicule');
 
         $data = [
             'client' => $this->client,
