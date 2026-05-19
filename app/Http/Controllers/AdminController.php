@@ -136,7 +136,10 @@ class AdminController extends Controller
 
         if (in_array($request->status, ['confirmed', 'completed'])) {
             try {
-                Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
+                $admins = User::where('role', 'admin')->pluck('email')->toArray();
+                Mail::to($rental->user->email)
+                    ->cc($admins)
+                    ->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
                 if (!empty($rental->user->phone_number)) {
                     \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location a été confirmée. Votre facture a été envoyée par email.");
                 }

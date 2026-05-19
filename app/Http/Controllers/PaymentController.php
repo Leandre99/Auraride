@@ -21,6 +21,18 @@ class PaymentController extends Controller
 
         $trip->update(['payment_status' => 'paid']);
 
+        $trip->load('client');
+        if ($trip->client) {
+            try {
+                $admins = \App\Models\User::where('role', 'admin')->pluck('email')->toArray();
+                \Illuminate\Support\Facades\Mail::to($trip->client->email)
+                    ->cc($admins)
+                    ->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Erreur lors de l\'envoi du reçu stripe: ' . $e->getMessage());
+            }
+        }
+
         if ($request->expectsJson()) {
             return response()->json(['message' => 'Payment processed successfully.']);
         }

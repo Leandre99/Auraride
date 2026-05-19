@@ -353,7 +353,10 @@ class TripController extends Controller
         $trip->load('client');
         if ($trip->client) {
             try {
-                \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+                $admins = User::where('role', 'admin')->pluck('email')->toArray();
+                Mail::to($trip->client->email)
+                    ->cc($admins)
+                    ->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
                 if (!empty($trip->client->phone_number)) {
                     \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.");
                 }
