@@ -239,11 +239,7 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="p-4 border-top bg-light bg-opacity-50">
-                    <div class="d-flex justify-content-center">
-                        {{ $rentals->links() }}
-                    </div>
-                </div>
+                        @include('partials.pagination', ['items' => $rentals])
             </div>
         </main>
     </div>

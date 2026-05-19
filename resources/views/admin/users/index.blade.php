@@ -244,9 +244,7 @@
                     @endforeach
                 </div>
                 <div class="p-4 border-top">
-                    <div class="d-flex justify-content-center">
-                        {{ $users->links() }}
-                    </div>
+                        @include('partials.pagination', ['items' => $users])
                 </div>
             </div>
         </main>

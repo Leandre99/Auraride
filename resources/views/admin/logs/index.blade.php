@@ -112,8 +112,8 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-4 d-flex justify-content-center">
-                        {{ $logs->links() }}
+                    <div class="mt-4">
+                        @include('partials.pagination', ['items' => $logs])
                     </div>
                 @endif
             </div>

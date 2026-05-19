@@ -81,9 +81,7 @@
                 </table>
             </div>
             
-            <div class="mt-4 d-flex justify-content-center">
-                {{ $items->links('pagination::bootstrap-5') }}
-            </div>
+            @include('partials.pagination', ['items' => $items])
         @endif
     </div>
 </div>
