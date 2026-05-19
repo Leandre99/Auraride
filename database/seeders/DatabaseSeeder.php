@@ -89,6 +89,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Atlas Admin',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'phone_number' => '0149877981',
             ]
         );
     }
