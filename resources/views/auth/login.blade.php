@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Connexion - ATLAS AND CO')
+@section('title', 'Connexion - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>

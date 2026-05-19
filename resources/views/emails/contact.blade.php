@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="footer">
-            Cet email a été envoyé depuis le formulaire de contact du site ATLAS AND CO.
+            Cet email a été envoyé depuis le formulaire de contact du site ATLAS TAXI / VTC.
         </div>
     </div>
 </body>

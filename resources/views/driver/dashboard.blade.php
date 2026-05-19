@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Espace chauffeur — ATLAS AND CO')
+@section('title', 'Espace chauffeur — ATLAS TAXI / VTC')
 
 @push('styles')
 <style>
@@ -158,7 +158,7 @@
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             @if($clientPhone)
-                                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas And Co pour votre mission.') }}" 
+                                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas Taxi / VTC pour votre mission.') }}" 
                                                    target="_blank" 
                                                    class="btn btn-success w-100 py-3 rounded-3 fw-bold">
                                                     <i class="bi bi-whatsapp me-2"></i> Message WhatsApp
@@ -269,7 +269,13 @@
                                                 </p>
                                             </div>
                                             <div class="col-md-2 text-center mt-3 mt-md-0">
-                                                <p class="mb-0 fw-bold fs-5 text-success">{{ number_format($trip->price ?? 0, 2) }} €</p>
+                                                <div class="text-muted small">
+                                                    @if($trip->scheduled_at)
+                                                        <span class="badge bg-warning text-dark me-2"><i class="bi bi-clock me-1"></i>Prévue: {{ \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y H:i') }}</span>
+                                                    @endif
+                                                    <i class="bi bi-clock me-1"></i> {{ $trip->created_at->diffForHumans() }}
+                                                </div>
+                                                <div class="fw-bold text-primary">{{ number_format($trip->price, 2) }}€</div>
                                                 @if ($trip->distance)
                                                     <small class="text-muted">{{ number_format($trip->distance, 1) }} km</small>
                                                 @endif

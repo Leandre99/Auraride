@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion Utilisateurs - ATLAS AND CO')
+@section('title', 'Gestion Utilisateurs - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>

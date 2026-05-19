@@ -73,6 +73,7 @@ class TripController extends Controller
             'dropoff_lng' => 'required',
             'price' => 'required|numeric',
             'distance' => 'required|numeric',
+            'scheduled_at' => 'nullable|date|after_or_equal:now',
         ]);
 
         $client = auth()->user();
@@ -92,39 +93,30 @@ class TripController extends Controller
             'price' => $request->price,
             'distance' => $request->distance,
             'payment_status' => 'pending',
+            'scheduled_at' => $request->scheduled_at,
         ]);
 
         // Charger la relation client pour les notifications
         $trip->load('client');
 
-        // ========== ENVOI DES EMAILS ==========
+        // ========== ENVOI DES NOTIFICATIONS (SMS) ==========
+        $smsService = new \App\Services\SmsService();
 
-        // 1. Email au client (confirmation) via file d'attente
-        try {
-            Mail::to($client->email)->queue(new TripConfirmationClient($trip, $client, $vehicleType));
-            Log::info('Email client mis en file pour le trajet #' . $trip->id);
-        } catch (\Exception $e) {
-            Log::error('Erreur file d\'attente email client : ' . $e->getMessage());
+        // 1. SMS au client
+        if (!empty($client->phone_number)) {
+            $msgClient = "ATLAS VTC: Votre demande de course a bien été reçue. Départ: " . \Illuminate\Support\Str::limit($trip->pickup_address, 30);
+            if ($trip->scheduled_at) {
+                $msgClient .= " prévue le " . \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y H:i');
+            }
+            $smsService->sendSms($client->phone_number, $msgClient);
         }
 
-        // 2. Email aux admins (notification) - Mis en file d'attente pour éviter les ralentissements
-        try {
-            $adminEmail = config('mail.admin_email');
-            $admins = User::where('role', 'admin')->get();
-
-            // Envoyer aux admins de la DB
-            foreach ($admins as $admin) {
-                Mail::to($admin->email)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
+        // 2. SMS aux admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            if (!empty($admin->phone_number)) {
+                $smsService->sendSms($admin->phone_number, "NOUVELLE COURSE (ATLAS VTC): De " . \Illuminate\Support\Str::limit($trip->pickup_address, 15) . " vers " . \Illuminate\Support\Str::limit($trip->dropoff_address, 15) . " (" . $trip->price . "€)");
             }
-
-            // Envoyer aussi à l'adresse de config si elle n'est pas déjà couverte
-            if ($adminEmail && !$admins->contains('email', $adminEmail)) {
-                Mail::to($adminEmail)->queue(new TripNotificationAdmin($trip, $client, $vehicleType));
-            }
-
-            Log::info('Email admin mis en file pour le trajet #' . $trip->id);
-        } catch (\Exception $e) {
-            Log::error('Erreur mise en file email admin : ' . $e->getMessage());
         }
 
         // ========== NOTIFICATIONS EXISTANTES ==========
@@ -335,7 +327,15 @@ class TripController extends Controller
 
         $trip->load('client');
         if ($trip->client) {
-            \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+            try {
+                \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+                if (!empty($trip->client->phone_number)) {
+                    $smsService = new \App\Services\SmsService();
+                    $smsService->sendSms($trip->client->phone_number, "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.");
+                }
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de l\'envoi du reçu: ' . $e->getMessage());
+            }
         }
 
         ActivityLog::log('payment_confirmed', "Le chauffeur {$trip->driver->name} a confirmé le paiement de la course #{$trip->id} via {$request->payment_method}", $trip);

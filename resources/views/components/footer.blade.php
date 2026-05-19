@@ -3,7 +3,7 @@
     <div class="container py-4">
         <div class="row g-5">
             <div class="col-lg-4">
-                <h3 class="fw-bold mb-4">ATLAS AND CO</h3>
+                <h3 class="fw-bold mb-4">ATLAS TAXI / VTC</h3>
                 <p class="opacity-50 mb-4">L'excellence du transport privé et de la location de prestige. Redéfinir la
                     mobilité urbaine avec style et sophistication.</p>
                 <div class="d-flex align-items-center gap-2 mb-2">
@@ -54,7 +54,7 @@
         <hr class="my-5 opacity-10">
         <div class="row align-items-center">
             <div class="col-md-6 opacity-50 small">
-                &copy; 2026 ATLAS AND CO. Tous droits réservés.
+                &copy; 2026 ATLAS TAXI / VTC. Tous droits réservés.
             </div>
             <div class="col-md-6 text-md-end opacity-50 small">
                 <a href="#" class="text-white text-decoration-none me-3">Confidentialité</a>

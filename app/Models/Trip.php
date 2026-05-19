@@ -29,6 +29,7 @@ class Trip extends Model
         'payment_method',
         'rating',
         'comment',
+        'scheduled_at',
     ];
 
     protected $casts = [
@@ -40,6 +41,7 @@ class Trip extends Model
         'duration' => 'integer',
         'price' => 'float',
         'rating' => 'integer',
+        'scheduled_at' => 'datetime',
     ];
 
     // Relation avec le client

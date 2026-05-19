@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Traiter la location #' . $rental->id . ' - ATLAS AND CO')
+@section('title', 'Traiter la location #' . $rental->id . ' - ATLAS TAXI / VTC')
 
 @section('content')
 <div class="py-5 bg-light min-vh-100">

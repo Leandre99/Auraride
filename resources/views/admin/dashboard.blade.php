@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'ATLAS AND CO - Executive Command')
+@section('title', 'ATLAS TAXI / VTC - Executive Command')
 
 @push('styles')
 <style>
@@ -168,7 +168,7 @@
         <div class="row align-items-center">
             <div class="col-md-6">
                 <h1 class="display-5 fw-bold mb-1">Centre de Gestion</h1>
-                <p class="opacity-75 mb-0">Contrôle global d'ATLAS AND CO.</p>
+                <p class="opacity-75 mb-0">Contrôle global d'ATLAS TAXI / VTC.</p>
             </div>
         </div>
     </div>

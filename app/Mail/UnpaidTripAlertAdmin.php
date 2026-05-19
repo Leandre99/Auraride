@@ -26,7 +26,7 @@ class UnpaidTripAlertAdmin extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '⚠️ Atlas And Co — Course non payée depuis +24h',
+            subject: '⚠️ Atlas Taxi / VTC — Course non payée depuis +24h',
         );
     }
 

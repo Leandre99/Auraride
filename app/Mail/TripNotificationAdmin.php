@@ -23,7 +23,7 @@ class TripNotificationAdmin extends Mailable
 
     public function build()
     {
-        return $this->subject('🔔 Nouvelle course réservée - ATLAS AND CO')
+        return $this->subject('🔔 Nouvelle course réservée - ATLAS TAXI / VTC')
                     ->view('emails.trip-notification-admin');
     }
 }

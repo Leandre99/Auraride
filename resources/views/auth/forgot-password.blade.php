@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mot de passe oublié - ATLAS AND CO')
+@section('title', 'Mot de passe oublié - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>

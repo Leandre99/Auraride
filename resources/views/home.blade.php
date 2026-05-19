@@ -13,7 +13,7 @@
                         style="font-size: 1.1rem; letter-spacing: 1px;">VTC Premium</span>
                     <h1 class="display-3 mb-4">Le transport redéfini pour le <span class="text-primary-gradient">Monde
                             Moderne.</span></h1>
-                    <p class="lead text-muted mb-5 pe-lg-5">ATLAS AND CO combine le luxe haut de gamme et la technologie de
+                    <p class="lead text-muted mb-5 pe-lg-5">ATLAS TAXI / VTC combine le luxe haut de gamme et la technologie de
                         pointe pour vous offrir une expérience de voyage fluide, sûre et sophistiquée.</p>
 
                     <a href="{{ route('client.dashboard') }}"
@@ -38,7 +38,7 @@
                 <div class="col-lg-6 mt-5 mt-lg-0">
                     <div class="position-relative hero-image-container" style="margin-top: -60px;">
                         <div class="rounded-4 overflow-hidden shadow-lg" style="transform: rotate(2deg);">
-                            <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" alt="ATLAS AND CO Premium">
+                            <img src="{{ asset('images/tesla-hero.png') }}" class="w-100" alt="ATLAS TAXI / VTC Premium">
                         </div>
                         <div class="glass-panel p-4 position-absolute" style="bottom: -30px; left: -30px; width: 250px;">
                             <div class="d-flex align-items-center gap-3 mb-2">
@@ -57,7 +57,7 @@
     <section id="features" class="py-5 bg-white">
         <div class="container py-5">
             <div class="text-center">
-                <h2 class="h1 mb-3">Pourquoi choisir ATLAS AND CO ?</h2>
+                <h2 class="h1 mb-3">Pourquoi choisir ATLAS TAXI / VTC ?</h2>
                 <p class="text-muted">Découvrez le sommet de la mobilité urbaine.</p>
             </div>
 

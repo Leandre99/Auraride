@@ -25,6 +25,6 @@
     </table>
 
     <p style="margin-top: 30px;">Un chauffeur va vous être assigné sous peu.</p>
-    <p>Cordialement,<br><strong>ATLAS AND CO</strong></p>
+    <p>Cordialement,<br><strong>ATLAS TAXI / VTC</strong></p>
 </body>
 </html>

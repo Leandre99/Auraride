@@ -5,6 +5,8 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class RentalStatusUpdated extends Mailable
 {
@@ -34,7 +36,33 @@ class RentalStatusUpdated extends Mailable
 
         $message = $statusText[$this->newStatus] ?? 'mise à jour';
 
-        return $this->subject("ATLAS AND CO - Votre demande de location a été {$message}")
-                    ->view('emails.rental-status-updated');
+        $mail = $this->subject("ATLAS TAXI / VTC - Votre demande de location a été {$message}")
+                     ->view('emails.rental-status-updated');
+
+        if (in_array($this->newStatus, ['confirmed', 'completed'])) {
+            $taxRate = 0.10;
+            $totalAmount = $this->rental->total_price ?? 0;
+            $netAmount = $totalAmount / (1 + $taxRate);
+            $taxAmount = $totalAmount - $netAmount;
+            $description = 'Location: ' . ($this->rental->vehicleType->name ?? 'Véhicule') . ' (' . ($this->rental->duration_hours ?? 0) . 'h)';
+
+            $data = [
+                'client' => $this->rental->user,
+                'invoiceNumber' => 'INV-LOC-' . strtoupper(Str::random(8)),
+                'date' => $this->rental->created_at,
+                'description' => $description,
+                'netAmount' => $netAmount,
+                'taxAmount' => $taxAmount,
+                'totalAmount' => $totalAmount,
+            ];
+
+            $pdf = Pdf::loadView('pdf.invoice', $data);
+
+            $mail->attachData($pdf->output(), 'Facture-Location-' . $this->rental->id . '.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+        }
+
+        return $mail;
     }
 }

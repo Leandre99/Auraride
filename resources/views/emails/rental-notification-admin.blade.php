@@ -44,6 +44,6 @@
         </a>
     </div>
 
-    <p style="margin-top: 30px;">Cordialement,<br>ATLAS AND CO</p>
+    <p style="margin-top: 30px;">Cordialement,<br>ATLAS TAXI / VTC</p>
 </body>
 </html>

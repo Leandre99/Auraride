@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Suivi de votre course - ATLAS AND CO')
+@section('title', 'Suivi de votre course - ATLAS TAXI / VTC')
 
 @section('content')
 <section class="py-5">
@@ -44,7 +44,7 @@
                         <p class="mb-0">Destination: <strong>{{ $trip->dropoff_address }}</strong></p>
                     @elseif($trip->status === 'completed')
                         <h4 class="mb-3"><i class="bi bi-flag-fill me-2"></i>Course terminée !</h4>
-                        <p class="mb-3 opacity-75">Merci d'avoir voyagé avec <strong>ATLAS AND CO</strong>.</p>
+                        <p class="mb-3 opacity-75">Merci d'avoir voyagé avec <strong>ATLAS TAXI / VTC</strong>.</p>
                         <div class="bg-white text-dark p-4 rounded-4 shadow-sm mb-3">
                             <h5 class="fw-bold text-center mb-3">Votre avis nous intéresse</h5>
                             @if(!$trip->rating)

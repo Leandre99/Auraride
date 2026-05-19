@@ -26,7 +26,7 @@ class NewRentalRequested extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('🔑 Nouvelle Demande de Location - ATLAS AND CO')
+                    ->subject('🔑 Nouvelle Demande de Location - ATLAS TAXI / VTC')
                     ->greeting('Bonjour Admin,')
                     ->line('Une nouvelle demande de location de véhicule a été soumise.')
                     ->line('**Détails de la location :**')

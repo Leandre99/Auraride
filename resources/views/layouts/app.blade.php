@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATLAS AND CO - @yield('title', 'Next-Gen Transit')</title>
+    <title>ATLAS TAXI / VTC - @yield('title', 'Next-Gen Transit')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     
@@ -418,7 +418,7 @@
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%); color:white; padding:20px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <div class="fw-bold">Assistant Atlas And Co</div>
+                    <div class="fw-bold">Assistant Atlas Taxi / VTC</div>
                     <div style="font-size: 0.75rem; opacity: 0.8;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> En ligne</div>
                 </div>
                 <button id="chatbot-close" style="background:rgba(255,255,255,0.1); border:none; color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="bi bi-x-lg"></i></button>

@@ -72,18 +72,27 @@ class RentalController extends Controller
                 'status' => 'pending'
             ]);
 
-            // 4. Log et Emails (en mode sécurisé)
+            // 4. Log et Notifications (en mode sécurisé)
             try {
                 ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
 
-                // On utilise try-catch pour chaque mail pour que l'un n'empêche pas l'autre
-                // et que rien ne bloque la réponse au client
-                Mail::to($user->email)->queue(new RentalConfirmationClient($rental, $user, $vehicleType));
+                $smsService = new \App\Services\SmsService();
+                
+                // SMS au client
+                if (!empty($user->phone_number)) {
+                    $msgClient = "ATLAS VTC: Votre demande de location pour un(e) {$vehicleType->name} a bien été enregistrée. Nous la traitons rapidement.";
+                    $smsService->sendSms($user->phone_number, $msgClient);
+                }
 
-                $adminEmail = config('mail.admin_email', 'admin@atlasandco.com');
-                Mail::to($adminEmail)->queue(new RentalNotificationAdmin($rental, $user, $vehicleType));
-            } catch (\Exception $mailEx) {
-                \Illuminate\Support\Facades\Log::warning("Erreur email/log lors d'une location : " . $mailEx->getMessage());
+                // SMS aux admins
+                $admins = \App\Models\User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    if (!empty($admin->phone_number)) {
+                        $smsService->sendSms($admin->phone_number, "NOUVELLE LOCATION (ATLAS VTC): {$user->name} souhaite louer un(e) {$vehicleType->name} du " . \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') . " au " . \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') . ".");
+                    }
+                }
+            } catch (\Exception $smsEx) {
+                \Illuminate\Support\Facades\Log::warning("Erreur SMS/log lors d'une location : " . $smsEx->getMessage());
             }
 
             return response()->json([

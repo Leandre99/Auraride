@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Historique de Traçabilité - ATLAS AND CO')
+@section('title', 'Historique de Traçabilité - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>

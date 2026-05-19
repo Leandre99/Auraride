@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des locations - ATLAS AND CO')
+@section('title', 'Gestion des locations - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>
@@ -163,6 +163,10 @@
                                                     </button>
                                                 </form>
                                             @endif
+                                            
+                                            <a href="{{ route('rentals.invoice', $rental) }}" class="btn-action" title="Télécharger la facture" target="_blank">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

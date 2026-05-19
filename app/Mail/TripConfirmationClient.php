@@ -23,7 +23,7 @@ class TripConfirmationClient extends Mailable
 
     public function build()
     {
-        return $this->subject('ATLAS AND CO - Confirmation de votre course')
+        return $this->subject('ATLAS TAXI / VTC - Confirmation de votre course')
                     ->view('emails.trip-confirmation-client');
     }
 }

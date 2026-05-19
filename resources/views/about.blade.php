@@ -21,7 +21,7 @@
             <div class="row align-items-center mb-5 pb-5">
                 <div class="col-lg-6 animate__animated animate__fadeInLeft">
                     <h2 class="display-5 mb-4 fw-bold">Élever chaque <span class="text-primary">trajet.</span></h2>
-                    <p class="lead text-muted mb-4">Fondée en 2024, ATLAS AND CO est née d'une idée simple : la mobilité urbaine doit être bien plus qu'un simple trajet d'un point A à un point B. Ce doit être une expérience.</p>
+                    <p class="lead text-muted mb-4">Fondée en 2024, ATLAS TAXI / VTC est née d'une idée simple : la mobilité urbaine doit être bien plus qu'un simple trajet d'un point A à un point B. Ce doit être une expérience.</p>
                     <p class="text-muted">Nous croyons au pouvoir de la technologie pour rendre nos villes plus accessibles, nos voyages plus sûrs et notre planète plus propre. C'est pourquoi nous privilégions les standards de service les plus élevés et une flotte de prestige.</p>
                 </div>
                 <div class="col-lg-6 animate__animated animate__fadeInRight">
@@ -59,7 +59,7 @@
         <div class="container py-5">
             <div class="text-center mb-5">
                 <h2 class="display-6 fw-bold">Notre équipe de direction</h2>
-                <div class="text-primary fw-bold text-uppercase small" style="letter-spacing: 2px;">Les visages derrière ATLAS AND CO</div>
+                <div class="text-primary fw-bold text-uppercase small" style="letter-spacing: 2px;">Les visages derrière ATLAS TAXI / VTC</div>
             </div>
             
             <!-- Le BOSS -->

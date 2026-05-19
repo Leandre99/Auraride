@@ -46,9 +46,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Client Routes
 Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () {
     Route::get('/dashboard', function () {
+        $now = now();
         $trackingTrip = \App\Models\Trip::query()
             ->where('client_id', auth()->id())
             ->where('status', '!=', 'cancelled')
+            ->where(function ($q) use ($now) {
+                $q->whereNull('scheduled_at')
+                  ->orWhere('scheduled_at', '<=', $now->copy()->addMinutes(60));
+            })
             ->where(function ($q) {
                 $q->whereIn('status', ['pending', 'assigned', 'accepted', 'in_progress'])
                     ->orWhere(function ($q2) {
@@ -63,7 +68,15 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
             ->with(['driver', 'vehicle.vehicleType'])
             ->first();
 
-        return view('client.dashboard', compact('trackingTrip'));
+        $scheduledTrips = \App\Models\Trip::query()
+            ->where('client_id', auth()->id())
+            ->where('status', 'pending')
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '>', $now->copy()->addMinutes(60))
+            ->orderBy('scheduled_at', 'asc')
+            ->get();
+
+        return view('client.dashboard', compact('trackingTrip', 'scheduledTrips'));
     })->name('client.dashboard');
 
     Route::post('/trips/estimate', [\App\Http\Controllers\TripController::class, 'estimate'])->name('trips.estimate');
@@ -143,6 +156,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/trips/{trip}/rate', [\App\Http\Controllers\TripController::class, 'rate'])->name('trips.rate');
     Route::post('/trips/{trip}/confirm-payment', [\App\Http\Controllers\TripController::class, 'confirmPayment'])->name('trips.confirm-payment');
     Route::post('/trips/{trip}/pay', [\App\Http\Controllers\PaymentController::class, 'process'])->name('trips.pay');
+    Route::get('/trips/{trip}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadTripInvoice'])->name('trips.invoice');
+    Route::get('/rentals/{rental}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadRentalInvoice'])->name('rentals.invoice');
 });
 
 // Admin Routes

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Client - ATLAS AND CO')
+@section('title', 'Dashboard Client - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>
@@ -203,8 +203,31 @@
             </div>
         </div>
 
-        <!-- Colonne Formulaire (Plus compacte et centrée sur Desktop) -->
         <div class="col-lg-5 order-1 order-lg-2 animate__animated animate__slideInRight px-lg-4">
+            
+            @if(isset($scheduledTrips) && $scheduledTrips->count() > 0)
+            <div class="mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Mes réservations prévues</h5>
+                @foreach($scheduledTrips as $sTrip)
+                    <div class="card border-0 shadow-sm rounded-4 mb-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> {{ \Carbon\Carbon::parse($sTrip->scheduled_at)->format('d/m/Y à H:i') }}</span>
+                                <span class="fw-bold text-primary">{{ number_format($sTrip->price, 2) }} €</span>
+                            </div>
+                            <div class="small text-muted mb-1"><i class="bi bi-geo-alt text-primary me-1"></i> {{ Str::limit($sTrip->pickup_address, 40) }}</div>
+                            <div class="small text-muted mb-3"><i class="bi bi-flag text-danger me-1"></i> {{ Str::limit($sTrip->dropoff_address, 40) }}</div>
+                            
+                            <form action="{{ route('trips.cancel', $sTrip) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill" onclick="return confirm('Voulez-vous vraiment annuler cette réservation ?')">Annuler la réservation</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @endif
+
             <div class="booking-card shadow-lg border-0 sticky-top" style="top: 20px;">
                 @if(isset($trackingTrip))
                 <!-- Affichage de la course active -->
@@ -326,6 +349,13 @@
                                 <div class="input-dot dropoff"></div>
                                 <input type="text" id="dropoffInput" class="w-100" placeholder="Destination..." autocomplete="off">
                                 <div id="dropoffResults" class="autocomplete-results shadow" style="display: none;"></div>
+                            </div>
+                            <div class="input-row relative pt-2">
+                                <i class="bi bi-clock me-3 text-secondary"></i>
+                                <div class="w-100">
+                                    <input type="datetime-local" id="scheduledAtInput" class="w-100" style="font-size: 0.9rem;" title="Laisser vide pour un départ immédiat">
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Laissez vide pour un départ immédiat</small>
+                                </div>
                             </div>
                         </div>
 
@@ -779,7 +809,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     dropoff_lat: dropoffLat,
                     dropoff_lng: dropoffLng,
                     price: selectedVehicle.price,
-                    distance: selectedVehicle.distance
+                    distance: selectedVehicle.distance,
+                    scheduled_at: document.getElementById('scheduledAtInput').value || null
                 })
             });
 

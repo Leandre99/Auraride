@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion Courses - ATLAS AND CO')
+@section('title', 'Gestion Courses - ATLAS TAXI / VTC')
 
 @push('styles')
 <style>
@@ -127,7 +127,10 @@
                                 <tr>
                                     <td class="px-4 py-3">
                                         <div class="fw-bold text-dark">#{{ $trip->id }}</div>
-                                        <div class="small text-muted">{{ $trip->created_at->format('d/m/Y H:i') }}</div>
+                                        <div class="small text-muted">Créée le {{ $trip->created_at->format('d/m/Y H:i') }}</div>
+                                        @if($trip->scheduled_at)
+                                            <div class="badge bg-warning text-dark mt-1"><i class="bi bi-clock me-1"></i>Prévue: {{ \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y H:i') }}</div>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="fw-bold text-dark">{{ $trip->client->name }}</div>
@@ -184,6 +187,12 @@
                                                         <i class="bi bi-x-circle"></i>
                                                     </button>
                                                 </form>
+                                            @endif
+
+                                            @if($trip->status === 'completed' || $trip->payment_status === 'paid')
+                                                <a href="{{ route('trips.invoice', $trip) }}" class="btn-action" title="Télécharger la facture" target="_blank">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                </a>
                                             @endif
                                         </div>
                                     </td>

@@ -11,6 +11,8 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Trip;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class TripReceiptClient extends Mailable
 {
@@ -28,7 +30,7 @@ class TripReceiptClient extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Atlas And Co — Reçu de votre course du ' . $this->trip->created_at->format('d/m/Y'),
+            subject: 'Atlas Taxi / VTC — Reçu de votre course du ' . $this->trip->created_at->format('d/m/Y'),
         );
     }
 
@@ -46,6 +48,27 @@ class TripReceiptClient extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $taxRate = 0.10;
+        $totalAmount = $this->trip->price ?? 0;
+        $netAmount = $totalAmount / (1 + $taxRate);
+        $taxAmount = $totalAmount - $netAmount;
+        $description = 'Course: ' . ($this->trip->pickup_location ?? 'N/A') . ' - ' . ($this->trip->dropoff_location ?? 'N/A');
+
+        $data = [
+            'client' => $this->client,
+            'invoiceNumber' => 'INV-TRP-' . strtoupper(Str::random(8)),
+            'date' => $this->trip->created_at,
+            'description' => $description,
+            'netAmount' => $netAmount,
+            'taxAmount' => $taxAmount,
+            'totalAmount' => $totalAmount,
+        ];
+
+        $pdf = Pdf::loadView('pdf.invoice', $data);
+
+        return [
+            Attachment::fromData(fn () => $pdf->output(), 'Facture-Course-' . $this->trip->id . '.pdf')
+                ->withMime('application/pdf'),
+        ];
     }
 }

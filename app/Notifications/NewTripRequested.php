@@ -26,9 +26,9 @@ class NewTripRequested extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('🚀 Nouvelle Demande de Course - ATLAS AND CO')
+                    ->subject('🚀 Nouvelle Demande de Course - ATLAS TAXI / VTC')
                     ->greeting('Bonjour Admin,')
-                    ->line('Une nouvelle demande de course vient d\'être soumise sur ATLAS AND CO.')
+                    ->line('Une nouvelle demande de course vient d\'être soumise sur ATLAS TAXI / VTC.')
                     ->line('**Détails de la course :**')
                     ->line('Client : ' . $this->trip->client->name)
                     ->line('Départ : ' . $this->trip->pickup_address)

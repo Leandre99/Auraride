@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Rejoindre ATLAS AND CO')
+@section('title', 'Rejoindre ATLAS TAXI / VTC')
 
 @push('styles')
 <style>
@@ -55,7 +55,7 @@
 <div class="auth-fixed-wrapper">
     <div class="auth-card" id="registerPanel" style="opacity: 0; transform: translateY(20px);">
         <div class="text-center mb-4">
-            <h2 class="h3 mb-2">Rejoindre ATLAS AND CO</h2>
+            <h2 class="h3 mb-2">Rejoindre ATLAS TAXI / VTC</h2>
             <p class="text-muted small">Commencez votre voyage avec nous.</p>
         </div>
 

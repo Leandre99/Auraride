@@ -59,6 +59,6 @@
         </ul>
     </div>
 
-    <p>Cordialement,<br><strong>ATLAS AND CO</strong></p>
+    <p>Cordialement,<br><strong>ATLAS TAXI / VTC</strong></p>
 </body>
 </html>

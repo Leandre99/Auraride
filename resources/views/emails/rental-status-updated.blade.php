@@ -55,7 +55,7 @@
 
     <p style="margin-top: 30px;">
         Cordialement,<br>
-        <strong>ATLAS AND CO</strong>
+        <strong>ATLAS TAXI / VTC</strong>
     </p>
 </body>
 </html>

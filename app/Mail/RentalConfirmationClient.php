@@ -22,7 +22,7 @@ class RentalConfirmationClient extends Mailable
 
     public function build()
     {
-        return $this->subject('ATLAS AND CO - Confirmation de votre demande de location')
+        return $this->subject('ATLAS TAXI / VTC - Confirmation de votre demande de location')
                     ->view('emails.rental-confirmation-client');
     }
 }

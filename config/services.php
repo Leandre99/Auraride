@@ -39,5 +39,9 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+        'sms_sender' => env('BREVO_SMS_SENDER', 'ATLAS VTC'),
+    ],
 
 ];

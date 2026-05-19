@@ -19,7 +19,7 @@
                                         <div style="background-color: #ffffff; color: #2563eb; width: 40px; height: 40px; border-radius: 50%; text-align: center; line-height: 40px; font-size: 24px; font-weight: bold; margin-right: 15px;">A</div>
                                     </td>
                                     <td valign="middle">
-                                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Atlas And Co</h1>
+                                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Atlas Taxi / VTC</h1>
                                     </td>
                                     <td valign="middle" align="right">
                                         <span style="font-size: 14px; opacity: 0.9;">Reçu #{{ str_pad($trip->id, 5, '0', STR_PAD_LEFT) }}</span>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nos Tarifs - ATLAS AND CO')
+@section('title', 'Nos Tarifs - ATLAS TAXI / VTC')
 
 @section('content')
     <!-- Executive Header -->

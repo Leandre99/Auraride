@@ -22,7 +22,7 @@ class RentalNotificationAdmin extends Mailable
 
     public function build()
     {
-        return $this->subject('🔔 Nouvelle demande de location - ATLAS AND CO')
+        return $this->subject('🔔 Nouvelle demande de location - ATLAS TAXI / VTC')
                     ->view('emails.rental-notification-admin');
     }
 }
