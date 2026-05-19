@@ -237,18 +237,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Formulaire de paiement
+    // Formulaire de paiement / avis
     var paymentForm = document.getElementById('payment-form');
     if (paymentForm) {
         paymentForm.addEventListener('submit', function(e) {
-            var cardRadio = document.getElementById('pay_card');
-            if (cardRadio && cardRadio.checked) {
-                e.preventDefault();
-                var btn = document.getElementById('submit-btn');
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Traitement...';
-                btn.disabled = true;
-                setTimeout(function() { paymentForm.submit(); }, 1500);
-            }
+            e.preventDefault();
+            var btn = document.getElementById('submit-btn');
+            var originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Validation en cours...';
+            btn.disabled = true;
+
+            var formData = new FormData(paymentForm);
+            
+            fetch(paymentForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var statusCard = document.getElementById('status-card');
+                    if (statusCard) {
+                        statusCard.innerHTML = `
+                            <div class="text-center py-5 px-4 animate__animated animate__fadeIn bg-white text-dark rounded-4">
+                                <div class="mb-4">
+                                    <i class="bi bi-heart-fill text-danger" style="font-size: 4.5rem; display: inline-block;"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3 text-dark">Merci pour votre avis !</h4>
+                                <p class="text-muted mb-4 small" style="line-height: 1.6;">Votre avis a bien été enregistré. Merci d\'avoir choisi ATLAS TAXI / VTC ! Votre facture a été envoyée par email.</p>
+                                <div class="d-flex align-items-center justify-content-center gap-2 text-muted">
+                                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                    <span style="font-size: 0.85rem;">Redirection vers votre historique...</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    setTimeout(function() {
+                        window.location.href = "{{ route('my.rentals') }}";
+                    }, 4000);
+                } else {
+                    alert('Erreur lors de la validation : ' + (data.message || 'veuillez réessayer.'));
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Erreur réseau.');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            });
         });
     }
 });

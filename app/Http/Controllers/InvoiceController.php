@@ -18,11 +18,11 @@ class InvoiceController extends Controller
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
 
-        $description = 'Course: N/A - N/A';
+        $description = 'Course: ' . ($trip->pickup_address ?? 'N/A') . ' - ' . ($trip->dropoff_address ?? 'N/A');
 
         $data = [
             'client' => $trip->client,
-            'clientName' => 'Client',
+            'clientName' => $trip->client->name ?? 'Client',
             'invoiceNumber' => 'INV-TRP-' . strtoupper(Str::random(8)),
             'date' => $trip->created_at,
             'description' => $description,
@@ -42,11 +42,11 @@ class InvoiceController extends Controller
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
 
-        $description = 'Location: N/A - N/A';
+        $description = 'Location: ' . ($rental->vehicleType->name ?? 'Véhicule') . ' (du ' . ($rental->start_date ? $rental->start_date->format('d/m/Y') : 'N/A') . ' au ' . ($rental->end_date ? $rental->end_date->format('d/m/Y') : 'N/A') . ')';
 
         $data = [
             'client' => $rental->user,
-            'clientName' => 'Client',
+            'clientName' => $rental->user->name ?? 'Client',
             'invoiceNumber' => 'INV-LOC-' . strtoupper(Str::random(8)),
             'date' => $rental->created_at,
             'description' => $description,

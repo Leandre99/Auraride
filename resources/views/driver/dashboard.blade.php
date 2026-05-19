@@ -411,7 +411,8 @@
                     var method = this.getAttribute('data-method');
                     var url = this.getAttribute('data-url');
                     
-                    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    var label = method === 'cash' ? 'Espèces' : 'TPE / Carte';
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm d-block mx-auto mb-1" role="status" aria-hidden="true" style="width: 1.5rem; height: 1.5rem; border-width: 0.15em;"></span> ' + label;
                     this.disabled = true;
                     var otherBtns = document.querySelectorAll('.payment-btn');
                     otherBtns.forEach(b => b.disabled = true);

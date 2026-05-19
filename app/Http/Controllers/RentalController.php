@@ -132,9 +132,9 @@ class RentalController extends Controller
         $merged = $rentals->concat($trips)->sortByDesc('created_at')->values();
 
         $page = $request->get('page', 1);
-        $perPage = 10;
+        $perPage = 5;
         $items = new LengthAwarePaginator(
-            $merged->forPage($page, $perPage),
+            $merged->forPage($page, $perPage)->values(),
             $merged->count(),
             $perPage,
             $page,
