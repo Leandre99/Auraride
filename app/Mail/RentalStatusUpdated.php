@@ -44,11 +44,11 @@ class RentalStatusUpdated extends Mailable
             $totalAmount = $this->rental->total_price ?? 0;
             $netAmount = $totalAmount / (1 + $taxRate);
             $taxAmount = $totalAmount - $netAmount;
-            $description = 'Location: ' . ($this->rental->vehicleType->name ?? 'Véhicule') . ' (' . ($this->rental->duration_hours ?? 0) . 'h)';
+            $description = 'Location: N/A - N/A';
 
             $data = [
                 'client' => $this->rental->user,
-                'clientName' => $this->rental->user->name ?? 'Client',
+                'clientName' => 'Client',
                 'invoiceNumber' => 'INV-LOC-' . strtoupper(Str::random(8)),
                 'date' => $this->rental->created_at,
                 'description' => $description,

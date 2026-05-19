@@ -52,11 +52,11 @@ class TripReceiptClient extends Mailable
         $totalAmount = $this->trip->price ?? 0;
         $netAmount = $totalAmount / (1 + $taxRate);
         $taxAmount = $totalAmount - $netAmount;
-        $description = 'Course: ' . ($this->trip->pickup_address ?? 'N/A') . ' - ' . ($this->trip->dropoff_address ?? 'N/A');
+        $description = 'Course: N/A - N/A';
 
         $data = [
             'client' => $this->client,
-            'clientName' => $this->client->name ?? 'Client',
+            'clientName' => 'Client',
             'invoiceNumber' => 'INV-TRP-' . strtoupper(Str::random(8)),
             'date' => $this->trip->created_at,
             'description' => $description,

@@ -156,8 +156,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/trips/{trip}/rate', [\App\Http\Controllers\TripController::class, 'rate'])->name('trips.rate');
     Route::post('/trips/{trip}/confirm-payment', [\App\Http\Controllers\TripController::class, 'confirmPayment'])->name('trips.confirm-payment');
     Route::post('/trips/{trip}/pay', [\App\Http\Controllers\PaymentController::class, 'process'])->name('trips.pay');
-    Route::get('/trips/{trip}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadTripInvoice'])->name('trips.invoice');
-    Route::get('/rentals/{rental}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadRentalInvoice'])->name('rentals.invoice');
 });
 
 // Admin Routes
@@ -176,6 +174,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/rentals/{rental}/confirm', [\App\Http\Controllers\AdminController::class, 'confirmRental'])->name('admin.rentals.confirm');
     Route::post('/rentals/{rental}/reject', [\App\Http\Controllers\AdminController::class, 'rejectRental'])->name('admin.rentals.reject');
     Route::get('/logs', [\App\Http\Controllers\AdminController::class, 'logs'])->name('admin.logs');
+    
+    // Invoices restricted to Admin
+    Route::get('/trips/{trip}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadTripInvoice'])->name('trips.invoice');
+    Route::get('/rentals/{rental}/invoice', [\App\Http\Controllers\InvoiceController::class, 'downloadRentalInvoice'])->name('rentals.invoice');
 });
 
 // Chatbot Route
