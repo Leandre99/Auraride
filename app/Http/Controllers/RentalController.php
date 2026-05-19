@@ -72,23 +72,21 @@ class RentalController extends Controller
                 'status' => 'pending'
             ]);
 
-            // 4. Log et Notifications (en mode sécurisé)
+            // 4. Log et Notifications (en mode asynchrone)
             try {
                 ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
 
-                $smsService = new \App\Services\SmsService();
-                
                 // SMS au client
                 if (!empty($user->phone_number)) {
                     $msgClient = "ATLAS VTC: Votre demande de location pour un(e) {$vehicleType->name} a bien été enregistrée. Nous la traitons rapidement.";
-                    $smsService->sendSms($user->phone_number, $msgClient);
+                    \App\Jobs\SendSmsJob::dispatch($user->phone_number, $msgClient);
                 }
 
                 // SMS aux admins
                 $admins = \App\Models\User::where('role', 'admin')->get();
                 foreach ($admins as $admin) {
                     if (!empty($admin->phone_number)) {
-                        $smsService->sendSms($admin->phone_number, "NOUVELLE LOCATION (ATLAS VTC): {$user->name} souhaite louer un(e) {$vehicleType->name} du " . \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') . " au " . \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') . ".");
+                        \App\Jobs\SendSmsJob::dispatch($admin->phone_number, "NOUVELLE LOCATION (ATLAS VTC): {$user->name} souhaite louer un(e) {$vehicleType->name} du " . \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') . " au " . \Carbon\Carbon::parse($rental->end_date)->format('d/m/Y') . ".");
                     }
                 }
             } catch (\Exception $smsEx) {

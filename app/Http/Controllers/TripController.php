@@ -99,23 +99,21 @@ class TripController extends Controller
         // Charger la relation client pour les notifications
         $trip->load('client');
 
-        // ========== ENVOI DES NOTIFICATIONS (SMS) ==========
-        $smsService = new \App\Services\SmsService();
-
+        // ========== ENVOI DES NOTIFICATIONS (SMS EN ARRIÈRE-PLAN) ==========
         // 1. SMS au client
         if (!empty($client->phone_number)) {
             $msgClient = "ATLAS VTC: Votre demande de course a bien été reçue. Départ: " . \Illuminate\Support\Str::limit($trip->pickup_address, 30);
             if ($trip->scheduled_at) {
                 $msgClient .= " prévue le " . \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y H:i');
             }
-            $smsService->sendSms($client->phone_number, $msgClient);
+            \App\Jobs\SendSmsJob::dispatch($client->phone_number, $msgClient);
         }
 
         // 2. SMS aux admins
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
             if (!empty($admin->phone_number)) {
-                $smsService->sendSms($admin->phone_number, "NOUVELLE COURSE (ATLAS VTC): De " . \Illuminate\Support\Str::limit($trip->pickup_address, 15) . " vers " . \Illuminate\Support\Str::limit($trip->dropoff_address, 15) . " (" . $trip->price . "€)");
+                \App\Jobs\SendSmsJob::dispatch($admin->phone_number, "NOUVELLE COURSE (ATLAS VTC): De " . \Illuminate\Support\Str::limit($trip->pickup_address, 15) . " vers " . \Illuminate\Support\Str::limit($trip->dropoff_address, 15) . " (" . $trip->price . "€)");
             }
         }
 
@@ -176,6 +174,17 @@ class TripController extends Controller
             'status' => 'assigned',
         ]);
 
+        $trip->load(['client', 'driver', 'vehicle']);
+
+        if (!empty($trip->client->phone_number)) {
+            $dateTxt = $trip->scheduled_at ? 'prévue le ' . \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y à H:i') : 'immédiate';
+            \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, "ATLAS VTC: Un chauffeur ({$driver->name}) a été assigné à votre course {$dateTxt}.");
+        }
+        
+        if (!empty($driver->phone_number)) {
+            \App\Jobs\SendSmsJob::dispatch($driver->phone_number, "ATLAS VTC: Une nouvelle course vous a été assignée. Veuillez consulter votre application.");
+        }
+
         try {
             event(new \App\Events\TripAssigned($trip));
         } catch (\Throwable $e) {
@@ -203,6 +212,12 @@ class TripController extends Controller
         }
 
         $trip->update(['status' => 'accepted']);
+
+        $trip->load(['client', 'driver']);
+        if (!empty($trip->client->phone_number)) {
+            $dateTxt = $trip->scheduled_at ? 'prévue le ' . \Carbon\Carbon::parse($trip->scheduled_at)->format('d/m/Y à H:i') : 'immédiate';
+            \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, "ATLAS VTC: Le chauffeur {$trip->driver->name} a confirmé sa présence pour votre course {$dateTxt}.");
+        }
 
         try {
             event(new TripAccepted($trip));
@@ -303,11 +318,21 @@ class TripController extends Controller
             'payment_status' => 'pending',
         ]);
 
+        $trip->load('driver');
+        if ($trip->driver && !empty($trip->driver->phone_number)) {
+            $stars = str_repeat('★', $request->rating) . str_repeat('☆', 5 - $request->rating);
+            $msg = "ATLAS VTC: Un client vous a évalué : {$stars}.";
+            if ($request->comment) {
+                $msg .= " \"{$request->comment}\"";
+            }
+            \App\Jobs\SendSmsJob::dispatch($trip->driver->phone_number, $msg);
+        }
+
         if ($request->expectsJson()) {
             return response()->json(['success' => true]);
         }
 
-        return redirect()->route('home')->with('success', 'Merci pour votre avis !');
+        return redirect()->route('my.rentals')->with('success', 'Merci pour votre avis !');
     }
 
     public function markPaid(Request $request, Trip $trip)
@@ -330,8 +355,7 @@ class TripController extends Controller
             try {
                 \Illuminate\Support\Facades\Mail::to($trip->client->email)->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
                 if (!empty($trip->client->phone_number)) {
-                    $smsService = new \App\Services\SmsService();
-                    $smsService->sendSms($trip->client->phone_number, "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.");
+                    \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.");
                 }
             } catch (\Exception $e) {
                 Log::error('Erreur lors de l\'envoi du reçu: ' . $e->getMessage());

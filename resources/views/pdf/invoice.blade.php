@@ -83,7 +83,7 @@
     <table class="top-section">
         <tr>
             <td class="client-info">
-                {{ $client->name ?? 'Client' }}<br>
+                {{ $clientName ?? 'Client' }}<br>
                 France
             </td>
             <td class="company-info">

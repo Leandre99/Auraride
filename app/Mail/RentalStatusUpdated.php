@@ -48,6 +48,7 @@ class RentalStatusUpdated extends Mailable
 
             $data = [
                 'client' => $this->rental->user,
+                'clientName' => $this->rental->user->name ?? 'Client',
                 'invoiceNumber' => 'INV-LOC-' . strtoupper(Str::random(8)),
                 'date' => $this->rental->created_at,
                 'description' => $description,

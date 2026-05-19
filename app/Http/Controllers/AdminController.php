@@ -134,10 +134,25 @@ class AdminController extends Controller
 
         ActivityLog::log('rental_status_updated', "L'admin a mis à jour le statut de la location #{$rental->id} de {$oldStatus} vers {$request->status}", $rental);
 
-        try {
-            Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
-        } catch (\Exception $e) {
-            \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
+        if (in_array($request->status, ['confirmed', 'completed'])) {
+            try {
+                Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
+                if (!empty($rental->user->phone_number)) {
+                    \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location a été confirmée. Votre facture a été envoyée par email.");
+                }
+            } catch (\Exception $e) {
+                \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
+            }
+        } else {
+            if (!empty($rental->user->phone_number)) {
+                $statusMessages = [
+                    'rejected' => 'refusée',
+                    'cancelled' => 'annulée',
+                    'pending' => 'remise en attente'
+                ];
+                $statusMsg = $statusMessages[$request->status] ?? 'mise à jour';
+                \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre demande de location a été {$statusMsg}.");
+            }
         }
 
         $statusMessages = [

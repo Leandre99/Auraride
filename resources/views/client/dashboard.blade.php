@@ -204,7 +204,7 @@
         </div>
 
         <div class="col-lg-5 order-1 order-lg-2 animate__animated animate__slideInRight px-lg-4">
-            
+
             @if(isset($scheduledTrips) && $scheduledTrips->count() > 0)
             <div class="mb-4">
                 <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Mes réservations prévues</h5>
@@ -217,7 +217,7 @@
                             </div>
                             <div class="small text-muted mb-1"><i class="bi bi-geo-alt text-primary me-1"></i> {{ Str::limit($sTrip->pickup_address, 40) }}</div>
                             <div class="small text-muted mb-3"><i class="bi bi-flag text-danger me-1"></i> {{ Str::limit($sTrip->dropoff_address, 40) }}</div>
-                            
+
                             <form action="{{ route('trips.cancel', $sTrip) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill" onclick="return confirm('Voulez-vous vraiment annuler cette réservation ?')">Annuler la réservation</button>
@@ -302,8 +302,8 @@
                                     </div>
                                     <div class="col-6">
                                         @if($trackingTrip->driver?->phone_number)
-                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}" 
-                                               target="_blank" 
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $trackingTrip->driver->phone_number) }}?text={{ urlencode('Bonjour, je suis votre client pour la course de ' . $trackingTrip->pickup_address) }}"
+                                               target="_blank"
                                                class="btn btn-success w-100 py-2 rounded-3 fw-bold">
                                                 <i class="bi bi-whatsapp me-2"></i>WhatsApp
                                             </a>
@@ -327,7 +327,6 @@
                 <!-- Formulaire de réservation classique -->
                 <div class="booking-header bg-primary text-white p-4 rounded-top-4">
                     <h4 class="fw-bold mb-1">📍 Réserver une course</h4>
-                    <p class="opacity-75 small mb-0">Chauffeur privé à la demande</p>
                 </div>
 
                 <div class="booking-body p-4">
@@ -447,10 +446,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     iconAnchor: [12, 41]
                 })
             }).addTo(map).bindPopup("Vous êtes ici").openPopup();
-            
+
             pickupLat = e.latlng.lat;
             pickupLng = e.latlng.lng;
-            
+
             // Inversion de géocodage pour l'adresse de départ
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pickupLat}&lon=${pickupLng}`)
                 .then(r => r.json())
@@ -494,7 +493,20 @@ document.addEventListener('DOMContentLoaded', function() {
     async function searchAddress(query) {
         if (!query || query.length < 3) return [];
         try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+            let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+            
+            // Si la position géographique de l'utilisateur est connue, on privilégie les lieux autour de lui
+            if (pickupLat && pickupLng) {
+                // viewbox (left, top, right, bottom) : environ 50km autour
+                const left = pickupLng - 0.5;
+                const right = pickupLng + 0.5;
+                const top = pickupLat + 0.5;
+                const bottom = pickupLat - 0.5;
+                // bounded=0 signifie qu'il préfère cette zone mais peut chercher ailleurs si rien n'est trouvé
+                url += `&viewbox=${left},${top},${right},${bottom}&bounded=0`;
+            }
+            
+            const res = await fetch(url);
             return await res.json();
         } catch {
             return [];
@@ -557,14 +569,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.activeTrip && pickupLat && dropoffLat) {
         pickupMarker = L.marker([pickupLat, pickupLng], { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Départ');
         dropoffMarker = L.marker([dropoffLat, dropoffLng], { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Arrivée');
-        
+
         const routeLine = L.polyline([[pickupLat, pickupLng], [dropoffLat, dropoffLng]], {
             color: '#2563eb',
             weight: 5,
             opacity: 0.7,
             dashArray: '10, 10'
         }).addTo(map);
-        
+
         map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
     }
 
@@ -726,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         updatePriceSummary(updated);
                     }
                 }
-                
+
                 // Update Mappy Link again
                 updateMappyLink();
 
@@ -820,10 +832,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmBtn.classList.add('btn-success');
                 confirmBtn.innerHTML = '✅ Course confirmée !';
 
-                // Petite pause pour laisser l'utilisateur voir le succès
                 setTimeout(() => {
-                    window.location.href = '/client/trips/' + data.id + '/track';
-                }, 1000);
+                    alert("Merci d'avoir effectué une réservation sur la plateforme Atlas Taxi / VTC !");
+                    if (data.scheduled_at) {
+                        window.location.href = '/';
+                    } else {
+                        window.location.href = '/client/trips/' + data.id + '/track';
+                    }
+                }, 500);
             } else {
                 const err = await res.json();
                 alert(err.message || 'Erreur lors de la réservation');

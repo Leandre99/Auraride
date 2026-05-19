@@ -323,10 +323,10 @@
                                 <div class="mb-4">
                                     <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
                                 </div>
-                                <h3 class="fw-bold mb-3">Location transmise !</h3>
-                                <p class="text-muted mb-4">Votre demande de location a été envoyée avec succès. Un agent <strong>ATLAS TAXI / VTC</strong> va l'étudier et vous recevrez une réponse par mail très prochainement.</p>
-                                <a href="{{ route('my.rentals') }}" class="btn btn-premium px-5 py-3 rounded-pill">
-                                    Voir mon historique
+                                <h3 class="fw-bold mb-3">Merci d'avoir effectué une location sur notre plateforme !</h3>
+                                <p class="text-muted mb-4">Votre demande a été envoyée avec succès. Un agent va l'étudier et vous recevrez un SMS de confirmation très prochainement.</p>
+                                <a href="{{ route('home') }}" class="btn btn-premium px-5 py-3 rounded-pill">
+                                    Retour à l'accueil
                                 </a>
                             </div>
                         `;
