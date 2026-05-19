@@ -875,7 +875,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     setTimeout(() => {
                         window.location.href = "{{ route('my.rentals') }}";
-                    }, 4000);
+                    }, 10000);
                 } else {
                     // Course immédiate ou pour aujourd'hui : redirection immédiate vers le suivi
                     window.location.href = '/client/trips/' + data.id + '/track';

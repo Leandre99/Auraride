@@ -39,7 +39,7 @@ class RentalStatusUpdated extends Mailable
         $mail = $this->subject("ATLAS TAXI / VTC - Votre demande de location a été {$message}")
                      ->view('emails.rental-status-updated');
 
-        if (in_array($this->newStatus, ['confirmed', 'completed'])) {
+        if ($this->newStatus === 'completed') {
             $taxRate = 0.10;
             $totalAmount = $this->rental->total_price ?? 0;
             $netAmount = $totalAmount / (1 + $taxRate);

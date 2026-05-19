@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     setTimeout(function() {
                         window.location.href = "{{ route('my.rentals') }}";
-                    }, 4000);
+                    }, 10000);
                 } else {
                     alert('Erreur lors de la validation : ' + (data.message || 'veuillez réessayer.'));
                     btn.innerHTML = originalHtml;

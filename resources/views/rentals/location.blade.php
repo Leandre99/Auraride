@@ -337,7 +337,7 @@
                         
                         setTimeout(() => {
                             window.location.href = "{{ route('my.rentals') }}";
-                        }, 4000);
+                        }, 10000);
                     } else {
                         const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur ' + res.status);
                         alert('Une erreur est survenue : ' + msg);

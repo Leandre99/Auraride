@@ -134,14 +134,26 @@ class AdminController extends Controller
 
         ActivityLog::log('rental_status_updated', "L'admin a mis à jour le statut de la location #{$rental->id} de {$oldStatus} vers {$request->status}", $rental);
 
-        if (in_array($request->status, ['confirmed', 'completed'])) {
+        if ($request->status === 'completed') {
             try {
                 $admins = User::where('role', 'admin')->pluck('email')->toArray();
                 Mail::to($rental->user->email)
                     ->cc($admins)
                     ->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
                 if (!empty($rental->user->phone_number)) {
-                    \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location a été confirmée. Votre facture a été envoyée par email.");
+                    \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location est terminée. Votre facture a été envoyée par email.");
+                }
+            } catch (\Exception $e) {
+                \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
+            }
+        } elseif ($request->status === 'confirmed') {
+            try {
+                $admins = User::where('role', 'admin')->pluck('email')->toArray();
+                Mail::to($rental->user->email)
+                    ->cc($admins)
+                    ->queue(new RentalStatusUpdated($rental, $oldStatus, $request->status));
+                if (!empty($rental->user->phone_number)) {
+                    \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location a été confirmée.");
                 }
             } catch (\Exception $e) {
                 \Log::error('Erreur mise en file d\'attente email : ' . $e->getMessage());
@@ -180,6 +192,9 @@ class AdminController extends Controller
 
         try {
             Mail::to($rental->user->email)->queue(new RentalStatusUpdated($rental, $oldStatus));
+            if (!empty($rental->user->phone_number)) {
+                \App\Jobs\SendSmsJob::dispatch($rental->user->phone_number, "ATLAS VTC: Votre location a été confirmée.");
+            }
         } catch (\Exception $e) {
         }
 
