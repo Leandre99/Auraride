@@ -325,11 +325,19 @@
                                 </div>
                                 <h3 class="fw-bold mb-3">Merci d'avoir effectué une location sur notre plateforme !</h3>
                                 <p class="text-muted mb-4">Votre demande a été envoyée avec succès. Un agent va l'étudier et vous recevrez un SMS de confirmation très prochainement.</p>
-                                <a href="{{ route('home') }}" class="btn btn-premium px-5 py-3 rounded-pill">
-                                    Retour à l'accueil
+                                <div class="d-flex align-items-center justify-content-center gap-2 text-muted mb-4">
+                                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                    <span style="font-size: 0.85rem;">Redirection vers votre historique...</span>
+                                </div>
+                                <a href="{{ route('my.rentals') }}" class="btn btn-premium px-5 py-3 rounded-pill">
+                                    Aller à l'historique immédiatement
                                 </a>
                             </div>
                         `;
+                        
+                        setTimeout(() => {
+                            window.location.href = "{{ route('my.rentals') }}";
+                        }, 4000);
                     } else {
                         const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur ' + res.status);
                         alert('Une erreur est survenue : ' + msg);

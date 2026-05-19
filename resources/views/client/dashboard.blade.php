@@ -832,14 +832,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmBtn.classList.add('btn-success');
                 confirmBtn.innerHTML = '✅ Course confirmée !';
 
+                // Message adapté selon que la course soit immédiate ou planifiée
+                let title = "Merci pour votre réservation !";
+                let msg = "Votre demande a bien été reçue. Elle sera prise en compte et un chauffeur va vous être attribué très prochainement.";
+                
+                if (data.scheduled_at) {
+                    const dateFormatted = new Date(data.scheduled_at).toLocaleString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    title = "Réservation enregistrée !";
+                    msg = `Votre course prévue le ${dateFormatted} a bien été enregistrée. Elle sera prise en compte et un chauffeur vous sera attribué.`;
+                }
+
+                // Remplacement du contenu de la carte par le message de remerciement
+                const bookingCard = document.querySelector('.booking-card');
+                if (bookingCard) {
+                    bookingCard.innerHTML = `
+                        <div class="text-center py-5 px-4 animate__animated animate__fadeIn">
+                            <div class="mb-4">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3 text-dark">${title}</h4>
+                            <p class="text-muted mb-4 small" style="line-height: 1.6;">${msg}</p>
+                            <div class="d-flex align-items-center justify-content-center gap-2 text-muted">
+                                <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                <span style="font-size: 0.85rem;">Redirection vers votre historique...</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 setTimeout(() => {
-                    alert("Merci d'avoir effectué une réservation sur la plateforme Atlas Taxi / VTC !");
-                    if (data.scheduled_at) {
-                        window.location.href = '/';
-                    } else {
-                        window.location.href = '/client/trips/' + data.id + '/track';
-                    }
-                }, 500);
+                    window.location.href = "{{ route('my.rentals') }}";
+                }, 4000);
             } else {
                 const err = await res.json();
                 alert(err.message || 'Erreur lors de la réservation');
