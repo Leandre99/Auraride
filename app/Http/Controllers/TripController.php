@@ -249,6 +249,7 @@ class TripController extends Controller
         $trip->update(['status' => 'in_progress']);
 
         ActivityLog::log('trip_started', "Le chauffeur {$trip->driver->name} a démarré la course #{$trip->id}", $trip);
+        event(new \App\Events\TripUpdated($trip));
 
         if (request()->expectsJson()) {
             return response()->json($trip);
@@ -273,6 +274,7 @@ class TripController extends Controller
         $trip->update(['status' => 'completed']);
 
         ActivityLog::log('trip_completed', "Le chauffeur {$trip->driver->name} a terminé la course #{$trip->id}", $trip);
+        event(new \App\Events\TripUpdated($trip));
 
         if (request()->expectsJson()) {
             return response()->json($trip);
@@ -291,6 +293,7 @@ class TripController extends Controller
 
         $actor = auth()->user()->role === 'admin' ? "L'administrateur" : (auth()->user()->role === 'driver' ? "Le chauffeur" : "Le client");
         ActivityLog::log('trip_cancelled', "{$actor} a annulé la course #{$trip->id}", $trip);
+        event(new \App\Events\TripUpdated($trip));
 
         if (request()->expectsJson()) {
             return response()->json($trip);

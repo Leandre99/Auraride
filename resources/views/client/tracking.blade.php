@@ -218,23 +218,13 @@ document.addEventListener('DOMContentLoaded', function() {
     L.marker(startPos, { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Départ');
     L.marker(endPos, { icon: L.icon({ iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', iconSize: [25, 41] }) }).addTo(map).bindPopup('Arrivée');
 
-    // Auto-refresh toutes les 3 secondes pour les statuts actifs
-    if (['pending', 'assigned', 'accepted', 'in_progress'].includes(rideStatus)) {
-        setInterval(function() {
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newStatusCard = doc.getElementById('status-card');
-                    const oldStatusCard = document.getElementById('status-card');
-
-                    if (newStatusCard && oldStatusCard && newStatusCard.innerHTML !== oldStatusCard.innerHTML) {
-                        window.location.reload();
-                    }
-                })
-                .catch(console.error);
-        }, 3000);
+    // Auto-refresh via WebSockets
+    if (typeof window.Echo !== 'undefined' && ['pending', 'assigned', 'accepted', 'in_progress'].includes(rideStatus)) {
+        window.Echo.private('trip.{{ $trip->id }}')
+            .listen('TripAssigned', (e) => window.location.reload())
+            .listen('TripAccepted', (e) => window.location.reload())
+            .listen('TripUpdated', (e) => window.location.reload())
+            .listen('LocationUpdated', (e) => window.location.reload());
     }
 
     // Formulaire de paiement / avis

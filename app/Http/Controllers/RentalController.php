@@ -75,6 +75,13 @@ class RentalController extends Controller
             // 4. Log et Notifications (en mode asynchrone)
             try {
                 ActivityLog::log('rental_requested', "Le client {$user->name} a fait une demande de location pour un(e) {$vehicleType->name} (#{$rental->id})", $rental);
+                
+                // Diffuser l'événement en temps réel
+                try {
+                    event(new \App\Events\RentalRequested($rental));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Erreur événement WebSocket RentalRequested : ' . $e->getMessage());
+                }
 
                 // SMS au client
                 if (!empty($user->phone_number)) {

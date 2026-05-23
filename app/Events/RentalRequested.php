@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Trip;
+use App\Models\Rental;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,20 +11,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TripRequested implements ShouldBroadcast
+class RentalRequested implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $trip;
+    public $rental;
 
-    public function __construct(Trip $trip)
+    public function __construct(Rental $rental)
     {
-        $this->trip = $trip;
+        $this->rental = $rental;
     }
 
     public function broadcastOn(): array
     {
-        // Broadcast on a private channel for admins
         return [
             new PrivateChannel('admins'),
         ];

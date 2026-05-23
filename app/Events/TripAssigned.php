@@ -25,6 +25,7 @@ class TripAssigned implements ShouldBroadcast
     {
         return [
             new PrivateChannel('drivers.' . $this->trip->driver_id),
+            new PrivateChannel('trip.' . $this->trip->id),
         ];
     }
 }

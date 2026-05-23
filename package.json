@@ -7,7 +7,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "start": "concurrently \"php artisan serve\" \"npm run dev\" \"php artisan queue:work\" \"php artisan reverb:start\" --names=Serveur,Vite,Queues,Reverb -c bgBlue.bold,bgGreen.bold,bgMagenta.bold,bgCyan.bold --kill-others"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

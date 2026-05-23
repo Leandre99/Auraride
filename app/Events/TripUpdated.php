@@ -11,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TripRequested implements ShouldBroadcast
+class TripUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,8 +24,8 @@ class TripRequested implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
-        // Broadcast on a private channel for admins
         return [
+            new PrivateChannel('trip.' . $this->trip->id),
             new PrivateChannel('admins'),
         ];
     }

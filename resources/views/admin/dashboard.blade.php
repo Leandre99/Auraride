@@ -515,4 +515,18 @@
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mettre à jour automatiquement le tableau de bord quand une nouvelle demande arrive
+        if (typeof window.Echo !== 'undefined') {
+            window.Echo.private('admins')
+                .listen('TripRequested', (e) => {
+                    window.location.reload();
+                })
+                .listen('RentalRequested', (e) => {
+                    window.location.reload();
+                });
+        }
+    });
+</script>
 @endpush

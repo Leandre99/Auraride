@@ -388,20 +388,11 @@
             tick();
         }
 
-        if (['assigned', 'accepted', 'in_progress'].indexOf(rideStatus) !== -1) {
-            setInterval(function () {
-                fetch(window.location.href)
-                    .then(function (r) { return r.text(); })
-                    .then(function (html) {
-                        var doc = new DOMParser().parseFromString(html, 'text/html');
-                        if (!doc.querySelector('.active-trip-card')) {
-                            window.location.reload();
-                            return;
-                        }
-                        var m = html.match(/var rideStatus = "([^"]+)"/);
-                        if (m && m[1] !== rideStatus) window.location.reload();
-                    });
-            }, 3000);
+        // Ecoute WebSocket au lieu du polling HTTP
+        if (typeof window.Echo !== 'undefined') {
+            window.Echo.private('trip.{{ $activeTrip->id }}')
+                .listen('TripAccepted', (e) => window.location.reload())
+                .listen('LocationUpdated', (e) => window.location.reload());
         }
 
         var paymentBtns = document.querySelectorAll('.payment-btn');
@@ -453,20 +444,14 @@
     document.addEventListener('DOMContentLoaded', function () {
         var container = document.getElementById('driver-available-trips');
         if (!container) return;
-        setInterval(function () {
-            fetch(window.location.href)
-                .then(function (r) { return r.text(); })
-                .then(function (html) {
-                    var doc = new DOMParser().parseFromString(html, 'text/html');
-                    var next = doc.getElementById('driver-available-trips');
-                    if (next && container.innerHTML !== next.innerHTML) {
-                        window.location.reload();
-                    }
-                    if (doc.querySelector('.active-trip-card')) {
-                        window.location.reload();
-                    }
+        
+        // Ecoute WebSocket au lieu du polling HTTP
+        if (typeof window.Echo !== 'undefined') {
+            window.Echo.private('drivers.{{ auth()->id() }}')
+                .listen('TripAssigned', (e) => {
+                    window.location.reload();
                 });
-        }, 4000);
+        }
     });
 </script>
 @endif
