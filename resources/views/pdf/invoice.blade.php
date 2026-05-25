@@ -87,7 +87,7 @@
                 France
             </td>
             <td class="company-info">
-                Facture émise par Uber B.V. pour:<br>
+                Facture émise par :<br>
                 ATLAS TAXI / VTC<br>
                 29 AV ANTONIN TRINQUET, 31410, CAPENS<br>
                 France<br>
@@ -144,8 +144,7 @@
     <div style="clear: both;"></div>
 
     <div class="footer">
-        Facture établie au nom et pour le compte de ATLAS TAXI / VTC par:<br>
-        Uber B.V. / Burgerweeshuispad 301, 1076 HR Amsterdam / VAT: NL852071589B01 / COC #: 56317441
+        Facture établie au nom et pour le compte de ATLAS TAXI / VTC
     </div>
 
 </body>
