@@ -44,4 +44,13 @@ return [
         'sms_sender' => env('BREVO_SMS_SENDER', 'ATLAS VTC'),
     ],
 
+    'ovh_sms' => [
+        'endpoint' => env('OVH_SMS_ENDPOINT', 'ovh-eu'),
+        'application_key' => env('OVH_SMS_APPLICATION_KEY'),
+        'application_secret' => env('OVH_SMS_APPLICATION_SECRET'),
+        'consumer_key' => env('OVH_SMS_CONSUMER_KEY'),
+        'service_name' => env('OVH_SMS_SERVICE_NAME'),
+        'sender' => env('OVH_SMS_SENDER', 'ATLAS TAXI'),
+    ],
+
 ];
