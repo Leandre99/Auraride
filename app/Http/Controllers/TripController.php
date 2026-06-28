@@ -357,11 +357,22 @@ class TripController extends Controller
         if ($trip->client) {
             try {
                 $admins = User::where('role', 'admin')->pluck('email')->toArray();
-                Mail::to($trip->client->email)
-                    ->cc($admins)
-                    ->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+                
+                // N'envoyer l'e-mail que si ce n'est pas un compte express temporaire
+                if (!str_starts_with($trip->client->email, 'express_')) {
+                    Mail::to($trip->client->email)
+                        ->cc($admins)
+                        ->queue(new \App\Mail\TripReceiptClient($trip, $trip->client));
+                }
+
                 if (!empty($trip->client->phone_number)) {
-                    \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.");
+                    if (str_starts_with($trip->client->email, 'express_')) {
+                        $link = route('express.complete', $trip->id);
+                        $msg = "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Retrouvez votre reçu et finalisez la création de votre compte ici : {$link}";
+                    } else {
+                        $msg = "ATLAS VTC: Votre paiement de {$trip->price}€ a bien été reçu. Merci ! Votre facture est disponible sur votre espace client et par email.";
+                    }
+                    \App\Jobs\SendSmsJob::dispatch($trip->client->phone_number, $msg);
                 }
             } catch (\Exception $e) {
                 Log::error('Erreur lors de l\'envoi du reçu: ' . $e->getMessage());
@@ -550,5 +561,55 @@ class TripController extends Controller
         }
 
         return view('client.tracking', compact('trip'));
+    }
+
+    public function showCompleteExpress(Trip $trip)
+    {
+        $trip->load('client');
+
+        // Sécurité : n'autoriser la finalisation que si l'email commence par 'express_'
+        if (!$trip->client || !str_starts_with($trip->client->email, 'express_')) {
+            return redirect()->route('home')->with('info', 'Ce compte a déjà été finalisé ou n\'est pas éligible.');
+        }
+
+        return view('auth.complete-express', compact('trip'));
+    }
+
+    public function completeExpress(Request $request, Trip $trip)
+    {
+        $trip->load('client');
+        $client = $trip->client;
+
+        if (!$client || !str_starts_with($client->email, 'express_')) {
+            return redirect()->route('home')->with('info', 'Ce compte a déjà été finalisé.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Mettre à jour l'utilisateur
+        $client->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        // Connecter l'utilisateur automatiquement
+        auth()->login($client);
+
+        // Envoyer la facture PDF par e-mail
+        try {
+            $admins = User::where('role', 'admin')->pluck('email')->toArray();
+            Mail::to($client->email)
+                ->cc($admins)
+                ->queue(new \App\Mail\TripReceiptClient($trip, $client));
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'envoi de la facture post-activation : ' . $e->getMessage());
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Votre compte a été créé avec succès et votre facture vous a été envoyée par e-mail.');
     }
 }

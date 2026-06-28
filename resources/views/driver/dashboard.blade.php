@@ -111,44 +111,60 @@
                                 <span class="badge bg-primary fs-6 rounded-pill px-3">{{ $statusLabel }}</span>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <p class="text-muted-lite small mb-1 text-uppercase">{{ $isRental ? 'Lieu de livraison/prise' : 'Départ' }}</p>
-                                    <p class="fw-bold fs-6 mb-0">{{ $pickup }}</p>
+                            <!-- Itinéraire vertical de course (Style Uber/Premium) -->
+                            <div class="position-relative mb-4 ps-4 border-start border-2 border-primary border-opacity-25 ms-2 py-1">
+                                <!-- Point Départ -->
+                                <div class="mb-4 position-relative">
+                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-success" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #1e293b;"></div>
+                                    <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">{{ $isRental ? 'Lieu de livraison/prise' : 'Départ' }}</span>
+                                    <span class="fw-bold fs-6 text-white">{{ $pickup }}</span>
                                 </div>
-                                <div class="col-md-6 mt-3 mt-md-0">
-                                    <p class="text-muted-lite small mb-1 text-uppercase">{{ $isRental ? 'Période' : 'Destination' }}</p>
-                                    <p class="fw-bold fs-6 mb-0">
+                                <!-- Point Arrivée -->
+                                <div class="position-relative">
+                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-danger" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #1e293b;"></div>
+                                    <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">{{ $isRental ? 'Période' : 'Destination' }}</span>
+                                    <span class="fw-bold fs-6 text-white">
                                         @if($isRental)
                                             Du {{ $activeRental->start_date->format('d/m') }} au {{ $activeRental->end_date->format('d/m/Y') }}
                                         @else
                                             {{ $dropoff }}
                                         @endif
-                                    </p>
+                                    </span>
                                 </div>
                             </div>
 
-                            <div class="card bg-white bg-opacity-10 border-0 rounded-4 mb-4 overflow-hidden">
-                                <div class="card-body p-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <div>
-                                            <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 1px;">Passager</span>
-                                            <h5 class="fw-bold mb-0"><i class="bi bi-person-circle me-2"></i>{{ $client?->name ?? '—' }}</h5>
-                                            @if($clientPhone)
-                                                <div class="small text-muted-lite mt-1"><i class="bi bi-phone me-1"></i> {{ $clientPhone }}</div>
-                                            @endif
+                            <!-- Boîte Passager & Revenu style Glassmorphism -->
+                            <div class="rounded-4 mb-4 overflow-hidden border border-white border-opacity-10" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px);">
+                                <div class="p-4">
+                                    <div class="row align-items-center g-3 mb-4">
+                                        <div class="col-sm-6">
+                                            <span class="d-block text-muted-lite small text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.75rem;">Passager</span>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-circle bg-primary bg-opacity-25 d-flex align-items-center justify-content-center text-primary" style="width: 48px; height: 48px;">
+                                                    <i class="bi bi-person-fill fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="fw-bold mb-0 text-white">{{ $client?->name ?? '—' }}</h5>
+                                                    @if($clientPhone)
+                                                        <div class="small text-white-50 mt-1"><i class="bi bi-telephone-fill me-1"></i> {{ $clientPhone }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="text-end">
-                                            <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 1px;">Revenu total</span>
-                                            <h4 class="text-success fw-bold mb-0">{{ number_format($price ?? 0, 2) }} €</h4>
+                                        <div class="col-sm-6 text-sm-end">
+                                            <span class="d-block text-muted-lite small text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.75rem;">Revenu Estimé</span>
+                                            <div class="d-inline-flex align-items-center px-3 py-2 rounded-3 bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                                                <h3 class="fw-bold mb-0 text-success" style="font-size: 1.6rem;">{{ number_format($price ?? 0, 2) }} €</h3>
+                                            </div>
                                         </div>
                                     </div>
 
+                                    <!-- Boutons de contact rapides -->
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             @if($clientPhone)
-                                                <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold">
-                                                    <i class="bi bi-telephone-fill me-2"></i> Appeler le client
+                                                <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary btn-premium w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                                                    <i class="bi bi-telephone-fill"></i> Appeler le client
                                                 </a>
                                             @else
                                                 <button class="btn btn-secondary w-100 py-3 rounded-3 fw-bold" disabled>
@@ -160,8 +176,8 @@
                                             @if($clientPhone)
                                                 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas Taxi / VTC pour votre mission.') }}" 
                                                    target="_blank" 
-                                                   class="btn btn-success w-100 py-3 rounded-3 fw-bold">
-                                                    <i class="bi bi-whatsapp me-2"></i> Message WhatsApp
+                                                   class="btn btn-success w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="background: #25D366; border-color: #25D366; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+                                                    <i class="bi bi-whatsapp"></i> Message WhatsApp
                                                 </a>
                                             @else
                                                 <button class="btn btn-secondary w-100 py-3 rounded-3 fw-bold" disabled>

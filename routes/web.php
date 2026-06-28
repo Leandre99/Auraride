@@ -9,6 +9,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::post('/trips/express', [TripController::class, 'storeExpress'])->name('trips.store-express');
+Route::get('/express/complete/{trip}', [TripController::class, 'showCompleteExpress'])->name('express.complete');
+Route::post('/express/complete/{trip}', [TripController::class, 'completeExpress'])->name('express.complete.post');
 
 Route::get('/about', function () {
     return view('about'); })->name('about');
