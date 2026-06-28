@@ -367,9 +367,16 @@
                                         <td class="px-4 py-3">
                                             <div class="fw-bold">{{ $trip->client->name }}</div>
                                             <div class="small text-muted">{{ $trip->client->email }}</div>
+                                            @if($trip->client->phone_number)
+                                                <div class="small text-primary fw-bold mt-1"><i class="bi bi-telephone-fill me-1"></i><a href="tel:{{ $trip->client->phone_number }}" class="text-decoration-none">{{ $trip->client->phone_number }}</a></div>
+                                            @endif
                                         </td>
                                         <td>
-                                            <div class="fw-bold">{{ number_format($trip->price, 2) }}€</div>
+                                            @if($trip->price == 0)
+                                                <span class="badge bg-danger animate__animated animate__pulse animate__infinite mb-1"><i class="bi bi-lightning-fill me-1"></i>EXPRESS</span>
+                                            @else
+                                                <div class="fw-bold">{{ number_format($trip->price, 2) }}€</div>
+                                            @endif
                                             <div class="small text-muted">{{ $trip->pickup_address }} <i class="bi bi-arrow-right"></i> {{ $trip->dropoff_address }}</div>
                                         </td>
                                         <td class="px-4 text-end">
@@ -390,8 +397,17 @@
                                 <div>
                                     <div class="fw-bold text-dark">{{ $trip->client->name }}</div>
                                     <div class="small text-muted">{{ $trip->client->email }}</div>
+                                    @if($trip->client->phone_number)
+                                        <div class="small text-primary fw-bold mt-1"><i class="bi bi-telephone-fill me-1"></i><a href="tel:{{ $trip->client->phone_number }}" class="text-decoration-none">{{ $trip->client->phone_number }}</a></div>
+                                    @endif
                                 </div>
-                                <div class="fw-bold text-primary">{{ number_format($trip->price, 2) }}€</div>
+                                <div>
+                                    @if($trip->price == 0)
+                                        <span class="badge bg-danger animate__animated animate__pulse animate__infinite"><i class="bi bi-lightning-fill me-1"></i>EXPRESS</span>
+                                    @else
+                                        <div class="fw-bold text-primary">{{ number_format($trip->price, 2) }}€</div>
+                                    @endif
+                                </div>
                             </div>
                             <div class="data-row">
                                 <span class="data-label">Départ</span>

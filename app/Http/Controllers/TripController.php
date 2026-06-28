@@ -464,6 +464,85 @@ class TripController extends Controller
         return round($earthRadius * $c, 2);
     }
 
+    public function storeExpress(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string',
+        ]);
+
+        $phoneNumber = preg_replace('/[\s.\-()]/', '', $request->phone_number);
+
+        // Trouver ou créer l'utilisateur
+        $client = User::where('phone_number', $phoneNumber)->first();
+
+        if (!$client) {
+            $uniqueId = time() . '_' . rand(1000, 9999);
+            $client = User::create([
+                'name' => 'Client Express',
+                'phone_number' => $phoneNumber,
+                'email' => 'express_' . $uniqueId . '@auraride.fr',
+                'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                'role' => 'client',
+                'is_approved' => true,
+                'is_active' => true,
+            ]);
+        }
+
+        // Trouver le premier type de véhicule pour la liaison (ex: Berline Standard)
+        $vehicleType = VehicleType::where('name', 'Berline Standard')->first() ?? VehicleType::first();
+        $vehicleTypeId = $vehicleType ? $vehicleType->id : null;
+
+        // Créer le trajet
+        $trip = Trip::create([
+            'client_id' => $client->id,
+            'vehicle_type_id' => $vehicleTypeId,
+            'status' => 'pending',
+            'pickup_address' => 'À définir avec le chauffeur (Express)',
+            'dropoff_address' => 'À définir avec le chauffeur',
+            'pickup_lat' => 0.00000000,
+            'pickup_lng' => 0.00000000,
+            'dropoff_lat' => 0.00000000,
+            'dropoff_lng' => 0.00000000,
+            'price' => 0.00,
+            'distance' => 0.00,
+            'payment_status' => 'pending',
+        ]);
+
+        // Logger la demande
+        ActivityLog::log('trip_requested', "Demande express du client {$client->phone_number}", $trip);
+
+        // Envoyer un SMS à l'admin
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            if (!empty($admin->phone_number)) {
+                \App\Jobs\SendSmsJob::dispatch(
+                    $admin->phone_number,
+                    "COURSE EXPRESS (ATLAS VTC): Nouveau client express ! Appelez immédiatement au : " . $phoneNumber
+                );
+            }
+        }
+
+        // Envoyer la notification via base de données à l'admin
+        try {
+            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewTripRequested($trip));
+        } catch (\Throwable $e) {
+            Log::error('Erreur notification DB Express : ' . $e->getMessage());
+        }
+
+        // Déclencher l'événement WebSocket pour l'affichage temps réel
+        try {
+            event(new TripRequested($trip));
+        } catch (\Throwable $e) {
+            Log::error('Erreur événement WebSocket Express : ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Votre demande a bien été reçue. Un chauffeur va vous appeler dans un instant.',
+            'trip' => $trip->load('client')
+        ]);
+    }
+
     public function track(Trip $trip)
     {
         if ($trip->client_id !== auth()->id()) {

@@ -8,6 +8,8 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::post('/trips/express', [TripController::class, 'storeExpress'])->name('trips.store-express');
+
 Route::get('/about', function () {
     return view('about'); })->name('about');
 Route::get('/contact', function () {
