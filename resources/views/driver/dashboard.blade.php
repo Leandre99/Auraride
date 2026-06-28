@@ -10,15 +10,15 @@
     }
 
     .driver-page .active-trip-card {
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        color: #fff;
-        border-radius: 24px;
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.15);
+        background: #ffffff;
+        color: #0f172a;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
     }
 
     .driver-page .active-trip-card .text-muted-lite {
-        color: rgba(255, 255, 255, 0.65) !important;
+        color: #64748b !important;
     }
 
     .driver-page .map-panel {
@@ -107,7 +107,7 @@
                     <div class="card border-0 shadow-lg rounded-4 overflow-hidden active-trip-card animate-up">
                         <div class="card-body p-4 p-lg-5">
                             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                                <h4 class="fw-bold mb-0">{{ $isRental ? 'Location de véhicule' : 'Course VTC' }}</h4>
+                                <h4 class="fw-bold mb-0 text-dark">{{ $isRental ? 'Location de véhicule' : 'Course VTC' }}</h4>
                                 <span class="badge bg-primary fs-6 rounded-pill px-3">{{ $statusLabel }}</span>
                             </div>
 
@@ -115,15 +115,15 @@
                             <div class="position-relative mb-4 ps-4 border-start border-2 border-primary border-opacity-25 ms-2 py-1">
                                 <!-- Point Départ -->
                                 <div class="mb-4 position-relative">
-                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-success" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #1e293b;"></div>
+                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-success" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #ffffff;"></div>
                                     <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">{{ $isRental ? 'Lieu de livraison/prise' : 'Départ' }}</span>
-                                    <span class="fw-bold fs-6 text-white">{{ $pickup }}</span>
+                                    <span class="fw-bold fs-6 text-dark">{{ $pickup }}</span>
                                 </div>
                                 <!-- Point Arrivée -->
                                 <div class="position-relative">
-                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-danger" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #1e293b;"></div>
+                                    <div class="position-absolute start-0 top-0 translate-middle-x rounded-circle bg-danger" style="width: 12px; height: 12px; margin-left: -17px; border: 3px solid #ffffff;"></div>
                                     <span class="d-block text-muted-lite small text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">{{ $isRental ? 'Période' : 'Destination' }}</span>
-                                    <span class="fw-bold fs-6 text-white">
+                                    <span class="fw-bold fs-6 text-dark">
                                         @if($isRental)
                                             Du {{ $activeRental->start_date->format('d/m') }} au {{ $activeRental->end_date->format('d/m/Y') }}
                                         @else
@@ -133,27 +133,27 @@
                                 </div>
                             </div>
 
-                            <!-- Boîte Passager & Revenu style Glassmorphism -->
-                            <div class="rounded-4 mb-4 overflow-hidden border border-white border-opacity-10" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px);">
+                            <!-- Boîte Passager & Revenu style Épuré -->
+                            <div class="rounded-4 mb-4 overflow-hidden border border-light" style="background: #f8fafc;">
                                 <div class="p-4">
                                     <div class="row align-items-center g-3 mb-4">
                                         <div class="col-sm-6">
                                             <span class="d-block text-muted-lite small text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.75rem;">Passager</span>
                                             <div class="d-flex align-items-center gap-3">
-                                                <div class="rounded-circle bg-primary bg-opacity-25 d-flex align-items-center justify-content-center text-primary" style="width: 48px; height: 48px;">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary" style="width: 48px; height: 48px;">
                                                     <i class="bi bi-person-fill fs-4"></i>
                                                 </div>
                                                 <div>
-                                                    <h5 class="fw-bold mb-0 text-white">{{ $client?->name ?? '—' }}</h5>
+                                                    <h5 class="fw-bold mb-0 text-dark">{{ $client?->name ?? '—' }}</h5>
                                                     @if($clientPhone)
-                                                        <div class="small text-white-50 mt-1"><i class="bi bi-telephone-fill me-1"></i> {{ $clientPhone }}</div>
+                                                        <div class="small text-muted mt-1"><i class="bi bi-telephone-fill me-1"></i> {{ $clientPhone }}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-sm-6 text-sm-end">
                                             <span class="d-block text-muted-lite small text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.75rem;">Revenu Estimé</span>
-                                            <div class="d-inline-flex align-items-center px-3 py-2 rounded-3 bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                                            <div class="d-inline-flex align-items-center px-3 py-2 rounded-3 bg-success bg-opacity-10 text-success border border-success border-opacity-25">
                                                 <h3 class="fw-bold mb-0 text-success" style="font-size: 1.6rem;">{{ number_format($price ?? 0, 2) }} €</h3>
                                             </div>
                                         </div>
@@ -163,7 +163,7 @@
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             @if($clientPhone)
-                                                <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary btn-premium w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                                                <a href="tel:{{ preg_replace('/\s+/', '', $clientPhone) }}" class="btn btn-primary btn-premium w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);">
                                                     <i class="bi bi-telephone-fill"></i> Appeler le client
                                                 </a>
                                             @else
@@ -176,7 +176,7 @@
                                             @if($clientPhone)
                                                 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $clientPhone) }}?text={{ urlencode('Bonjour, je suis votre chauffeur Atlas Taxi / VTC pour votre mission.') }}" 
                                                    target="_blank" 
-                                                   class="btn btn-success w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="background: #25D366; border-color: #25D366; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+                                                   class="btn btn-success w-100 py-3 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="background: #25D366; border-color: #25D366; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15); color: #ffffff !important;">
                                                     <i class="bi bi-whatsapp"></i> Message WhatsApp
                                                 </a>
                                             @else
