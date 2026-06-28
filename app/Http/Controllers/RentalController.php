@@ -37,6 +37,43 @@ class RentalController extends Controller
         }
 
         $user = Auth::user();
+
+        if (!$user) {
+            try {
+                $guestValidated = $request->validate([
+                    'guest_name' => 'required|string|max:255',
+                    'guest_email' => 'required|string|email|max:255',
+                    'guest_phone' => 'required|string|max:20',
+                ]);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Coordonnées de contact invalides : ' . implode(' ', \Illuminate\Support\Arr::flatten($e->errors())),
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            // Formater le téléphone
+            $phoneNumber = preg_replace('/[\s.\-()]/', '', $request->guest_phone);
+
+            // Trouver ou créer le compte client invité
+            $user = \App\Models\User::where('phone_number', $phoneNumber)
+                        ->orWhere('email', $request->guest_email)
+                        ->first();
+
+            if (!$user) {
+                $user = \App\Models\User::create([
+                    'name' => $request->guest_name,
+                    'email' => $request->guest_email,
+                    'phone_number' => $phoneNumber,
+                    'role' => 'client',
+                    'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                ]);
+            }
+
+            // Connecter l'utilisateur automatiquement
+            auth()->login($user);
+        }
         $vehicleType = VehicleType::find($request->vehicle_type_id);
 
         if (!$vehicleType) {

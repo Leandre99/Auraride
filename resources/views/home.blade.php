@@ -16,40 +16,84 @@
                     <p class="lead text-muted mb-5 pe-lg-5">ATLAS TAXI / VTC combine le luxe haut de gamme et la technologie de
                         pointe pour vous offrir une expérience de voyage fluide, sûre et sophistiquée.</p>
 
-                    <!-- Carte de Commande Express -->
+                    <!-- Widget de Réservation par Onglets (Style Ryanair) -->
                     <div class="card glass-panel p-4 border-0 shadow-lg mb-5 animate__animated animate__fadeInUp" style="max-width: 500px; margin-top: 20px;">
-                        <h3 class="h4 mb-2 text-primary-gradient"><i class="bi bi-lightning-fill text-warning me-2"></i>Commande Express</h3>
-                        <p class="small text-muted mb-4">Votre chauffeur vous appelle dès la validation. Zéro inscription requise.</p>
                         
-                        <form id="express-booking-form">
-                            @csrf
-                            <!-- Téléphone -->
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.75rem;">Votre Numéro de Téléphone</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0 text-muted">
-                                        <i class="bi bi-telephone-fill"></i>
-                                    </span>
-                                    <input type="tel" name="phone_number" id="phone_number" class="form-control border-start-0 ps-0" placeholder="Ex: 06 12 34 56 78" value="{{ auth()->user()?->phone_number }}" required>
-                                </div>
+                        <!-- Onglets -->
+                        <ul class="nav nav-pills mb-4 gap-2 bg-light p-1 rounded-4" id="bookingTabs" role="tablist">
+                            <li class="nav-item flex-grow-1" role="presentation">
+                                <button class="nav-link w-100 active rounded-4 py-2 small fw-bold d-flex align-items-center justify-content-center gap-2" id="vtc-tab" data-bs-toggle="pill" data-bs-target="#vtc-content" type="button" role="tab" aria-controls="vtc-content" aria-selected="true">
+                                    <i class="bi bi-map-fill"></i>Course VTC
+                                </button>
+                            </li>
+                            <li class="nav-item flex-grow-1" role="presentation">
+                                <button class="nav-link w-100 rounded-4 py-2 small fw-bold d-flex align-items-center justify-content-center gap-2" id="rental-tab" data-bs-toggle="pill" data-bs-target="#rental-content" type="button" role="tab" aria-controls="rental-content" aria-selected="false">
+                                    <i class="bi bi-car-front-fill"></i>Location
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Contenus des Onglets -->
+                        <div class="tab-content" id="bookingTabsContent">
+                            <!-- Onglet VTC -->
+                            <div class="tab-pane fade show active" id="vtc-content" role="tabpanel" aria-labelledby="vtc-tab">
+                                <form action="{{ route('booking') }}" method="GET">
+                                    <!-- Départ -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; color: #64748b;">Lieu de Départ</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-geo-alt-fill text-success"></i></span>
+                                            <input type="text" name="pickup" class="form-control border-start-0 ps-0" placeholder="Ex: Gare de Lyon, Paris" required>
+                                        </div>
+                                    </div>
+                                    <!-- Destination -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; color: #64748b;">Destination</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-geo-alt-fill text-danger"></i></span>
+                                            <input type="text" name="dropoff" class="form-control border-start-0 ps-0" placeholder="Ex: Aéroport Charles de Gaulle" required>
+                                        </div>
+                                    </div>
+                                    <!-- Date (optionnelle) -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; color: #64748b;">Date & Heure (Optionnel)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-event-fill"></i></span>
+                                            <input type="datetime-local" name="date" class="form-control border-start-0 ps-0">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-premium w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                                        <span>Estimer le prix</span>
+                                        <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </form>
                             </div>
 
-                            <!-- Bouton Submit -->
-                            <button type="submit" class="btn btn-primary btn-premium w-100 py-3 d-flex align-items-center justify-content-center gap-2" id="btn-submit-express">
-                                <span>Commander un véhicule</span>
-                                <i class="bi bi-arrow-right"></i>
-                            </button>
-                        </form>
-
-                        <!-- Alertes de succès / erreur -->
-                        <div id="express-alert-success" class="alert alert-success d-none mt-3 rounded-4 p-4 border-0 text-center animate__animated animate__zoomIn" role="alert" style="background-color: #ECFDF5; color: #065F46;">
-                            <i class="bi bi-check-circle-fill text-success fs-2 mb-2 d-block"></i>
-                            <h4 class="alert-heading fw-bold h5">Demande Envoyée !</h4>
-                            <p class="mb-0 small" id="express-success-msg"></p>
-                        </div>
-                        <div id="express-alert-error" class="alert alert-danger d-none mt-3 rounded-4 p-3 border-0 small animate__animated animate__shakeX" role="alert" style="background-color: #FEF2F2; color: #991B1B;">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <span id="express-error-msg"></span>
+                            <!-- Onglet Location -->
+                            <div class="tab-pane fade" id="rental-content" role="tabpanel" aria-labelledby="rental-tab">
+                                <form action="{{ route('location') }}" method="GET">
+                                    <!-- Date de début -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; color: #64748b;">Date de Prise</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-check-fill text-primary"></i></span>
+                                            <input type="date" name="start_date" class="form-control border-start-0 ps-0" required>
+                                        </div>
+                                    </div>
+                                    <!-- Date de fin -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.7rem; color: #64748b;">Date de Retour</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-x-fill text-danger"></i></span>
+                                            <input type="date" name="end_date" class="form-control border-start-0 ps-0" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-premium w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                                        <span>Rechercher une voiture</span>
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -350,74 +394,6 @@
                 });
             });
 
-            // AJAX handling for Express Booking
-            const expressForm = document.getElementById('express-booking-form');
-            const btnSubmit = document.getElementById('btn-submit-express');
-            const alertSuccess = document.getElementById('express-alert-success');
-            const alertError = document.getElementById('express-alert-error');
-            const successMsg = document.getElementById('express-success-msg');
-            const errorMsg = document.getElementById('express-error-msg');
-
-            // Soumission AJAX du formulaire
-            if (expressForm) {
-                expressForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
-                    // Réinitialiser les alertes
-                    alertSuccess.classList.add('d-none');
-                    alertError.classList.add('d-none');
-
-                    // Désactiver le bouton
-                    btnSubmit.disabled = true;
-                    btnSubmit.innerHTML = `
-                        <div class="spinner-border spinner-border-sm text-white" role="status"></div>
-                        <span>Transmission en cours...</span>
-                    `;
-                    
-                    const formData = new FormData(expressForm);
-
-                    fetch('{{ route("trips.store-express") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw err; });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Masquer le formulaire
-                            expressForm.classList.add('d-none');
-                            successMsg.innerText = data.message;
-                            alertSuccess.classList.remove('d-none');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Submit error:', err);
-                        let message = "Une erreur est survenue lors de l'envoi de votre demande. Veuillez réessayer.";
-                        if (err.errors) {
-                            message = Object.values(err.errors).flat().join('<br>');
-                        } else if (err.message) {
-                            message = err.message;
-                        }
-                        errorMsg.innerHTML = message;
-                        alertError.classList.remove('d-none');
-                        
-                        // Réactiver le bouton
-                        btnSubmit.disabled = false;
-                        btnSubmit.innerHTML = `
-                            <span>Commander un véhicule</span>
-                            <i class="bi bi-arrow-right"></i>
-                        `;
-                    });
-                });
-            }
         });
     </script>
 @endpush

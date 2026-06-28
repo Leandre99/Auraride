@@ -32,11 +32,11 @@
                         @csrf
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">DATE DE DÉBUT</label>
-                            <input type="date" name="start_date" id="startDate" class="form-control p-3 border-light rounded-3 bg-light" required>
+                            <input type="date" name="start_date" id="startDate" class="form-control p-3 border-light rounded-3 bg-light" value="{{ request('start_date') }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">DATE DE FIN</label>
-                            <input type="date" name="end_date" id="endDate" class="form-control p-3 border-light rounded-3 bg-light" required>
+                            <input type="date" name="end_date" id="endDate" class="form-control p-3 border-light rounded-3 bg-light" value="{{ request('end_date') }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">HEURE DE PRISE EN CHARGE</label>
@@ -68,6 +68,26 @@
                                 </label>
                             </div>
                         </div>
+
+                        @guest
+                        <div class="col-12 mt-4 border-top pt-4">
+                            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-person-fill text-primary me-2"></i>Vos Coordonnées</h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Nom Complet</label>
+                                    <input type="text" name="guest_name" class="form-control p-3 border-light rounded-3 bg-light" placeholder="Jean Dupont" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Adresse E-mail</label>
+                                    <input type="email" name="guest_email" class="form-control p-3 border-light rounded-3 bg-light" placeholder="jean@exemple.com" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Téléphone</label>
+                                    <input type="tel" name="guest_phone" class="form-control p-3 border-light rounded-3 bg-light" placeholder="0612345678" required>
+                                </div>
+                            </div>
+                        </div>
+                        @endguest
 
                         <div class="col-12 mt-5">
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -288,10 +308,6 @@
                 }
 
                 e.preventDefault();
-                @if(!auth()->check())
-                    window.location.href = "{{ route('login') }}";
-                    return;
-                @endif
 
                 const submitBtn = document.getElementById('rentalSubmitBtn');
                 const rentalFormContainer = document.getElementById('rentalForm'); // On peut cibler le parent ou le form

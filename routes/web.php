@@ -8,9 +8,9 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::post('/trips/express', [TripController::class, 'storeExpress'])->name('trips.store-express');
-Route::get('/express/complete/{trip}', [TripController::class, 'showCompleteExpress'])->name('express.complete');
-Route::post('/express/complete/{trip}', [TripController::class, 'completeExpress'])->name('express.complete.post');
+Route::get('/booking', [TripController::class, 'showBookingPage'])->name('booking');
+Route::post('/trips/estimate', [TripController::class, 'estimate'])->name('trips.estimate');
+Route::post('/trips', [TripController::class, 'store'])->name('trips.store');
 
 Route::get('/about', function () {
     return view('about'); })->name('about');
@@ -83,8 +83,6 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
         return view('client.dashboard', compact('trackingTrip', 'scheduledTrips'));
     })->name('client.dashboard');
 
-    Route::post('/trips/estimate', [\App\Http\Controllers\TripController::class, 'estimate'])->name('trips.estimate');
-    Route::post('/trips', [\App\Http\Controllers\TripController::class, 'store'])->name('trips.store');
 });
 
 // Driver Routes placeholder
@@ -188,8 +186,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 Route::post('/chatbot/message', [\App\Http\Controllers\ChatbotController::class, 'message'])->name('chatbot.message');
 
 // ========== RENTAL ROUTES (Location de véhicules) ==========
+Route::post('/rentals', [\App\Http\Controllers\RentalController::class, 'store'])->name('rentals.store');
+
 Route::middleware(['auth'])->group(function () {
-    Route::post('/rentals', [\App\Http\Controllers\RentalController::class, 'store'])->name('rentals.store');
     Route::get('/my-rentals', [\App\Http\Controllers\RentalController::class, 'myRentals'])->name('my.rentals');
     Route::get('/profile', [App\Http\Controllers\AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\AuthController::class, 'updateProfile'])->name('profile.update');
